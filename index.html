@@ -83,7 +83,7 @@
 
     <div class="grid">
         
-        <!-- Visuals and Avatars -->
+        <!-- Visuals and Avatar -->
         <div class="card">
             <h2 data-key="sec_visual">👁️ Визуал (Живой просмотр)</h2>
             <div id="previewContainer"><canvas id="previewCanvas"></canvas></div>
@@ -94,14 +94,11 @@
                 <span id="st-bg" class="status-badge"></span>
             </div>
             
-            <label data-key="lbl_birds">Аватары (можно несколько):</label>
+            <label data-key="lbl_bird">Аватар (Картинка):</label>
             <div class="file-group">
-                <input type="file" id="fBirds" accept="image/*" multiple onchange="loadAvatars()">
-                <span id="st-birds" class="status-badge"></span>
+                <input type="file" id="fBird" accept="image/*" onchange="loadAsset('bird')">
+                <span id="st-bird" class="status-badge"></span>
             </div>
-            
-            <label data-key="lbl_bird_desc">Описания аватаров (каждое с новой строки):</label>
-            <textarea id="txtAvatarDescriptions" rows="4" data-placeholder-key="ph_avatar_desc"></textarea>
 
             <label data-key="lbl_size">Размер аватара:</label>
             <input type="range" id="sizeRange" min="0.5" max="2.0" step="0.1" value="1.0">
@@ -179,7 +176,7 @@
 </div>
 
 <script>
-    const assets = { bg: null, birds: [], obs: null, coin: null, music: null };
+    const assets = { bg: null, bird: null, obs: null, coin: null, music: null };
     let currentLang = 'ru';
 
     const pImg = { bg: new Image(), bird: new Image(), obs: new Image(), coin: new Image() };
@@ -187,8 +184,8 @@
     const dict = {
         ru: {
             title: "Полет Аватара",
-            sec_visual: "👁️ Визуал и Аватары",
-            lbl_bg: "Фон:", lbl_birds: "Аватары (можно несколько):", lbl_bird_desc: "Описания аватаров (каждое с новой строки):",
+            sec_visual: "👁️ Визуал и Аватар",
+            lbl_bg: "Фон:", lbl_bird: "Аватар:",
             lbl_size: "Размер аватара:", lbl_obj_size: "Размер объектов:", lbl_speed: "Скорость полета:",
             sec_settings: "⚙️ Настройки",
             lbl_gameTitle: "Заголовок:", lbl_btnStart: "Кнопка Старт:", lbl_win: "Победа:", lbl_lose: "Поражение:",
@@ -198,14 +195,13 @@
             btn_gen: "🚀 СОЗДАТЬ ИГРУ", btn_copy: "СКОПИРОВАТЬ КОД", btn_copied: "СКОПИРОВАНО!",
             lbl_copy_hint: "Вставьте в Genially (Insert -> Others) и растяните.",
             ph_bulk: "Сколько будет 2+2? | 4 | 5 | 6\nСтолица Франции? | Париж | Лондон | Берлин\nНапиши слово Привет | Привет",
-            ph_avatar_desc: "Описание для первого аватара...\nОписание для второго...",
             val_title: "ПОЛЕТ АВАТАРА", val_start: "ИГРАТЬ", val_win: "ПОБЕДА!", val_lose: "ВРЕМЯ ВЫШЛО",
-            loaded: "✔ Загружено", loaded_multi: (n) => `✔ Загружено (${n})`
+            loaded: "✔ Загружено"
         },
         en: {
             title: "Avatar Flight",
-            sec_visual: "👁️ Visuals & Avatars",
-            lbl_bg: "Background:", lbl_birds: "Avatars (multiple allowed):", lbl_bird_desc: "Avatar descriptions (one per line):",
+            sec_visual: "👁️ Visuals & Avatar",
+            lbl_bg: "Background:", lbl_bird: "Avatar:",
             lbl_size: "Avatar Size:", lbl_obj_size: "Objects Size:", lbl_speed: "Flight Speed:",
             sec_settings: "⚙️ Settings",
             lbl_gameTitle: "Title:", lbl_btnStart: "Start Button:", lbl_win: "Win Text:", lbl_lose: "Lose Text:",
@@ -215,9 +211,8 @@
             btn_gen: "🚀 CREATE GAME", btn_copy: "COPY CODE", btn_copied: "COPIED!",
             lbl_copy_hint: "Paste into Genially (Insert -> Others) and stretch full screen.",
             ph_bulk: "2+2? | 4 | 5 | 6\nCapital of France? | Paris | London\nType Hello | Hello",
-            ph_avatar_desc: "Description for the first avatar...\nDescription for the second...",
             val_title: "AVATAR FLIGHT", val_start: "PLAY", val_win: "YOU WON!", val_lose: "GAME OVER",
-            loaded: "✔ Loaded", loaded_multi: (n) => `✔ Loaded (${n})`
+            loaded: "✔ Loaded"
         }
     };
 
@@ -241,15 +236,7 @@
         document.getElementById('txtWin').value = d.val_win;
         document.getElementById('txtLose').value = d.val_lose;
         
-        // Update loaded badges text
-        document.querySelectorAll('.status-badge').forEach(el => {
-            if(el.classList.contains('visible') && !el.id.includes('birds')) el.innerText = d.loaded;
-        });
-        const birdsBadge = document.getElementById('st-birds');
-        if(birdsBadge.classList.contains('visible')) {
-             birdsBadge.innerText = d.loaded_multi(assets.birds.length);
-        }
-
+        document.querySelectorAll('.status-badge.visible').forEach(el => el.innerText = d.loaded);
         const btn = document.getElementById('copyBtn');
         if(btn.className.includes('success')) {
             document.getElementById('copyText').innerText = d.btn_copied;
@@ -271,32 +258,6 @@
                 badge.innerText = dict[currentLang].loaded;
             }
             reader.readAsDataURL(input.files[0]);
-        }
-    }
-
-    function loadAvatars() {
-        const input = document.getElementById('fBirds');
-        const badge = document.getElementById('st-birds');
-        assets.birds = [];
-        if (input.files.length === 0) {
-            badge.classList.remove('visible');
-            pImg.bird.src = '';
-            return;
-        }
-
-        let loadedCount = 0;
-        for(let i=0; i < input.files.length; i++) {
-            const reader = new FileReader();
-            reader.onload = e => {
-                assets.birds.push({ src: e.target.result, desc: '' });
-                loadedCount++;
-                if (loadedCount === input.files.length) {
-                    badge.classList.add('visible');
-                    badge.innerText = dict[currentLang].loaded_multi(loadedCount);
-                    if(assets.birds.length > 0) pImg.bird.src = assets.birds[0].src;
-                }
-            }
-            reader.readAsDataURL(input.files[i]);
         }
     }
 
@@ -323,8 +284,6 @@
         const speed = parseInt(document.getElementById('speedRange').value);
         const scaleUser = parseFloat(document.getElementById('sizeRange').value);
         const objScale = parseFloat(document.getElementById('objSizeRange').value);
-        
-        // Mock mouse for parallax
         const pMx = W / 2 + Math.sin(pFrame * 0.01) * W * 0.2;
 
         pBgY += speed * 0.5;
@@ -382,11 +341,6 @@
     }
 
     function generate() {
-        const descriptions = document.getElementById('txtAvatarDescriptions').value.trim().split('\n');
-        assets.birds.forEach((bird, i) => {
-            bird.desc = descriptions[i] || '';
-        });
-
         const questions = parseQuestions();
         const CONFIG = {
             title: document.getElementById('txtTitle').value,
@@ -412,24 +366,13 @@
     #game-box { position:absolute; top:0; left:0; width:100%; height:100%; overflow:hidden; touch-action: none; }
     canvas { display:block; width:100%; height:100%; }
     .hud { position:absolute; top:10px; color:#00d2ff; font-size:clamp(20px, 4vw, 30px); font-weight:bold; text-shadow:2px 2px 0 #000; padding:5px 15px; background:rgba(0,0,0,0.6); border-radius:10px; border:1px solid #00d2ff; z-index: 50; }
-    .screen { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:100; pointer-events:auto; transition: opacity 0.5s; }
+    .screen { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:100; pointer-events:auto; }
     h1 { color:#00d2ff; font-size:clamp(30px, 6vw, 60px); text-transform:uppercase; text-shadow:0 0 20px #00d2ff; margin-bottom:20px; text-align:center; padding: 0 10px; }
     button.btn-play { background: linear-gradient(180deg, #00d2ff, #0088aa); border: 4px solid #fff; padding: 15px 60px; color: #fff; font-size: clamp(24px, 5vw, 40px); font-weight: bold; text-transform: uppercase; border-radius: 60px; cursor: pointer; box-shadow: 0 0 30px #00d2ff; transition: transform 0.1s; text-shadow: 1px 1px 2px #000; }
     button.btn-play:hover { transform: scale(1.05); } button.btn-play:active { transform: scale(0.95); }
     #quiz-box { display:none; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:90%; max-width:500px; background: rgba(30, 41, 59, 0.95); border:3px solid #00d2ff; padding:20px; border-radius:15px; text-align:center; color:#fff; z-index:200; pointer-events: auto; box-shadow: 0 0 50px #000; backdrop-filter: blur(5px); }
     .q-btn { display:block; width:100%; padding:15px; margin:8px 0; background:#334; border:1px solid #556; color:#fff; font-size:18px; cursor:pointer; } .q-btn:hover { background:#00d2ff; color:#000; }
     input.q-inp { width:80%; padding:10px; font-size:20px; text-align:center; margin-bottom:10px; color:#000; }
-    /* Avatar Selection */
-    #scr-select { justify-content: start; padding-top: 20px; }
-    #avatar-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; max-height: 80vh; overflow-y: auto; }
-    .avatar-choice { width: 120px; height: 120px; border: 3px solid #00d2ff; border-radius: 10px; background-size: cover; background-position: center; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
-    .avatar-choice:hover { transform: scale(1.1); box-shadow: 0 0 20px #00d2ff; }
-    /* Avatar Viewer */
-    #avatar-viewer { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:300; display:none; flex-direction:column; align-items:center; justify-content:center; }
-    #viewer-container { width: 95%; height: 70%; max-width: 800px; max-height: 80vh; border: 2px solid #00d2ff; overflow: hidden; position: relative; cursor: grab; }
-    #viewer-img { position:absolute; width:100%; height:auto; transform-origin: center center; transition: transform 0.1s linear; }
-    #viewer-desc { background: rgba(0,0,0,0.7); color: #fff; padding: 15px; margin-top: 10px; border-radius: 5px; max-width: 80%; text-align: center; }
-    #viewer-btn { margin-top: 15px; }
 </style>
 </head>
 <body>
@@ -438,16 +381,9 @@
     <div class="hud" style="right:10px">🏆 <span id="ui-score">0</span></div>
     <canvas id="cvs"></canvas>
 
-    <div id="scr-select" class="screen"><h1 data-key="title_select">Выберите Аватара</h1><div id="avatar-grid"></div></div>
-    <div id="scr-start" class="screen" style="opacity:0; pointer-events:none;"><h1 id="mt-title"></h1><button class="btn-play" id="btn-start"></button></div>
+    <div id="scr-start" class="screen"><h1 id="mt-title"></h1><button class="btn-play" id="btn-start"></button></div>
     <div id="scr-end" class="screen" style="display:none"><h1 id="mt-end"></h1><p style="color:#fff; font-size:30px">Score: <span id="end-score">0</span></p><button class="btn-play" onclick="location.reload()">↺</button></div>
     <div id="quiz-box"><h2 id="q-txt"></h2><div id="q-body"></div></div>
-    
-    <div id="avatar-viewer">
-        <div id="viewer-container"><img id="viewer-img" draggable="false"></div>
-        <p id="viewer-desc"></p>
-        <button id="viewer-btn" class="btn-play" data-key="btn_select">Выбрать</button>
-    </div>
 </div>
 
 <script>
@@ -460,7 +396,10 @@ document.getElementById('btn-start').innerText = CFG.btn;
 const cvs = document.getElementById('cvs'), ctx = cvs.getContext('2d');
 let W, H;
 const iBg=new Image(), iBird=new Image(), iObs=new Image(), iCoin=new Image();
-if(IMG.bg) iBg.src = IMG.bg; if(IMG.obs) iObs.src = IMG.obs; if(IMG.coin) iCoin.src = IMG.coin;
+if(IMG.bg) iBg.src = IMG.bg; 
+if(IMG.bird) iBird.src = IMG.bird;
+if(IMG.obs) iObs.src = IMG.obs; 
+if(IMG.coin) iCoin.src = IMG.coin;
 let music = null; if(IMG.music) { music = new Audio(IMG.music); music.loop=true; music.volume=0.4; }
 
 const AC = new (window.AudioContext || window.webkitAudioContext)();
@@ -471,74 +410,27 @@ const GM = {
     time: parseInt(CFG.time), score: 0, objs: [], mx: 0, my: 0, 
     bgX: 0, bgY: 0, hurt: 0, timerInt: null,
     
-    init: () => {
-        const grid = document.getElementById('avatar-grid');
-        if (!IMG.birds || IMG.birds.length === 0) { GM.selectAvatar(null); return; }
-        IMG.birds.forEach((avatar, i) => {
-            const div = document.createElement('div');
-            div.className = 'avatar-choice';
-            div.style.backgroundImage = \`url(\${avatar.src})\`;
-            div.onclick = () => GM.viewAvatar(i);
-            grid.appendChild(div);
-        });
-    },
-    
-    viewAvatar: (index) => {
-        const viewer = document.getElementById('avatar-viewer');
-        const img = document.getElementById('viewer-img');
-        const desc = document.getElementById('viewer-desc');
-        const avatar = IMG.birds[index];
-        
-        img.src = avatar.src;
-        desc.innerText = avatar.desc;
-        viewer.style.display = 'flex';
-        document.getElementById('viewer-btn').onclick = () => GM.selectAvatar(index);
-
-        // Pan & Zoom logic
-        let scale = 1, panning = false, pointX = 0, pointY = 0, start = { x: 0, y: 0 };
-        const setTransform = () => img.style.transform = \`translate(\${pointX}px, \${pointY}px) scale(\${scale})\`;
-        img.onload = () => { scale = 1; pointX = 0; pointY = 0; setTransform(); };
-        
-        const container = document.getElementById('viewer-container');
-        container.onmousedown = (e) => { e.preventDefault(); start = { x: e.clientX - pointX, y: e.clientY - pointY }; panning = true; container.style.cursor = 'grabbing'; };
-        container.onmouseup = () => { panning = false; container.style.cursor = 'grab';};
-        container.onmouseleave = () => { panning = false; container.style.cursor = 'grab'; };
-        container.onmousemove = (e) => { if (!panning) return; e.preventDefault(); pointX = (e.clientX - start.x); pointY = (e.clientY - start.y); setTransform(); };
-        container.onwheel = (e) => { e.preventDefault(); let xs = (e.clientX - pointX) / scale, ys = (e.clientY - pointY) / scale, delta = -e.deltaY; scale *= (delta > 0) ? 1.1 : 0.9; scale = Math.min(Math.max(1, scale), 5); pointX = e.clientX - xs * scale; pointY = e.clientY - ys * scale; setTransform(); };
-    },
-
-    selectAvatar: (index) => {
-        document.getElementById('avatar-viewer').style.display = 'none';
-        document.getElementById('scr-select').style.display = 'none';
-        
-        if (index !== null && IMG.birds[index]) iBird.src = IMG.birds[index].src;
-        else if (IMG.bird) iBird.src = IMG.bird; // Fallback for old config
-        
-        const scrStart = document.getElementById('scr-start');
-        scrStart.style.opacity = '1';
-        scrStart.style.pointerEvents = 'auto';
-    },
-
     start: () => {
         document.getElementById('scr-start').style.display = 'none';
         resize(); GM.mx = W/2;
         if(AC.state === 'suspended') AC.resume(); if(music) music.play().catch(e=>{});
         GM.run = true;
         
-        // Pre-generate all objects
         GM.objs = [];
         const numCoins = CFG.qs.length;
-        const numObs = numCoins * 2;
-        let objTypes = Array(numCoins).fill('c').concat(Array(numObs).fill('o'));
-        for(let i = objTypes.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [objTypes[i], objTypes[j]] = [objTypes[j], objTypes[i]]; } // Shuffle
-        
-        for(let i=0; i<objTypes.length; i++) {
-            GM.objs.push({
-                t: objTypes[i],
-                x: (Math.random() - 0.5) * W * 4,
-                y: (Math.random() - 0.5) * H * 1.5,
-                z: 2000 + (i * (40000 / objTypes.length)) + (Math.random()-0.5) * 100
-            });
+        if (numCoins > 0) {
+            const numObs = numCoins * 2;
+            let objTypes = Array(numCoins).fill('c').concat(Array(numObs).fill('o'));
+            for(let i = objTypes.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [objTypes[i], objTypes[j]] = [objTypes[j], objTypes[i]]; }
+            
+            for(let i=0; i<objTypes.length; i++) {
+                GM.objs.push({
+                    t: objTypes[i],
+                    x: (Math.random() - 0.5) * W * 4,
+                    y: (Math.random() - 0.5) * H * 1.5,
+                    z: 2000 + (i * (40000 / objTypes.length)) + (Math.random()-0.5) * 100
+                });
+            }
         }
         
         loop();
@@ -607,7 +499,11 @@ function hit(type) {
 }
 
 function quiz() {
-    let q = CFG.qs[GM.score % CFG.qs.length]; // Cycle through questions
+    if (GM.score >= CFG.qs.length) { 
+        GM.pause = false; 
+        return; 
+    }
+    let q = CFG.qs[GM.score];
     let box = document.getElementById('quiz-box'), body = document.getElementById('q-body');
     document.getElementById('q-txt').innerText = q.t; body.innerHTML = ''; box.style.display = 'block';
 
@@ -616,7 +512,7 @@ function quiz() {
         if(txt.trim().toLowerCase() === q.c.trim().toLowerCase()) { sfx('win'); GM.score++; } 
         else { sfx('lose'); GM.time = Math.max(0, GM.time - 10); }
         document.getElementById('ui-score').innerText = GM.score; document.getElementById('ui-time').innerText = GM.time;
-        setTimeout(() => { GM.pause = false; }, 200);
+        setTimeout(() => { GM.pause = false; if (GM.score >= CFG.qs.length) GM.end(true); }, 200);
     };
 
     if(q.type === 'choice') {
@@ -626,13 +522,12 @@ function quiz() {
         let inp = document.createElement('input'); inp.className='q-inp';
         let b = document.createElement('button'); b.className='q-btn'; b.innerText='OK';
         b.onclick = (e) => { e.stopPropagation(); processAns(inp.value); };
+        inp.onkeydown = (e) => { if(e.key === 'Enter') processAns(inp.value); };
         body.appendChild(inp); body.appendChild(b); inp.focus();
     }
 }
 
-// Init
 resize();
-GM.init();
 <\/script>
 </body>
 </html>`;
