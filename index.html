@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Genially Game Editor: Ultimate</title>
+    <title>Полет Аватара: Редактор</title>
     <style>
         :root { --primary: #00d2ff; --bg: #1a1a2d; --panel: #252540; --text: #e0e0ff; --accent: #ff00ff; --success: #00ff88; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
@@ -68,7 +68,7 @@
 
 <div class="container">
     <header>
-        <h1 data-key="title">💎 Game Editor</h1>
+        <h1 data-key="title">Полет Аватара</h1>
         <div class="lang-switch">
             <button onclick="setLang('ru')" id="btn-ru" class="active">RU</button>
             <button onclick="setLang('en')" id="btn-en">EN</button>
@@ -94,8 +94,11 @@
             <label data-key="lbl_size">Размер аватара:</label>
             <input type="range" id="sizeRange" min="0.5" max="2.0" step="0.1" value="1.0">
             
+            <label data-key="lbl_obj_size">Размер препятствий/монет:</label>
+            <input type="range" id="objSizeRange" min="0.5" max="2.0" step="0.1" value="1.0">
+            
             <label data-key="lbl_speed">Скорость полета:</label>
-            <input type="range" id="speedRange" min="1" max="20" value="5">
+            <input type="range" id="speedRange" min="1" max="10" value="3">
         </div>
 
         <!-- Settings -->
@@ -166,9 +169,9 @@
 
     const dict = {
         ru: {
-            title: "💎 РЕДАКТОР ИГРЫ",
+            title: "Полет Аватара",
             sec_visual: "👁️ Визуал (Живой просмотр)",
-            lbl_bg: "Фон:", lbl_bird: "Аватар:", lbl_size: "Размер:", lbl_speed: "Скорость:",
+            lbl_bg: "Фон:", lbl_bird: "Аватар:", lbl_size: "Размер аватара:", lbl_obj_size: "Размер препятствий/монет:", lbl_speed: "Скорость:",
             sec_settings: "⚙️ Настройки",
             lbl_gameTitle: "Название:", lbl_btnStart: "Кнопка Старт:", lbl_win: "Победа:", lbl_lose: "Поражение:",
             lbl_time: "Время (сек):", sec_assets: "Объекты", lbl_obs: "Препятствие:", lbl_coin: "Монета:", lbl_music: "Музыка:",
@@ -182,9 +185,9 @@
             val_title: "ПОЛЕТ АВАТАРА", val_start: "ИГРАТЬ", val_win: "ПОБЕДА!", val_lose: "ВРЕМЯ ВЫШЛО"
         },
         en: {
-            title: "💎 GAME EDITOR",
+            title: "Avatar Flight",
             sec_visual: "👁️ Visuals (Live Preview)",
-            lbl_bg: "Background:", lbl_bird: "Avatar:", lbl_size: "Size:", lbl_speed: "Speed:",
+            lbl_bg: "Background:", lbl_bird: "Avatar:", lbl_size: "Avatar Size:", lbl_obj_size: "Objects Size:", lbl_speed: "Speed:",
             sec_settings: "⚙️ Settings",
             lbl_gameTitle: "Title:", lbl_btnStart: "Start Button:", lbl_win: "Win Text:", lbl_lose: "Lose Text:",
             lbl_time: "Time (s):", sec_assets: "Objects", lbl_obs: "Obstacle:", lbl_coin: "Coin:", lbl_music: "Music:",
@@ -255,21 +258,19 @@
         
         const speed = parseInt(document.getElementById('speedRange').value);
         const scaleUser = parseFloat(document.getElementById('sizeRange').value);
+        const objScale = parseFloat(document.getElementById('objSizeRange').value);
 
         // 1. BG
-        pBgY += speed * 0.5;
         if(pImg.bg.src) {
+            pBgY += speed * 0.5;
             let sc = Math.max(pCanvas.width/pImg.bg.width, pCanvas.height/pImg.bg.height);
             let bw = pImg.bg.width * sc; let bh = pImg.bg.height * sc;
             let offY = pBgY % bh;
             pCtx.drawImage(pImg.bg, (pCanvas.width-bw)/2, offY, bw, bh);
             pCtx.drawImage(pImg.bg, (pCanvas.width-bw)/2, offY - bh, bw, bh);
         } else {
+            // EMPTY BG if no image
             pCtx.fillStyle = '#000'; pCtx.fillRect(0,0,pCanvas.width,pCanvas.height);
-            pCtx.strokeStyle = '#333';
-            pCtx.beginPath();
-            for(let i=0; i<pCanvas.width; i+=20) { pCtx.moveTo(i,0); pCtx.lineTo(i,pCanvas.height); }
-            pCtx.stroke();
         }
 
         // 2. Spawner
@@ -286,30 +287,26 @@
         pObjs.sort((a,b) => b.z - a.z);
         for(let i=0; i<pObjs.length; i++) {
             let o = pObjs[i];
-            o.z -= (10 + speed*2);
+            o.z -= (2 + speed); // Slowed down logic match
             if(o.z < 10) { pObjs.splice(i,1); i--; continue; }
 
-            let scale = 200 / o.z; // Smaller scale for preview box
+            let scale = 200 / o.z; 
             let sx = pCanvas.width/2 + o.x * scale;
             let sy = pCanvas.height/2 + o.y * scale;
-            let size = 50 * scale;
+            let size = 50 * scale * objScale;
 
             let img = (o.t === 'c') ? pImg.coin : pImg.obs;
             if(img.src) {
                 pCtx.drawImage(img, sx-size/2, sy-size/2, size, size);
-            } else {
-                pCtx.fillStyle = (o.t==='c') ? 'gold' : 'red';
-                pCtx.fillRect(sx-size/2, sy-size/2, size, size);
             }
+            // NO DRAWING if no image
         }
 
         // 4. Bird
         let pSize = 60 * scaleUser;
         if(pImg.bird.src) {
-            pCtx.drawImage(pImg.bird, pCanvas.width/2 - pSize/2, pCanvas.height - 80, pSize, pSize);
-        } else {
-            pCtx.fillStyle = '#0ff';
-            pCtx.beginPath(); pCtx.arc(pCanvas.width/2, pCanvas.height-50, 10*scaleUser, 0, 7); pCtx.fill();
+            // Shifted up to match game logic
+            pCtx.drawImage(pImg.bird, pCanvas.width/2 - pSize/2, pCanvas.height - 100, pSize, pSize);
         }
 
         pFrame++;
@@ -341,6 +338,7 @@
             time: document.getElementById('valTime').value,
             speed: document.getElementById('speedRange').value,
             scale: document.getElementById('sizeRange').value,
+            objScale: document.getElementById('objSizeRange').value,
             qs: questions,
             img: assets
         };
@@ -444,7 +442,7 @@ function resize() {
     GM.mx = W/2; GM.my = H-100;
 }
 window.addEventListener('resize', resize);
-setTimeout(resize, 100); // Trigger resize early
+setTimeout(resize, 100);
 
 const AC = new (window.AudioContext || window.webkitAudioContext)();
 function sfx(type) {
@@ -452,14 +450,34 @@ function sfx(type) {
     const o = AC.createOscillator(); const g = AC.createGain();
     o.connect(g); g.connect(AC.destination);
     const t = AC.currentTime;
-    if(type==='win') { 
-        o.frequency.setValueAtTime(500, t); o.frequency.linearRampToValueAtTime(1000, t+0.2);
-        g.gain.setValueAtTime(0.1, t); g.gain.linearRampToValueAtTime(0, t+0.5);
-    } else {
-        o.type='sawtooth'; o.frequency.setValueAtTime(200, t); o.frequency.exponentialRampToValueAtTime(50, t+0.3);
-        g.gain.setValueAtTime(0.1, t); g.gain.linearRampToValueAtTime(0, t+0.3);
+    
+    if(type==='coin') {
+        // High Ping (Ding)
+        o.type = 'sine';
+        o.frequency.setValueAtTime(1200, t);
+        g.gain.setValueAtTime(0.1, t); g.gain.exponentialRampToValueAtTime(0.01, t+0.5);
+        o.start(t); o.stop(t+0.5);
+    } else if(type==='boom') {
+        // Low Boom (Sawtooth)
+        o.type = 'sawtooth';
+        o.frequency.setValueAtTime(100, t); o.frequency.exponentialRampToValueAtTime(10, t+0.3);
+        g.gain.setValueAtTime(0.3, t); g.gain.linearRampToValueAtTime(0, t+0.3);
+        o.start(t); o.stop(t+0.3);
+    } else if(type==='win') { 
+        // Major Arpeggio
+        o.type='triangle'; 
+        o.frequency.setValueAtTime(523.25, t); 
+        o.frequency.setValueAtTime(659.25, t+0.1);
+        o.frequency.setValueAtTime(783.99, t+0.2);
+        g.gain.setValueAtTime(0.1, t); g.gain.linearRampToValueAtTime(0, t+0.6);
+        o.start(t); o.stop(t+0.6);
+    } else if (type==='lose') {
+        // Sad sound
+        o.type='triangle';
+        o.frequency.setValueAtTime(300, t); o.frequency.linearRampToValueAtTime(100, t+0.4);
+        g.gain.setValueAtTime(0.2, t); g.gain.linearRampToValueAtTime(0, t+0.4);
+        o.start(t); o.stop(t+0.4);
     }
-    o.start(t); o.stop(t+0.5);
 }
 
 const iBg = new Image(); if(IMG.bg) iBg.src = IMG.bg;
@@ -472,14 +490,13 @@ const GM = {
     run: false, pause: false, frame: 0,
     time: parseInt(CFG.time), score: 0,
     objs: [], mx: 0, my: 0, bgY: 0,
+    hurt: 0,
     
     start: () => {
-        // Explicitly focus window to ensure inputs work in iframe
         window.focus();
         document.getElementById('scr-start').style.display = 'none';
         resize();
         
-        // Start Audio
         if(AC.state === 'suspended') AC.resume();
         if(music) music.play().catch(e=>console.log("Audio prevented"));
         
@@ -505,14 +522,15 @@ const GM = {
     }
 };
 
-// ADD EVENT LISTENER TO START BUTTON
 document.getElementById('btn-start').addEventListener('click', GM.start);
 
 // Controls
 window.addEventListener('mousemove', e => {
     GM.mx = e.clientX;
     GM.my = e.clientY;
-    if(GM.my < H/3) GM.my = H/3;
+    // ALLOW FULL MOVEMENT but keep somewhat on screen
+    if(GM.my < H*0.2) GM.my = H*0.2;
+    if(GM.my > H*0.9) GM.my = H*0.9;
 });
 window.addEventListener('touchmove', e => {
     e.preventDefault();
@@ -554,16 +572,19 @@ function loop() {
 
     // Objects
     GM.objs.sort((a,b) => b.z - a.z);
+    let objScaleUser = parseFloat(CFG.objScale || 1.0);
+    
     for(let i=0; i<GM.objs.length; i++) {
         let o = GM.objs[i];
-        o.z -= (10 + parseInt(CFG.speed)*2);
+        // SLOW DOWN Z SPEED
+        o.z -= (2 + parseInt(CFG.speed)); 
         
         if(o.z < 10) { GM.objs.splice(i,1); i--; continue; }
 
         let scale = 500 / o.z;
         let sx = W/2 + o.x * scale;
         let sy = H/2 + o.y * scale;
-        let size = 100 * scale;
+        let size = 100 * scale * objScaleUser;
 
         let img = (o.t==='c') ? iCoin : iObs;
         if(img.src) ctx.drawImage(img, sx-size/2, sy-size/2, size, size);
@@ -572,8 +593,10 @@ function loop() {
             ctx.fillRect(sx-size/2, sy-size/2, size, size);
         }
 
+        // COLLISION
         if(o.z < 150 && o.z > 50) {
             let dist = Math.hypot(sx - GM.mx, sy - GM.my);
+            // Hitbox
             if(dist < (size/2) + (30 * parseFloat(CFG.scale))) {
                 GM.objs.splice(i,1); i--;
                 hit(o.t);
@@ -581,14 +604,20 @@ function loop() {
         }
     }
 
-    // Player
+    // Player with Blink Effect
+    if(GM.hurt > 0) {
+        GM.hurt--;
+        if(Math.floor(GM.hurt / 5) % 2 === 0) return; // Blink
+    }
+
     let pSize = 120 * parseFloat(CFG.scale);
     if(iBird.src) {
         let tilt = (GM.mx - W/2) * 0.05;
         ctx.save();
         ctx.translate(GM.mx, GM.my);
         ctx.rotate(tilt * Math.PI/180);
-        ctx.drawImage(iBird, -pSize/2, -pSize/2, pSize, pSize);
+        // SHIFT UP VISUALLY to avoid crop
+        ctx.drawImage(iBird, -pSize/2, -pSize/2 - 20, pSize, pSize);
         ctx.restore();
     } else {
         ctx.fillStyle = '#0ff'; ctx.beginPath(); ctx.arc(GM.mx, GM.my, 20, 0, 7); ctx.fill();
@@ -598,24 +627,33 @@ function loop() {
 
 function hit(type) {
     if(type === 'o') {
-        sfx('lose');
-        ctx.fillStyle = 'rgba(255,0,0,0.5)';
-        ctx.fillRect(0,0,W,H);
+        sfx('boom');
+        GM.hurt = 30; // Frames of blinking
+        // Red Flash
+        let f = document.createElement('div');
+        f.style = "position:absolute;top:0;left:0;width:100%;height:100%;background:red;opacity:0.5;pointer-events:none;z-index:99";
+        document.body.appendChild(f);
+        setTimeout(()=>f.remove(), 100);
         GM.time -= 5;
     } else {
-        sfx('win');
+        sfx('coin');
         GM.pause = true;
         quiz();
     }
 }
 
 function quiz() {
+    // If no questions, just score
     if(CFG.qs.length === 0) {
-        GM.score++; document.getElementById('ui-score').innerText = GM.score; GM.pause = false; return;
+        GM.score++; document.getElementById('ui-score').innerText = GM.score; 
+        GM.pause = false; 
+        return;
     }
+    
     let idx = Math.floor(Math.random()*CFG.qs.length);
     let q = CFG.qs[idx];
-    CFG.qs.splice(idx, 1);
+    // Don't remove if you want infinite questions, but usually we remove used ones
+    // CFG.qs.splice(idx, 1); 
 
     let box = document.getElementById('quiz-box');
     let body = document.getElementById('q-body');
@@ -631,8 +669,7 @@ function quiz() {
             sfx('lose'); GM.time -= 10;
         }
         document.getElementById('ui-score').innerText = GM.score;
-        if(CFG.qs.length===0) GM.end(true);
-        else GM.pause = false;
+        GM.pause = false;
     };
 
     if(q.type === 'choice') {
@@ -649,11 +686,7 @@ function quiz() {
         body.appendChild(inp); body.appendChild(b);
     }
 }
-<\/script>
-</body>
-</html>`;
-        document.getElementById('finalCode').value = CODE;
-        document.getElementById('copySection').style.display = 'block';
+<\/getElementById('copySection').style.display = 'block';
     }
 
     function doCopy() {
