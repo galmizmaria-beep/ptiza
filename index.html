@@ -626,7 +626,40 @@ const GM = {
 document.getElementById('btn-start').addEventListener('click', GM.start);
 
 window.addEventListener('mousemove', e => {
-    GM.mx = e.clientX } else {
+    GM.mx = e.clientX;
+    GM.my = e.clientY;
+});
+window.addEventListener('touchmove', e => {
+    e.preventDefault();
+    GM.mx = e.touches[0].clientX;
+    GM.my = e.touches[0].clientY;
+}, {passive:false});
+
+function loop() {
+    if(!GM.run) return;
+    requestAnimationFrame(loop);
+    
+    ctx.clearRect(0,0,W,H);
+    if(GM.pause) return; 
+
+    // 1. BG INFINITE MOVEMENT (Fixed Logic)
+    let dx = (W/2 - GM.mx) * 0.1;
+    let dy = (H/2 - GM.my) * 0.05; 
+    
+    GM.bgX += dx;
+    GM.bgY += parseInt(CFG.speed) + dy;
+
+    if(iBg.src && iBg.complete) {
+        let ptrn = ctx.createPattern(iBg, 'repeat');
+        if(ptrn) {
+            ctx.save();
+            ctx.translate(GM.bgX, GM.bgY);
+            ctx.fillStyle = ptrn;
+            // Draw a huge area to cover rotations and movements
+            ctx.fillRect(-W*5, -H*5, W*10, H*10); 
+            ctx.restore();
+        }
+    } else {
         ctx.fillStyle = '#000'; ctx.fillRect(0,0,W,H);
     }
 
@@ -641,4 +674,165 @@ window.addEventListener('mousemove', e => {
 
     // 3. DRAW OBJECTS
     GM.objs.sort((a,b) => b.z - a.z);
-    let objScaleUser =
+    let objScaleUser = parseFloat(CFG.objScale || 1.0);
+    let speed = parseInt(CFG.speed);
+
+    // Camera Offset (Avatar moves relative to world)
+    let camOffset = (GM.mx - W/2) * 2;
+
+    for(let i=0; i<GM.objs.length; i++) {
+        let o = GM.objs[i];
+        o.z -= (2 + speed);
+        
+        if(o.z < 10) { GM.objs.splice(i,1); i--; continue; }
+
+        let scale = 500 / o.z;
+        
+        // Transform World to Screen, considering Camera Shift
+        let sx = W/2 + (o.x - camOffset) * scale;
+        let sy = H/2 + o.y * scale;
+        
+        let size = 100 * scale * objScaleUser;
+
+        let img = (o.t==='c') ? iCoin : iObs;
+        
+        if(img.src) {
+             if (o.t === 'c') {
+                let spin = Math.abs(Math.sin(GM.frame * 0.1 + i));
+                let w = size * spin;
+                ctx.drawImage(img, sx - w/2, sy - size/2, w, size);
+            } else {
+                ctx.drawImage(img, sx-size/2, sy-size/2, size, size);
+            }
+        }
+
+        // HIT DETECTION
+        if(o.z < 200 && o.z > 20) {
+            let dist = Math.hypot(sx - GM.mx, sy - GM.my);
+            let hitbox = (size * 0.6) + (60 * parseFloat(CFG.scale)); // Rough collision
+            
+            // Check if on screen (if we flew past it sideways, no hit)
+            if(dist < hitbox) {
+                GM.objs.splice(i,1); i--;
+                hit(o.t);
+            }
+        }
+    }
+
+    // 4. DRAW BIRD
+    if(GM.hurt > 0) {
+        GM.hurt--;
+        if(Math.floor(GM.hurt / 5) % 2 === 0) return;
+    }
+
+    let pSize = 120 * parseFloat(CFG.scale);
+    if(iBird.src) {
+        let tilt = (GM.mx - W/2) * 0.05;
+        ctx.save();
+        ctx.translate(GM.mx, GM.my);
+        ctx.rotate(tilt * Math.PI/180);
+        ctx.drawImage(iBird, -pSize/2, -pSize/2, pSize, pSize);
+        ctx.restore();
+    } else {
+        ctx.fillStyle = '#0ff'; ctx.beginPath(); ctx.arc(GM.mx, GM.my, 20, 0, 7); ctx.fill();
+    }
+    GM.frame++;
+}
+
+function hit(type) {
+    if(type === 'o') {
+        sfx('boom');
+        GM.hurt = 30;
+        let f = document.createElement('div');
+        f.style = "position:absolute;top:0;left:0;width:100%;height:100%;background:red;opacity:0.5;pointer-events:none;z-index:99";
+        document.body.appendChild(f);
+        setTimeout(()=>f.remove(), 100);
+        GM.time -= 5;
+        document.getElementById('ui-time').innerText = GM.time;
+        if(GM.time<=0) GM.end(false);
+    } else {
+        sfx('coin');
+        if(CFG.qs.length > 0) {
+            GM.pause = true; 
+            quiz();
+        } else {
+            GM.score++; 
+            document.getElementById('ui-score').innerText = GM.score; 
+        }
+    }
+}
+
+function quiz() {
+    let idx = Math.floor(Math.random()*CFG.qs.length);
+    let q = CFG.qs[idx];
+
+    let box = document.getElementById('quiz-box');
+    let body = document.getElementById('q-body');
+    document.getElementById('q-txt').innerText = q.t;
+    body.innerHTML = '';
+    box.style.display = 'block';
+
+    const processAns = (txt) => {
+        box.style.display = 'none';
+        if(txt.trim().toLowerCase() === q.c.trim().toLowerCase()) {
+            sfx('win'); GM.score++;
+        } else {
+            sfx('lose'); GM.time -= 10;
+        }
+        document.getElementById('ui-score').innerText = GM.score;
+        document.getElementById('ui-time').innerText = GM.time;
+        
+        setTimeout(() => { GM.pause = false; }, 200);
+    };
+
+    if(q.type === 'choice') {
+        let arr = [q.c, ...q.w].sort(() => Math.random()-0.5);
+        arr.forEach(t => {
+            let b = document.createElement('button'); 
+            b.className='q-btn'; 
+            b.innerText=t;
+            b.onclick = (e) => { e.stopPropagation(); processAns(t); };
+            body.appendChild(b);
+        });
+    } else {
+        let inp = document.createElement('input'); 
+        inp.className='q-inp';
+        let b = document.createElement('button'); 
+        b.className='q-btn'; 
+        b.innerText='OK';
+        b.onclick = (e) => { e.stopPropagation(); processAns(inp.value); };
+        body.appendChild(inp); body.appendChild(b);
+        inp.focus();
+    }
+}
+<\/script>
+</body>
+</html>`;
+        document.getElementById('finalCode').value = CODE;
+        document.getElementById('copySection').style.display = 'block';
+    }
+
+    function doCopy() {
+        const txt = document.getElementById('finalCode');
+        txt.select();
+        document.execCommand('copy');
+        
+        const btn = document.getElementById('copyBtn');
+        const span = document.getElementById('copyText');
+        const icon = document.getElementById('copyIcon');
+        
+        btn.classList.add('success');
+        span.innerText = dict[currentLang].btn_copied;
+        icon.innerText = "✅";
+        
+        setTimeout(() => {
+            btn.classList.remove('success');
+            span.innerText = dict[currentLang].btn_copy;
+            icon.innerText = "📋";
+        }, 3000);
+    }
+
+    setLang('ru');
+</script>
+</body>
+</html>
