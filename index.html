@@ -2,518 +2,421 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Avatar Game Editor for Genially</title>
+    <title>Genially Avatar Editor (Fixed)</title>
     <style>
-        :root { --primary: #00d2ff; --bg: #1a1a2d; --panel: #252540; --text: #e0e0ff; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
-        .container { max-width: 900px; margin: 0 auto; }
-        
-        /* Header */
-        header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid var(--primary); padding-bottom: 20px; }
-        h1 { margin: 0; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 15px var(--primary); }
-        
-        /* Layout */
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .card { background: var(--panel); padding: 20px; border-radius: 10px; border: 1px solid #444; }
-        .full-width { grid-column: 1 / -1; }
-        
-        /* Form Elements */
-        label { display: block; margin-bottom: 8px; font-weight: bold; color: #fff; }
-        input[type="text"], input[type="number"], select {
-            width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 5px;
-            border: 1px solid #555; background: #111; color: var(--primary); box-sizing: border-box;
-        }
-        input[type="file"] { margin-bottom: 5px; width: 100%; }
-        
-        /* Previews */
-        .preview-box { 
-            width: 100%; height: 60px; background: #111; border: 1px dashed #555; 
-            margin-bottom: 15px; display: flex; align-items: center; justify-content: center; 
-            background-size: contain; background-repeat: no-repeat; background-position: center;
-        }
-        .preview-text { font-size: 12px; color: #666; }
-
-        /* Questions */
-        .q-item { 
-            background: #2f2f50; padding: 15px; margin-bottom: 10px; border-left: 4px solid var(--primary); position: relative; 
-        }
-        .btn-del { 
-            position: absolute; top: 10px; right: 10px; background: #ff4444; color: white; border: none; cursor: pointer; padding: 5px 10px; border-radius: 3px; 
-        }
-
-        /* Buttons */
-        .btn { 
-            background: var(--primary); color: #000; border: none; padding: 12px 24px; 
-            font-size: 16px; font-weight: bold; border-radius: 5px; cursor: pointer; width: 100%; 
-            transition: 0.3s; margin-top: 10px;
-        }
-        .btn:hover { background: #fff; box-shadow: 0 0 20px var(--primary); }
-        .btn-secondary { background: #444; color: #fff; }
-
-        /* Output */
-        #outputArea { width: 100%; height: 200px; background: #000; color: #0f0; font-family: monospace; padding: 10px; border: 1px solid #555; margin-top: 10px; }
-        
-        .section-title { color: var(--primary); border-bottom: 1px solid #444; padding-bottom: 10px; margin-bottom: 15px; margin-top: 0; }
+        body { background: #121212; color: #eee; font-family: sans-serif; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: #1e1e1e; padding: 20px; border-radius: 8px; }
+        h1 { color: #00d2ff; text-align: center; }
+        .section { margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 20px; }
+        label { display: block; margin-top: 10px; font-weight: bold; }
+        input, select, button { width: 100%; padding: 10px; margin-top: 5px; background: #333; color: white; border: 1px solid #444; border-radius: 4px; box-sizing: border-box;}
+        button { cursor: pointer; background: #00d2ff; color: #000; font-weight: bold; }
+        button:hover { background: #fff; }
+        textarea { width: 100%; height: 150px; background: #000; color: #0f0; font-family: monospace; }
+        .q-item { background: #2a2a2a; padding: 10px; margin-top: 10px; border-left: 3px solid #00d2ff; }
+        .preview { font-size: 12px; color: #aaa; margin-top: 2px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <header>
-        <h1>💎 Editor: Avatar Flight</h1>
-        <p>Настрой параметры, загрузи картинки и получи код для Genially.</p>
-    </header>
+    <h1>🔧 Редактор для Genially (Исправленный)</h1>
+    <p style="text-align:center; color:#aaa;">Эта версия исправляет управление мышкой внутри Genially.</p>
 
-    <div class="grid">
-        <!-- Настройки -->
-        <div class="card">
-            <h2 class="section-title">1. Настройки полета</h2>
-            <label>Время игры (секунд):</label>
-            <input type="number" id="gTime" value="60">
-            <label>Скорость полета (1-10):</label>
-            <input type="number" id="gSpeed" value="6" min="1" max="15">
-        </div>
+    <!-- 1. Файлы -->
+    <div class="section">
+        <h3>1. Загрузка файлов</h3>
+        <label>Фон (Картинка):</label>
+        <input type="file" id="bg" accept="image/*" onchange="encode(this, 'bg')">
+        <div id="p_bg" class="preview">Нет файла</div>
 
-        <!-- Медиа -->
-        <div class="card">
-            <h2 class="section-title">2. Графика (PNG/JPG)</h2>
-            <small style="color:#aaa">Рекомендую сжать картинки перед загрузкой!</small>
-            
-            <label>Фон неба:</label>
-            <input type="file" id="fBg" accept="image/*" onchange="loadAsset(this, 'bg')">
-            <div class="preview-box" id="p_bg"><span class="preview-text">Нет файла</span></div>
+        <label>Птица (Икран):</label>
+        <input type="file" id="bird" accept="image/*" onchange="encode(this, 'bird')">
+        <div id="p_bird" class="preview">Нет файла</div>
 
-            <label>Птица (Икран) - Вид сзади:</label>
-            <input type="file" id="fBird" accept="image/*" onchange="loadAsset(this, 'bird')">
-            <div class="preview-box" id="p_bird"><span class="preview-text">Нет файла</span></div>
+        <label>Препятствие (Враг):</label>
+        <input type="file" id="obs" accept="image/*" onchange="encode(this, 'obs')">
+        <div id="p_obs" class="preview">Нет файла</div>
 
-            <label>Препятствие (Враг/Скала):</label>
-            <input type="file" id="fObs" accept="image/*" onchange="loadAsset(this, 'obs')">
-            <div class="preview-box" id="p_obs"><span class="preview-text">Нет файла</span></div>
+        <label>Монета (Вопрос):</label>
+        <input type="file" id="coin" accept="image/*" onchange="encode(this, 'coin')">
+        <div id="p_coin" class="preview">Нет файла</div>
+        
+        <label>Музыка (MP3):</label>
+        <input type="file" id="music" accept="audio/*" onchange="encode(this, 'music')">
+        <div id="p_music" class="preview">Нет файла</div>
+    </div>
 
-            <label>Монета (Бонус с вопросом):</label>
-            <input type="file" id="fCoin" accept="image/*" onchange="loadAsset(this, 'coin')">
-            <div class="preview-box" id="p_coin"><span class="preview-text">Нет файла</span></div>
+    <!-- 2. Настройки -->
+    <div class="section">
+        <h3>2. Настройки</h3>
+        <label>Время (сек):</label> <input type="number" id="time" value="60">
+        <label>Скорость (1-10):</label> <input type="number" id="speed" value="6">
+    </div>
 
-            <label>Фоновая музыка (MP3):</label>
-            <input type="file" id="fMusic" accept="audio/*" onchange="loadAsset(this, 'music', false)">
-            <div id="p_music" style="color: lime; font-size: 12px; display: none;">Музыка загружена! ♪</div>
-        </div>
+    <!-- 3. Вопросы -->
+    <div class="section">
+        <h3>3. Вопросы</h3>
+        <div id="qList"></div>
+        <button onclick="addQ()" style="background:#444; margin-top:10px;">+ Добавить вопрос</button>
+    </div>
 
-        <!-- Вопросы -->
-        <div class="card full-width">
-            <h2 class="section-title">3. Задания (прячутся в монетах)</h2>
-            <div id="qList"></div>
-            <button class="btn btn-secondary" onclick="addQ()">+ Добавить вопрос</button>
-        </div>
-
-        <!-- Генерация -->
-        <div class="card full-width" style="text-align: center;">
-            <button class="btn" onclick="gen()">🚀 СГЕНЕРИРОВАТЬ КОД ИГРЫ</button>
-            <div id="resultBlock" style="display:none; margin-top: 20px; text-align: left;">
-                <label>Скопируйте этот код и вставьте в Genially (Insert -> Others):</label>
-                <textarea id="outputArea" readonly></textarea>
-                <button class="btn btn-secondary" onclick="copyCode()">Копировать в буфер</button>
-            </div>
-        </div>
+    <!-- 4. Генерация -->
+    <div class="section">
+        <button onclick="generate()">🚀 СГЕНЕРИРОВАТЬ КОД</button>
+        <label>Скопируйте этот код и вставьте в Genially (Insert -> Others):</label>
+        <textarea id="output" readonly></textarea>
+        <button onclick="copy()">Копировать в буфер</button>
     </div>
 </div>
 
 <script>
-    // === ЛОГИКА РЕДАКТОРА ===
-    const data = { bg: null, bird: null, obs: null, coin: null, music: null };
+    const assets = { bg: "", bird: "", obs: "", coin: "", music: "" };
 
-    // Загрузка файлов в Base64
-    function loadAsset(input, key, isImg = true) {
+    function encode(input, key) {
         if (input.files && input.files[0]) {
             const reader = new FileReader();
             reader.onload = function(e) {
-                data[key] = e.target.result;
-                if(isImg) {
-                    document.getElementById('p_' + key).style.backgroundImage = `url('${e.target.result}')`;
-                    document.getElementById('p_' + key).innerHTML = '';
-                } else {
-                    document.getElementById('p_' + key).style.display = 'block';
-                }
+                assets[key] = e.target.result;
+                document.getElementById('p_' + key).innerText = "Загружено! (" + Math.round(e.target.result.length/1024) + " KB)";
             }
             reader.readAsDataURL(input.files[0]);
         }
     }
 
-    // Добавление вопросов
     function addQ() {
         const div = document.createElement('div');
         div.className = 'q-item';
         div.innerHTML = `
-            <button class="btn-del" onclick="this.parentElement.remove()">x</button>
-            <label>Вопрос:</label>
-            <input type="text" class="i-text" placeholder="Текст вопроса...">
-            <label>Тип:</label>
-            <select class="i-type" onchange="toggleType(this)">
+            <input type="text" class="q-text" placeholder="Текст вопроса">
+            <select class="q-type" onchange="this.nextElementSibling.style.display=this.value=='choice'?'block':'none'; this.nextElementSibling.nextElementSibling.style.display=this.value=='input'?'block':'none'">
                 <option value="choice">Выбор ответа</option>
-                <option value="input">Ввод ответа</option>
+                <option value="input">Ввод текста</option>
             </select>
-            <div class="opt-choice">
-                <input type="text" class="i-corr" placeholder="Верный ответ (зеленый)" style="border-color: green;">
-                <input type="text" class="i-w1" placeholder="Неверный ответ 1">
-                <input type="text" class="i-w2" placeholder="Неверный ответ 2">
+            <div class="opt-c">
+                <input type="text" class="c-ans" placeholder="Правильный ответ" style="border-color:green">
+                <input type="text" class="w-ans1" placeholder="Неверный 1">
+                <input type="text" class="w-ans2" placeholder="Неверный 2">
             </div>
-            <div class="opt-input" style="display:none;">
-                <input type="text" class="i-inp-corr" placeholder="Правильное слово/число">
+            <div class="opt-i" style="display:none">
+                <input type="text" class="i-ans" placeholder="Правильный ответ">
             </div>
+            <button onclick="this.parentElement.remove()" style="background:red; margin-top:5px; padding:5px;">Удалить</button>
         `;
         document.getElementById('qList').appendChild(div);
     }
 
-    function toggleType(sel) {
-        const p = sel.parentElement;
-        if(sel.value === 'choice') {
-            p.querySelector('.opt-choice').style.display = 'block';
-            p.querySelector('.opt-input').style.display = 'none';
-        } else {
-            p.querySelector('.opt-choice').style.display = 'none';
-            p.querySelector('.opt-input').style.display = 'block';
-        }
-    }
-
-    function copyCode() {
-        document.getElementById('outputArea').select();
+    function copy() {
+        document.getElementById('output').select();
         document.execCommand('copy');
-        alert('Код скопирован! Вставьте его в Genially.');
+        alert("Код скопирован!");
     }
 
-    // === ГЕНЕРАТОР КОДА ===
-    function gen() {
-        // Сбор вопросов
+    function generate() {
         const qs = [];
         document.querySelectorAll('.q-item').forEach(el => {
-            const type = el.querySelector('.i-type').value;
-            const obj = {
-                t: el.querySelector('.i-text').value,
-                type: type
-            };
-            if(type === 'choice') {
-                obj.c = el.querySelector('.i-corr').value;
-                obj.w = [el.querySelector('.i-w1').value, el.querySelector('.i-w2').value];
+            const type = el.querySelector('.q-type').value;
+            const obj = { t: el.querySelector('.q-text').value, type: type };
+            if (type === 'choice') {
+                obj.c = el.querySelector('.c-ans').value;
+                obj.w = [el.querySelector('.w-ans1').value, el.querySelector('.w-ans2').value];
             } else {
-                obj.c = el.querySelector('.i-inp-corr').value;
+                obj.c = el.querySelector('.i-ans').value;
             }
             qs.push(obj);
         });
 
-        // Параметры
         const cfg = {
-            time: document.getElementById('gTime').value,
-            speed: document.getElementById('gSpeed').value,
-            qs: qs,
-            img: data // base64 images
+            t: document.getElementById('time').value,
+            s: document.getElementById('speed').value,
+            q: qs,
+            img: assets
         };
 
-        // ШАБЛОН ИГРЫ (Весь код игры внутри строки)
-        const gameCode = `
+        const code = `
 <!DOCTYPE html>
 <html>
 <head>
 <style>
-    body { margin:0; overflow:hidden; background:#000; font-family:'Verdana',sans-serif; user-select:none; }
-    canvas { display:block; width:100vw; height:100vh; }
-    #ui { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; }
-    .hud { position:absolute; top:15px; color:#0ff; font-size:24px; font-weight:bold; text-shadow:2px 2px 0 #000; background:rgba(0,0,0,0.5); padding:5px 15px; border-radius:20px; border:1px solid #0ff; }
-    #hud-time { left:20px; }
-    #hud-score { right:20px; color:#ff0; border-color:#ff0; }
+    body, html { margin:0; padding:0; width:100%; height:100%; overflow:hidden; background:#000; font-family:Arial, sans-serif; }
+    #game-container { position:relative; width:100%; height:100%; }
+    canvas { display:block; width:100%; height:100%; }
     
-    .screen { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:flex; flex-direction:column; align-items:center; justify-content:center; pointer-events:auto; z-index:99; }
-    h1 { color:#0ff; font-size:40px; text-transform:uppercase; margin-bottom:20px; text-shadow:0 0 20px #0ff; text-align:center; }
-    .btn { background:linear-gradient(to bottom, #0ff, #008); border:2px solid #fff; padding:15px 40px; font-size:20px; color:#fff; cursor:pointer; border-radius:50px; font-weight:bold; box-shadow:0 0 15px #0ff; transition:0.2s; text-shadow:1px 1px 0 #000; }
-    .btn:hover { transform:scale(1.1); filter:brightness(1.2); }
+    /* UI слои */
+    .ui-layer { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index: 10; }
+    .hud-text { font-size:20px; font-weight:bold; color:#0ff; text-shadow:1px 1px 0 #000; position:absolute; top:10px; }
+    
+    /* Экраны (Старт/Конец) */
+    .screen { 
+        position:absolute; top:0; left:0; width:100%; height:100%; 
+        background:rgba(0,0,0,0.85); z-index: 20;
+        display:flex; flex-direction:column; align-items:center; justify-content:center;
+    }
+    
+    h1 { color:#00d2ff; text-align:center; margin-bottom:20px; font-size: 32px; text-transform:uppercase; text-shadow: 0 0 20px #00d2ff; }
+    
+    .btn { 
+        background: #00d2ff; color: #000; border: 2px solid #fff; 
+        padding: 15px 40px; font-size: 24px; font-weight: bold; cursor: pointer; 
+        border-radius: 50px; text-transform:uppercase; box-shadow: 0 0 15px #00d2ff;
+        pointer-events: auto; /* Важно для клика */
+        transition: transform 0.1s;
+    }
+    .btn:active { transform: scale(0.95); background: #fff; }
 
-    /* Modal */
-    #modal { display:none; position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:90%; max-width:500px; background:rgba(10,20,40,0.95); border:2px solid #0ff; border-radius:15px; padding:20px; color:#fff; text-align:center; z-index:50; pointer-events:auto; box-shadow:0 0 100px rgba(0,255,255,0.2); }
-    .q-opt { display:block; width:100%; padding:12px; margin:8px 0; background:#1a2a40; border:1px solid #446; color:#fff; font-size:18px; cursor:pointer; transition:0.2s; }
-    .q-opt:hover { background:#0ff; color:#000; }
-    input.q-inp { width:90%; padding:10px; font-size:18px; margin-bottom:10px; text-align:center; }
-    
-    #bar-container { position:absolute; bottom:20px; left:50%; transform:translateX(-50%); width:300px; height:15px; background:#333; border:2px solid #fff; border-radius:10px; overflow:hidden; }
-    #bar-fill { height:100%; width:0%; background:linear-gradient(90deg, #ff0, #f00); transition: width 0.3s; }
+    /* Окно вопроса */
+    #q-modal { 
+        display:none; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); 
+        width:90%; max-width:400px; background:#1a2a40; border:2px solid #00d2ff; 
+        padding:15px; text-align:center; z-index:30; border-radius:10px; pointer-events:auto;
+    }
+    .q-btn { display:block; width:100%; padding:10px; margin:5px 0; background:#000; color:#fff; border:1px solid #555; cursor:pointer; font-size:16px; }
+    .q-btn:hover { background:#00d2ff; color:#000; }
+    input.q-inp { width:90%; padding:10px; font-size:18px; text-align:center; margin-bottom:10px; }
+
 </style>
 </head>
 <body>
 
-<div id="ui">
-    <div id="hud-time" class="hud">⏱ <span id="val-time">0</span></div>
-    <div id="hud-score" class="hud">📀 <span id="val-score">0</span></div>
-    <div id="bar-container"><div id="bar-fill"></div></div>
-</div>
+<div id="game-container">
+    <canvas id="cvs"></canvas>
+    
+    <div class="ui-layer">
+        <div class="hud-text" style="left:10px">⏳ <span id="ui-time">0</span></div>
+        <div class="hud-text" style="right:10px">📀 <span id="ui-score">0</span></div>
+    </div>
 
-<div id="start" class="screen">
-    <h1>Полет Аватара</h1>
-    <p style="color:#aaa; margin-bottom:30px">Уклоняйся от препятствий. Собирай бонусы.</p>
-    <button class="btn" onclick="GM.start()">НА СТАРТ</button>
-</div>
+    <div id="start-screen" class="screen">
+        <h1>Полет Аватара</h1>
+        <button class="btn" id="start-btn">НАЧАТЬ ПОЛЕТ</button>
+    </div>
 
-<div id="end" class="screen" style="display:none">
-    <h1 id="end-title"></h1>
-    <p style="color:#fff; font-size:20px">Собрано монет: <span id="end-score"></span></p>
-    <button class="btn" onclick="location.reload()">ЗАНОВО</button>
-</div>
+    <div id="end-screen" class="screen" style="display:none">
+        <h1 id="end-title"></h1>
+        <p style="color:#fff; font-size:18px">Собрано: <span id="end-score">0</span></p>
+        <button class="btn" onclick="location.reload()">ЗАНОВО</button>
+    </div>
 
-<div id="modal">
-    <h2 id="q-text" style="color:#0ff"></h2>
-    <div id="q-area"></div>
+    <div id="q-modal">
+        <h3 id="q-text" style="color:#0ff; margin-top:0"></h3>
+        <div id="q-opts"></div>
+    </div>
 </div>
-
-<canvas id="cvs"></canvas>
 
 <script>
-// === ИГРОВОЙ КОД ===
+// ДАННЫЕ ИЗ РЕДАКТОРА
 const CFG = ${JSON.stringify(cfg)};
 const IMG = CFG.img;
-const ctx = document.getElementById('cvs').getContext('2d');
-let w, h;
 
-// Аудио контекст (для звуков эффектов)
-const AC = new (window.AudioContext || window.webkitAudioContext)();
-function sfx(type) {
-    if(AC.state === 'suspended') AC.resume();
-    const o = AC.createOscillator();
-    const g = AC.createGain();
-    o.connect(g); g.connect(AC.destination);
-    const t = AC.currentTime;
-    
-    if(type==='coin') {
-        o.type='sine'; o.frequency.setValueAtTime(600, t); o.frequency.linearRampToValueAtTime(1200, t+0.1);
-        g.gain.setValueAtTime(0.1, t); g.gain.linearRampToValueAtTime(0, t+0.3);
-        o.start(t); o.stop(t+0.3);
-    } else if (type==='hit') {
-        o.type='sawtooth'; o.frequency.setValueAtTime(150, t); o.frequency.exponentialRampToValueAtTime(50, t+0.3);
-        g.gain.setValueAtTime(0.2, t); g.gain.linearRampToValueAtTime(0, t+0.3);
-        o.start(t); o.stop(t+0.3);
-    } else if (type==='win') {
-        o.type='triangle'; o.frequency.setValueAtTime(400, t); o.frequency.linearRampToValueAtTime(800, t+0.3);
-        g.gain.linearRampToValueAtTime(0, t+0.6);
-        o.start(t); o.stop(t+0.6);
-    }
-}
+// Инициализация Canvas
+const cvs = document.getElementById('cvs');
+const ctx = cvs.getContext('2d');
+let W, H;
 
-// Загрузка ресурсов
+// Ресурсы
 const iBg = new Image(); if(IMG.bg) iBg.src = IMG.bg;
 const iBird = new Image(); if(IMG.bird) iBird.src = IMG.bird;
 const iObs = new Image(); if(IMG.obs) iObs.src = IMG.obs;
 const iCoin = new Image(); if(IMG.coin) iCoin.src = IMG.coin;
-let music = null;
-if(IMG.music) { music = new Audio(IMG.music); music.loop = true; music.volume = 0.4; }
+let music = null; if(IMG.music) { music = new Audio(IMG.music); music.loop = true; music.volume=0.5; }
 
-// Переменные
-const GM = {
+// Звуковые эффекты (без файлов)
+const AC = new (window.AudioContext || window.webkitAudioContext)();
+function beep(type) {
+    if(AC.state==='suspended') AC.resume();
+    const o = AC.createOscillator(); const g = AC.createGain();
+    o.connect(g); g.connect(AC.destination);
+    const t = AC.currentTime;
+    if(type==='win') { 
+        o.frequency.setValueAtTime(500,t); o.frequency.linearRampToValueAtTime(1000,t+0.2); 
+        g.gain.setValueAtTime(0.1,t); g.gain.linearRampToValueAtTime(0,t+0.5);
+    } else { 
+        o.type='sawtooth'; o.frequency.setValueAtTime(200,t); o.frequency.exponentialRampToValueAtTime(50,t+0.3);
+        g.gain.setValueAtTime(0.1,t); g.gain.linearRampToValueAtTime(0,t+0.3);
+    }
+    o.start(t); o.stop(t+0.5);
+}
+
+// Состояние игры
+const G = {
     run: false, pause: false, frame: 0,
-    time: parseInt(CFG.time), maxTime: parseInt(CFG.time),
-    score: 0, totalQ: CFG.qs.length,
+    time: parseInt(CFG.t), score: 0,
     objs: [],
-    px: 0, py: 0, // Player coords
+    mx: 0, my: 0, // Мышь
     
     resize: () => {
-        w = document.getElementById('cvs').width = window.innerWidth;
-        h = document.getElementById('cvs').height = window.innerHeight;
-        GM.px = w/2; GM.py = h - 100;
+        // Важное исправление для Genially: берем размер контейнера
+        W = cvs.width = document.body.clientWidth;
+        H = cvs.height = document.body.clientHeight;
+        G.mx = W/2; G.my = H-100;
     },
     
     start: () => {
-        document.getElementById('start').style.display = 'none';
-        GM.resize();
-        GM.run = true;
+        document.getElementById('start-screen').style.display = 'none';
+        G.resize();
         if(music) music.play().catch(e=>console.log(e));
+        G.run = true;
         loop();
         setInterval(() => {
-            if(GM.run && !GM.pause) {
-                GM.time--;
-                document.getElementById('val-time').innerText = GM.time;
-                if(GM.time <= 0) GM.end(false);
+            if(G.run && !G.pause) {
+                G.time--;
+                document.getElementById('ui-time').innerText = G.time;
+                if(G.time <= 0) G.end(false);
             }
         }, 1000);
-        document.getElementById('val-time').innerText = GM.time;
-        // Прогресс бар монет
-        document.getElementById('bar-fill').style.width = '0%';
-    },
-    
-    spawn: () => {
-        // Шанс появления монеты зависит от наличия вопросов
-        let isCoin = (CFG.qs.length > 0 && Math.random() > 0.6);
-        GM.objs.push({
-            x: (Math.random()-0.5) * w * 3,
-            y: (Math.random()-0.5) * h * 2,
-            z: 2000,
-            type: isCoin ? 'coin' : 'obs'
-        });
-    },
-
-    logic: () => {
-        // Спавн
-        if(GM.frame % (60 - parseInt(CFG.speed)*3) === 0) GM.spawn();
-        
-        // Сортировка Z (Paint algorithm)
-        GM.objs.sort((a,b) => b.z - a.z);
-        
-        for(let i=0; i<GM.objs.length; i++) {
-            let o = GM.objs[i];
-            o.z -= (10 + parseInt(CFG.speed)*2);
-            
-            if(o.z <= 10) { GM.objs.splice(i, 1); i--; continue; }
-            
-            let scale = 500 / o.z;
-            let sx = w/2 + o.x * scale;
-            let sy = h/2 + o.y * scale;
-            let size = 120 * scale;
-            
-            // Draw
-            let img = (o.type === 'coin') ? iCoin : iObs;
-            if(img.src) ctx.drawImage(img, sx - size/2, sy - size/2, size, size);
-            else {
-                ctx.fillStyle = (o.type==='coin') ? 'gold' : 'red';
-                ctx.fillRect(sx - size/2, sy - size/2, size, size);
-            }
-            
-            // Collision (Hitbox)
-            if(o.z < 150 && o.z > 50) {
-                let d = Math.hypot(sx - GM.px, sy - GM.py);
-                if(d < size/2 + 40) {
-                    GM.objs.splice(i, 1); i--;
-                    GM.hit(o.type);
-                }
-            }
-        }
-    },
-    
-    hit: (type) => {
-        if(type === 'obs') {
-            sfx('hit');
-            ctx.fillStyle = 'rgba(255,0,0,0.5)';
-            ctx.fillRect(0,0,w,h);
-            GM.time -= 5;
-            // Visual shake could go here
-        } else {
-            sfx('coin');
-            GM.pause = true;
-            GM.quiz();
-        }
-    },
-    
-    quiz: () => {
-        if(CFG.qs.length === 0) {
-            GM.score++; GM.updateUI(); GM.pause = false; return;
-        }
-        
-        let idx = Math.floor(Math.random() * CFG.qs.length);
-        let q = CFG.qs[idx];
-        CFG.qs.splice(idx, 1); // Удалить вопрос
-        
-        let m = document.getElementById('modal');
-        let body = document.getElementById('q-area');
-        document.getElementById('q-text').innerText = q.t;
-        body.innerHTML = '';
-        m.style.display = 'block';
-        
-        const check = (ans) => {
-            m.style.display = 'none';
-            if(ans.trim().toLowerCase() === q.c.trim().toLowerCase()) {
-                sfx('win'); GM.score++; 
-            } else {
-                sfx('hit'); GM.time -= 10; alert('Неверно! Штраф -10 сек.');
-            }
-            GM.updateUI();
-            
-            if(CFG.qs.length === 0) GM.end(true);
-            else GM.pause = false;
-        };
-        
-        if(q.type === 'choice') {
-            let arr = [q.c, ...q.w].sort(()=>Math.random()-0.5);
-            arr.forEach(txt => {
-                let b = document.createElement('button');
-                b.className = 'q-opt'; b.innerText = txt;
-                b.onclick = () => check(txt);
-                body.appendChild(b);
-            });
-        } else {
-            let inp = document.createElement('input'); inp.className = 'q-inp';
-            let b = document.createElement('button'); b.className = 'q-opt'; b.innerText = 'OK';
-            b.onclick = () => check(inp.value);
-            body.appendChild(inp); body.appendChild(b);
-        }
-    },
-    
-    updateUI: () => {
-        document.getElementById('val-score').innerText = GM.score;
-        let pct = (GM.score / GM.totalQ) * 100;
-        document.getElementById('bar-fill').style.width = pct + '%';
+        document.getElementById('ui-time').innerText = G.time;
     },
     
     end: (win) => {
-        GM.run = false;
-        document.getElementById('end').style.display = 'flex';
-        document.getElementById('end-score').innerText = GM.score;
+        G.run = false;
+        document.getElementById('end-screen').style.display = 'flex';
+        document.getElementById('end-score').innerText = G.score;
         let t = document.getElementById('end-title');
-        if(win) { t.innerText = "ПОЛЕТ ЗАВЕРШЕН!"; t.style.color = "#0f0"; sfx('win'); }
-        else { t.innerText = "ВРЕМЯ ИСТЕКЛО"; t.style.color = "#f00"; sfx('hit'); }
+        t.innerText = win ? "ПОБЕДА!" : "ВРЕМЯ ВЫШЛО";
+        t.style.color = win ? "#0f0" : "#f00";
+        beep(win ? 'win' : 'lose');
     }
 };
 
-// Input loop
-window.addEventListener('resize', GM.resize);
-window.addEventListener('mousemove', e => {
-    GM.px = e.clientX; 
-    GM.py = Math.max(e.clientY, h/2); // Не лететь слишком высоко
-});
-window.addEventListener('touchmove', e => {
-    e.preventDefault();
-    GM.px = e.touches[0].clientX;
-    GM.py = Math.max(e.touches[0].clientY, h/2);
-}, {passive:false});
+// Обработка кнопки СТАРТ
+document.getElementById('start-btn').addEventListener('click', G.start);
 
+// Управление МЫШЬЮ (Исправлено для iFrame)
+window.addEventListener('mousemove', e => {
+    const rect = cvs.getBoundingClientRect();
+    G.mx = e.clientX - rect.left;
+    G.my = e.clientY - rect.top;
+    // Ограничение, чтобы не улетал вверх
+    if(G.my < H/2) G.my = H/2;
+});
+window.addEventListener('resize', G.resize);
+
+// Игровой цикл
 function loop() {
-    if(!GM.run) return;
+    if(!G.run) return;
     requestAnimationFrame(loop);
-    if(GM.pause) return;
+    if(G.pause) return;
+
+    ctx.clearRect(0,0,W,H);
     
-    ctx.clearRect(0,0,w,h);
-    
-    // Background draw
+    // 1. Фон
     if(iBg.src) {
-        // Параллакс эффект можно имитировать просто рисуя фон
-        // Но для простоты Genially рисуем его через CSS cover canvas
-        document.getElementById('cvs').style.background = "url('"+IMG.bg+"') center/cover";
+        // Растягиваем фон как cover
+        let scale = Math.max(W/iBg.width, H/iBg.height);
+        let bw = iBg.width*scale; let bh = iBg.height*scale;
+        ctx.drawImage(iBg, (W-bw)/2, (H-bh)/2, bw, bh);
     } else {
-        ctx.fillStyle = "#000"; ctx.fillRect(0,0,w,h);
+        ctx.fillStyle="#111"; ctx.fillRect(0,0,W,H);
     }
     
-    // Speed lines
-    ctx.fillStyle = "rgba(255,255,255,0.2)";
-    for(let k=0; k<10; k++) ctx.fillRect(Math.random()*w, Math.random()*h, 2, Math.random()*20);
+    // 2. Линии скорости
+    ctx.fillStyle="rgba(255,255,255,0.3)";
+    for(let i=0; i<5; i++) ctx.fillRect(Math.random()*W, Math.random()*H, 2, Math.random()*30);
     
-    GM.logic();
+    // 3. Спавн объектов
+    if(G.frame % (60 - parseInt(CFG.s)*3) === 0) {
+        let isCoin = (CFG.q.length > 0 && Math.random() > 0.6);
+        G.objs.push({ x: (Math.random()-0.5)*W*2, y: (Math.random()-0.5)*H*1.5, z: 2000, type: isCoin?'coin':'obs' });
+    }
     
-    // Player Draw
+    // 4. Отрисовка объектов
+    G.objs.sort((a,b)=>b.z-a.z);
+    for(let i=0; i<G.objs.length; i++) {
+        let o = G.objs[i];
+        o.z -= (10 + parseInt(CFG.s)*2);
+        
+        if(o.z < 10) { G.objs.splice(i,1); i--; continue; }
+        
+        let scale = 500/o.z;
+        let sx = W/2 + o.x*scale;
+        let sy = H/2 + o.y*scale;
+        let size = 100*scale;
+        
+        let img = (o.type==='coin') ? iCoin : iObs;
+        if(img.src) ctx.drawImage(img, sx-size/2, sy-size/2, size, size);
+        else {
+            ctx.fillStyle = (o.type==='coin') ? 'gold' : 'red';
+            ctx.fillRect(sx-size/2, sy-size/2, size, size);
+        }
+        
+        // Столкновение
+        if(o.z < 150 && o.z > 50) {
+            let dist = Math.hypot(sx - G.mx, sy - G.my);
+            if(dist < size/2 + 40) {
+                G.objs.splice(i,1); i--;
+                hit(o.type);
+            }
+        }
+    }
+    
+    // 5. Отрисовка Игрока
     if(iBird.src) {
-        // Легкий наклон
-        let tilt = (GM.px - w/2) * 0.05;
-        ctx.save();
-        ctx.translate(GM.px, GM.py);
-        ctx.rotate(tilt * Math.PI/180);
-        ctx.drawImage(iBird, -75, -60, 150, 120);
-        ctx.restore();
+        ctx.drawImage(iBird, G.mx-60, G.my-60, 120, 120);
     } else {
         ctx.fillStyle = "#0ff";
-        ctx.beginPath(); ctx.arc(GM.px, GM.py, 20, 0, 7); ctx.fill();
+        ctx.beginPath(); ctx.arc(G.mx, G.my, 20, 0, 7); ctx.fill();
     }
     
-    GM.frame++;
+    G.frame++;
+}
+
+function hit(type) {
+    if(type==='obs') {
+        beep('lose');
+        ctx.fillStyle="rgba(255,0,0,0.5)"; ctx.fillRect(0,0,W,H);
+        G.time -= 5;
+    } else {
+        beep('win');
+        G.pause = true;
+        showQ();
+    }
+}
+
+function showQ() {
+    if(CFG.q.length === 0) {
+        G.score++; document.getElementById('ui-score').innerText = G.score; G.pause=false; return;
+    }
+    let idx = Math.floor(Math.random()*CFG.q.length);
+    let q = CFG.q[idx];
+    CFG.q.splice(idx,1); // Удалить использованный
+    
+    let m = document.getElementById('q-modal');
+    let div = document.getElementById('q-opts');
+    document.getElementById('q-text').innerText = q.t;
+    div.innerHTML = '';
+    m.style.display = 'block';
+    
+    const ans = (txt) => {
+        m.style.display = 'none';
+        if(txt.toLowerCase().trim() === q.c.toLowerCase().trim()) {
+            beep('win'); G.score++; 
+        } else {
+            beep('lose'); G.time -= 10; alert("Ошибка! -10 сек");
+        }
+        document.getElementById('ui-score').innerText = G.score;
+        if(CFG.q.length===0) G.end(true);
+        else G.pause = false;
+    };
+    
+    if(q.type === 'choice') {
+        let arr = [q.c, ...q.w].sort(()=>Math.random()-0.5);
+        arr.forEach(t => {
+            let b = document.createElement('button'); b.className='q-btn'; b.innerText=t;
+            b.onclick = () => ans(t);
+            div.appendChild(b);
+        });
+    } else {
+        let inp = document.createElement('input'); inp.className='q-inp';
+        let b = document.createElement('button'); b.className='q-btn'; b.innerText='OK';
+        b.onclick = () => ans(inp.value);
+        div.appendChild(inp); div.appendChild(b);
+    }
 }
 <\/script>
 </body>
 </html>`;
-
-        document.getElementById('outputArea').value = gameCode;
-        document.getElementById('resultBlock').style.display = 'block';
+        
+        document.getElementById('output').value = code;
     }
 </script>
 </body>
