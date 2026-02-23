@@ -40,7 +40,7 @@
         /* PREVIEW CANVAS */
         #previewContainer {
             width: 100%; height: 250px; border: 2px solid var(--primary); 
-            margin-bottom: 15px; position: relative; background: #000;
+            margin-bottom: 15px; position: relative; background: #000; overflow: hidden;
         }
         #previewCanvas { width: 100%; height: 100%; display: block; }
 
@@ -164,7 +164,7 @@
     const assets = { bg: null, bird: null, obs: null, coin: null, music: null };
     let currentLang = 'ru';
 
-    // Preview Images
+    // Preview Images holders
     const pImg = { bg: new Image(), bird: new Image(), obs: new Image(), coin: new Image() };
 
     const dict = {
@@ -248,12 +248,20 @@
     let pFrame = 0;
 
     function initPreview() {
-        pCanvas.width = pCanvas.parentElement.offsetWidth;
-        pCanvas.height = pCanvas.parentElement.offsetHeight;
+        if(pCanvas.parentElement) {
+            pCanvas.width = pCanvas.parentElement.offsetWidth;
+            pCanvas.height = pCanvas.parentElement.offsetHeight;
+        }
         requestAnimationFrame(previewLoop);
     }
 
     function previewLoop() {
+        if(pCanvas.width === 0) {
+            // Retry init if canvas is not ready
+            pCanvas.width = pCanvas.parentElement.offsetWidth;
+            pCanvas.height = pCanvas.parentElement.offsetHeight;
+        }
+
         pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
         
         const speed = parseInt(document.getElementById('speedRange').value);
@@ -269,8 +277,15 @@
             pCtx.drawImage(pImg.bg, (pCanvas.width-bw)/2, offY, bw, bh);
             pCtx.drawImage(pImg.bg, (pCanvas.width-bw)/2, offY - bh, bw, bh);
         } else {
-            // EMPTY BG if no image
+            // Draw Starfield if no BG (to show movement)
             pCtx.fillStyle = '#000'; pCtx.fillRect(0,0,pCanvas.width,pCanvas.height);
+            pCtx.fillStyle = 'rgba(255,255,255,0.3)';
+            // Simple moving stars
+            for(let i=0; i<10; i++) {
+                let x = (Math.sin(pFrame*0.01 + i)*0.5 + 0.5) * pCanvas.width;
+                let y = (pFrame * speed + i * 50) % pCanvas.height;
+                pCtx.fillRect(x, y, 2, 2);
+            }
         }
 
         // 2. Spawner
@@ -287,7 +302,7 @@
         pObjs.sort((a,b) => b.z - a.z);
         for(let i=0; i<pObjs.length; i++) {
             let o = pObjs[i];
-            o.z -= (2 + speed); // Slowed down logic match
+            o.z -= (2 + speed); 
             if(o.z < 10) { pObjs.splice(i,1); i--; continue; }
 
             let scale = 200 / o.z; 
@@ -299,13 +314,11 @@
             if(img.src) {
                 pCtx.drawImage(img, sx-size/2, sy-size/2, size, size);
             }
-            // NO DRAWING if no image
         }
 
         // 4. Bird
         let pSize = 60 * scaleUser;
         if(pImg.bird.src) {
-            // Shifted up to match game logic
             pCtx.drawImage(pImg.bird, pCanvas.width/2 - pSize/2, pCanvas.height - 100, pSize, pSize);
         }
 
@@ -313,8 +326,12 @@
         requestAnimationFrame(previewLoop);
     }
     
-    // Start preview immediately
+    // Start preview
     initPreview();
+    window.addEventListener('resize', () => {
+         pCanvas.width = pCanvas.parentElement.offsetWidth;
+         pCanvas.height = pCanvas.parentElement.offsetHeight;
+    });
 
     // === GENERATE ===
     function parseQuestions() {
@@ -452,19 +469,15 @@ function sfx(type) {
     const t = AC.currentTime;
     
     if(type==='coin') {
-        // High Ping (Ding)
-        o.type = 'sine';
-        o.frequency.setValueAtTime(1200, t);
+        o.type = 'sine'; o.frequency.setValueAtTime(1200, t);
         g.gain.setValueAtTime(0.1, t); g.gain.exponentialRampToValueAtTime(0.01, t+0.5);
         o.start(t); o.stop(t+0.5);
     } else if(type==='boom') {
-        // Low Boom (Sawtooth)
         o.type = 'sawtooth';
         o.frequency.setValueAtTime(100, t); o.frequency.exponentialRampToValueAtTime(10, t+0.3);
         g.gain.setValueAtTime(0.3, t); g.gain.linearRampToValueAtTime(0, t+0.3);
         o.start(t); o.stop(t+0.3);
     } else if(type==='win') { 
-        // Major Arpeggio
         o.type='triangle'; 
         o.frequency.setValueAtTime(523.25, t); 
         o.frequency.setValueAtTime(659.25, t+0.1);
@@ -472,7 +485,6 @@ function sfx(type) {
         g.gain.setValueAtTime(0.1, t); g.gain.linearRampToValueAtTime(0, t+0.6);
         o.start(t); o.stop(t+0.6);
     } else if (type==='lose') {
-        // Sad sound
         o.type='triangle';
         o.frequency.setValueAtTime(300, t); o.frequency.linearRampToValueAtTime(100, t+0.4);
         g.gain.setValueAtTime(0.2, t); g.gain.linearRampToValueAtTime(0, t+0.4);
@@ -496,10 +508,8 @@ const GM = {
         window.focus();
         document.getElementById('scr-start').style.display = 'none';
         resize();
-        
         if(AC.state === 'suspended') AC.resume();
-        if(music) music.play().catch(e=>console.log("Audio prevented"));
-        
+        if(music) music.play().catch(e=>{});
         GM.run = true;
         loop();
         setInterval(() => {
@@ -524,11 +534,9 @@ const GM = {
 
 document.getElementById('btn-start').addEventListener('click', GM.start);
 
-// Controls
 window.addEventListener('mousemove', e => {
     GM.mx = e.clientX;
     GM.my = e.clientY;
-    // ALLOW FULL MOVEMENT but keep somewhat on screen
     if(GM.my < H*0.2) GM.my = H*0.2;
     if(GM.my > H*0.9) GM.my = H*0.9;
 });
@@ -545,7 +553,6 @@ function loop() {
 
     ctx.clearRect(0,0,W,H);
     
-    // Background
     GM.bgY += parseInt(CFG.speed) * 0.5; 
     if(iBg.src) {
         let sc = Math.max(W/iBg.width, H/iBg.height);
@@ -555,14 +562,12 @@ function loop() {
         ctx.drawImage(iBg, (W-bw)/2, offY - bh, bw, bh);
     } else { ctx.fillStyle = '#112'; ctx.fillRect(0,0,W,H); }
 
-    // Stars
     ctx.fillStyle = "rgba(255,255,255,0.4)";
     for(let i=0; i<4; i++) {
         let x = Math.random()*W; let y = Math.random()*H;
         ctx.fillRect(x, y, 2, Math.random()*40);
     }
 
-    // Spawn
     if(GM.frame % (60 - parseInt(CFG.speed)*2) === 0) {
         let isCoin = (CFG.qs.length > 0 && Math.random() > 0.6);
         let sX = (Math.random()-0.5) * (W*2.5); 
@@ -570,13 +575,11 @@ function loop() {
         GM.objs.push({ x: sX, y: sY, z: 2000, t: isCoin?'c':'o' });
     }
 
-    // Objects
     GM.objs.sort((a,b) => b.z - a.z);
     let objScaleUser = parseFloat(CFG.objScale || 1.0);
     
     for(let i=0; i<GM.objs.length; i++) {
         let o = GM.objs[i];
-        // SLOW DOWN Z SPEED
         o.z -= (2 + parseInt(CFG.speed)); 
         
         if(o.z < 10) { GM.objs.splice(i,1); i--; continue; }
@@ -593,10 +596,8 @@ function loop() {
             ctx.fillRect(sx-size/2, sy-size/2, size, size);
         }
 
-        // COLLISION
         if(o.z < 150 && o.z > 50) {
             let dist = Math.hypot(sx - GM.mx, sy - GM.my);
-            // Hitbox
             if(dist < (size/2) + (30 * parseFloat(CFG.scale))) {
                 GM.objs.splice(i,1); i--;
                 hit(o.t);
@@ -604,10 +605,9 @@ function loop() {
         }
     }
 
-    // Player with Blink Effect
     if(GM.hurt > 0) {
         GM.hurt--;
-        if(Math.floor(GM.hurt / 5) % 2 === 0) return; // Blink
+        if(Math.floor(GM.hurt / 5) % 2 === 0) return;
     }
 
     let pSize = 120 * parseFloat(CFG.scale);
@@ -616,7 +616,6 @@ function loop() {
         ctx.save();
         ctx.translate(GM.mx, GM.my);
         ctx.rotate(tilt * Math.PI/180);
-        // SHIFT UP VISUALLY to avoid crop
         ctx.drawImage(iBird, -pSize/2, -pSize/2 - 20, pSize, pSize);
         ctx.restore();
     } else {
@@ -628,8 +627,7 @@ function loop() {
 function hit(type) {
     if(type === 'o') {
         sfx('boom');
-        GM.hurt = 30; // Frames of blinking
-        // Red Flash
+        GM.hurt = 30;
         let f = document.createElement('div');
         f.style = "position:absolute;top:0;left:0;width:100%;height:100%;background:red;opacity:0.5;pointer-events:none;z-index:99";
         document.body.appendChild(f);
@@ -643,7 +641,6 @@ function hit(type) {
 }
 
 function quiz() {
-    // If no questions, just score
     if(CFG.qs.length === 0) {
         GM.score++; document.getElementById('ui-score').innerText = GM.score; 
         GM.pause = false; 
@@ -652,8 +649,6 @@ function quiz() {
     
     let idx = Math.floor(Math.random()*CFG.qs.length);
     let q = CFG.qs[idx];
-    // Don't remove if you want infinite questions, but usually we remove used ones
-    // CFG.qs.splice(idx, 1); 
 
     let box = document.getElementById('quiz-box');
     let body = document.getElementById('q-body');
@@ -686,7 +681,11 @@ function quiz() {
         body.appendChild(inp); body.appendChild(b);
     }
 }
-<\/getElementById('copySection').style.display = 'block';
+<\/script>
+</body>
+</html>`;
+        document.getElementById('finalCode').value = CODE;
+        document.getElementById('copySection').style.display = 'block';
     }
 
     function doCopy() {
@@ -713,3 +712,4 @@ function quiz() {
 </script>
 </body>
 </html>
+           
