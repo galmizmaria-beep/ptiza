@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Полет Аватара: Мастер</title>
+    <title>Полет Аватара: Конструктор PRO</title>
     <style>
         :root { --primary: #00d2ff; --bg: #1a1a2d; --panel: #252540; --text: #e0e0ff; --accent: #ff00ff; --success: #00ff88; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
@@ -29,6 +29,8 @@
         }
         input[type="range"] { width: 100%; margin: 10px 0; }
         input[type="file"] { margin-top: 5px; font-size: 12px; }
+        
+        .status-check { color: var(--success); font-weight: bold; font-size: 12px; margin-left: 10px; display: none; }
 
         /* Questions Textarea */
         textarea.bulk-input {
@@ -37,12 +39,21 @@
         }
         .help-text { font-size: 12px; color: #888; margin-top: 5px; line-height: 1.4; }
 
-        /* PREVIEW CANVAS */
-        #previewContainer {
-            width: 100%; height: 250px; border: 2px solid var(--primary); 
-            margin-bottom: 15px; position: relative; background: #000; overflow: hidden;
+        /* STATIC PREVIEW GALLERY */
+        #staticPreview {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;
         }
-        #previewCanvas { width: 100%; height: 100%; display: block; }
+        .prev-box {
+            background: #000; border: 1px solid #555; border-radius: 5px; 
+            height: 100px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            overflow: hidden; text-align: center;
+        }
+        .prev-box img { max-width: 100%; max-height: 80px; object-fit: contain; }
+        .prev-box span { font-size: 10px; color: #888; margin-top: 5px; }
+        #questionsPreview {
+            grid-column: 1 / -1; height: auto; padding: 10px; text-align: left; font-size: 12px; color: #fff;
+            background: #112; align-items: flex-start;
+        }
 
         /* Main Buttons */
         .btn-main { 
@@ -79,16 +90,34 @@
         
         <!-- Preview -->
         <div class="card">
-            <h2 data-key="sec_visual">👁️ Визуал (Живой просмотр)</h2>
+            <h2 data-key="sec_visual">👁️ Активы (Предпросмотр)</h2>
             
-            <div id="previewContainer">
-                <canvas id="previewCanvas"></canvas>
+            <div id="staticPreview">
+                <div class="prev-box">
+                    <img id="view-bg" alt="Нет фона">
+                    <span data-key="lbl_bg">Фон</span>
+                </div>
+                <div class="prev-box">
+                    <img id="view-bird" alt="Нет аватара">
+                    <span data-key="lbl_bird">Аватар</span>
+                </div>
+                <div class="prev-box">
+                    <img id="view-obs" alt="Нет препятствия">
+                    <span data-key="lbl_obs">Препятствие</span>
+                </div>
+                <div class="prev-box">
+                    <img id="view-coin" alt="Нет монеты">
+                    <span data-key="lbl_coin">Монета</span>
+                </div>
+                <div class="prev-box" id="questionsPreview">
+                    <div id="q-count">Вопросов загружено: 0</div>
+                </div>
             </div>
             
-            <label data-key="lbl_bg">Фон (Картинка):</label>
+            <label>Фон (Картинка): <span id="st-bg" class="status-check">✅ Загружено</span></label>
             <input type="file" id="fBg" accept="image/*" onchange="loadAsset('bg')">
             
-            <label data-key="lbl_bird">Аватар (Картинка):</label>
+            <label>Аватар (Картинка): <span id="st-bird" class="status-check">✅ Загружено</span></label>
             <input type="file" id="fBird" accept="image/*" onchange="loadAsset('bird')">
             
             <label data-key="lbl_size">Размер аватара:</label>
@@ -125,18 +154,21 @@
             </div>
 
             <h3 style="font-size:14px; margin-top:15px; color:#fff;" data-key="sec_assets">Объекты</h3>
-            <label data-key="lbl_obs">Препятствие:</label>
+            
+            <label>Препятствие: <span id="st-obs" class="status-check">✅ Загружено</span></label>
             <input type="file" id="fObs" accept="image/*" onchange="loadAsset('obs')">
-            <label data-key="lbl_coin">Монета:</label>
+            
+            <label>Монета: <span id="st-coin" class="status-check">✅ Загружено</span></label>
             <input type="file" id="fCoin" accept="image/*" onchange="loadAsset('coin')">
-            <label data-key="lbl_music">Музыка:</label>
+            
+            <label>Музыка: <span id="st-music" class="status-check">✅ Загружено</span></label>
             <input type="file" id="fMusic" accept="audio/*" onchange="loadAsset('music', false)">
         </div>
 
         <!-- Questions Bulk -->
         <div class="card full-width">
             <h2 data-key="sec_questions">❓ Список вопросов</h2>
-            <textarea id="bulkQuestions" class="bulk-input" placeholder=""></textarea>
+            <textarea id="bulkQuestions" class="bulk-input" placeholder="" oninput="updateQCount()"></textarea>
             <div class="help-text" data-key="help_q">
                 Вставляйте вопросы списком. Формат:<br>
                 <b>Вопрос | Правильный ответ | Неверный 1 | Неверный 2</b><br>
@@ -164,41 +196,40 @@
     const assets = { bg: null, bird: null, obs: null, coin: null, music: null };
     let currentLang = 'ru';
 
-    // Preview Images holders
-    const pImg = { bg: new Image(), bird: new Image(), obs: new Image(), coin: new Image() };
-
     const dict = {
         ru: {
             title: "Полет Аватара",
-            sec_visual: "👁️ Визуал (Живой просмотр)",
-            lbl_bg: "Фон:", lbl_bird: "Аватар:", lbl_size: "Размер аватара:", lbl_obj_size: "Размер препятствий/монет:", lbl_speed: "Скорость:",
+            sec_visual: "👁️ Активы (Предпросмотр)",
+            lbl_bg: "Фон", lbl_bird: "Аватар", lbl_size: "Размер аватара:", lbl_obj_size: "Размер предметов:", lbl_speed: "Скорость:",
             sec_settings: "⚙️ Настройки",
             lbl_gameTitle: "Название:", lbl_btnStart: "Кнопка Старт:", lbl_win: "Победа:", lbl_lose: "Поражение:",
-            lbl_time: "Время (сек):", sec_assets: "Объекты", lbl_obs: "Препятствие:", lbl_coin: "Монета:", lbl_music: "Музыка:",
+            lbl_time: "Время (сек):", sec_assets: "Объекты", lbl_obs: "Препятствие", lbl_coin: "Монета",
             sec_questions: "❓ Список вопросов",
-            help_q: "Формат: Вопрос | Правильный | Неверный 1 | Неверный 2\nДля ввода текста просто: Вопрос | Ответ",
+            help_q: "Формат: Вопрос | Правильный | Неверный 1 | Неверный 2",
             btn_gen: "🚀 СОЗДАТЬ ИГРУ",
             btn_copy: "СКОПИРОВАТЬ КОД",
             btn_copied: "СКОПИРОВАНО!",
             lbl_copy_hint: "Вставьте в Genially (Insert -> Others) и растяните.",
             ph_bulk: "Сколько будет 2+2? | 4 | 5 | 6\nСтолица Франции? | Париж | Лондон | Берлин\nНапиши слово Привет | Привет",
-            val_title: "ПОЛЕТ АВАТАРА", val_start: "ИГРАТЬ", val_win: "ПОБЕДА!", val_lose: "ВРЕМЯ ВЫШЛО"
+            val_title: "ПОЛЕТ АВАТАРА", val_start: "ИГРАТЬ", val_win: "ПОБЕДА!", val_lose: "ВРЕМЯ ВЫШЛО",
+            loaded: "✅ Загружено", q_count: "Вопросов загружено: "
         },
         en: {
             title: "Avatar Flight",
-            sec_visual: "👁️ Visuals (Live Preview)",
-            lbl_bg: "Background:", lbl_bird: "Avatar:", lbl_size: "Avatar Size:", lbl_obj_size: "Objects Size:", lbl_speed: "Speed:",
+            sec_visual: "👁️ Assets (Preview)",
+            lbl_bg: "Background", lbl_bird: "Avatar", lbl_size: "Avatar Size:", lbl_obj_size: "Objects Size:", lbl_speed: "Speed:",
             sec_settings: "⚙️ Settings",
             lbl_gameTitle: "Title:", lbl_btnStart: "Start Button:", lbl_win: "Win Text:", lbl_lose: "Lose Text:",
-            lbl_time: "Time (s):", sec_assets: "Objects", lbl_obs: "Obstacle:", lbl_coin: "Coin:", lbl_music: "Music:",
+            lbl_time: "Time (s):", sec_assets: "Objects", lbl_obs: "Obstacle", lbl_coin: "Coin",
             sec_questions: "❓ Questions List",
-            help_q: "Format: Question | Correct | Wrong 1 | Wrong 2\nFor text input: Question | Answer",
+            help_q: "Format: Question | Correct | Wrong 1 | Wrong 2",
             btn_gen: "🚀 CREATE GAME",
             btn_copy: "COPY CODE",
             btn_copied: "COPIED!",
             lbl_copy_hint: "Paste into Genially (Insert -> Others) and stretch full screen.",
             ph_bulk: "2+2? | 4 | 5 | 6\nCapital of France? | Paris | London\nType Hello | Hello",
-            val_title: "AVATAR FLIGHT", val_start: "PLAY", val_win: "YOU WON!", val_lose: "GAME OVER"
+            val_title: "AVATAR FLIGHT", val_start: "PLAY", val_win: "YOU WON!", val_lose: "GAME OVER",
+            loaded: "✅ Loaded", q_count: "Questions loaded: "
         }
     };
 
@@ -220,117 +251,39 @@
         const btn = document.getElementById('copyBtn');
         btn.className = 'btn-copy';
         document.getElementById('copyText').innerText = d.btn_copy;
+        
+        document.querySelectorAll('.status-check').forEach(el => el.innerText = d.loaded);
+        updateQCount();
     }
 
-    // === ASSETS & PREVIEW ENGINE ===
     function loadAsset(key, isImg=true) {
         const input = document.getElementById(key === 'bg' ? 'fBg' : key === 'bird' ? 'fBird' : key === 'obs' ? 'fObs' : key === 'coin' ? 'fCoin' : 'fMusic');
+        const status = document.getElementById(key === 'bg' ? 'st-bg' : key === 'bird' ? 'st-bird' : key === 'obs' ? 'st-obs' : key === 'coin' ? 'st-coin' : 'st-music');
+        
         if(input.files && input.files[0]) {
             const reader = new FileReader();
             reader.onload = function(e) {
                 assets[key] = e.target.result;
+                // Update Status
+                if(status) {
+                    status.style.display = 'inline';
+                    status.innerText = dict[currentLang].loaded;
+                }
+                // Update Preview Image
                 if(isImg) {
-                    if(key === 'bg') pImg.bg.src = e.target.result;
-                    if(key === 'bird') pImg.bird.src = e.target.result;
-                    if(key === 'obs') pImg.obs.src = e.target.result;
-                    if(key === 'coin') pImg.coin.src = e.target.result;
+                    const imgId = 'view-' + key;
+                    const imgEl = document.getElementById(imgId);
+                    if(imgEl) imgEl.src = e.target.result;
                 }
             }
             reader.readAsDataURL(input.files[0]);
         }
     }
-
-    // --- PREVIEW GAME LOOP ---
-    const pCanvas = document.getElementById('previewCanvas');
-    const pCtx = pCanvas.getContext('2d');
-    let pObjs = [];
-    let pBgY = 0;
-    let pFrame = 0;
-
-    function initPreview() {
-        if(pCanvas.parentElement) {
-            pCanvas.width = pCanvas.parentElement.offsetWidth;
-            pCanvas.height = pCanvas.parentElement.offsetHeight;
-        }
-        requestAnimationFrame(previewLoop);
-    }
-
-    function previewLoop() {
-        if(pCanvas.width === 0) {
-            pCanvas.width = pCanvas.parentElement.offsetWidth;
-            pCanvas.height = pCanvas.parentElement.offsetHeight;
-        }
-
-        pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
-        
-        const speed = parseInt(document.getElementById('speedRange').value);
-        const scaleUser = parseFloat(document.getElementById('sizeRange').value);
-        const objScale = parseFloat(document.getElementById('objSizeRange').value);
-
-        // 1. BG
-        if(pImg.bg.src && pImg.bg.width > 0) {
-            pBgY += speed * 0.5;
-            let sc = Math.max(pCanvas.width/pImg.bg.width, pCanvas.height/pImg.bg.height);
-            let bw = pImg.bg.width * sc; let bh = pImg.bg.height * sc;
-            let offY = pBgY % bh;
-            pCtx.drawImage(pImg.bg, (pCanvas.width-bw)/2, offY, bw, bh);
-            pCtx.drawImage(pImg.bg, (pCanvas.width-bw)/2, offY - bh, bw, bh);
-        } else {
-            pCtx.fillStyle = '#000'; pCtx.fillRect(0,0,pCanvas.width,pCanvas.height);
-            pCtx.fillStyle = 'rgba(255,255,255,0.3)';
-            for(let i=0; i<10; i++) {
-                let x = (Math.sin(pFrame*0.01 + i)*0.5 + 0.5) * pCanvas.width;
-                let y = (pFrame * speed + i * 50) % pCanvas.height;
-                pCtx.fillRect(x, y, 2, 2);
-            }
-        }
-
-        // 2. Spawner
-        if(pFrame % (60 - speed*2) === 0) {
-            pObjs.push({
-                x: (Math.random()-0.5) * pCanvas.width * 2,
-                y: (Math.random()-0.5) * pCanvas.height * 2,
-                z: 2000,
-                t: Math.random() > 0.5 ? 'c' : 'o'
-            });
-        }
-
-        // 3. Objects (Preview version is simple)
-        pObjs.sort((a,b) => b.z - a.z);
-        for(let i=0; i<pObjs.length; i++) {
-            let o = pObjs[i];
-            o.z -= (2 + speed); 
-            if(o.z < 10) { pObjs.splice(i,1); i--; continue; }
-
-            let scale = 200 / o.z; 
-            let sx = pCanvas.width/2 + o.x * scale;
-            let sy = pCanvas.height/2 + o.y * scale;
-            let size = 50 * scale * objScale;
-
-            let img = (o.t === 'c') ? pImg.coin : pImg.obs;
-            if(img.src && img.width > 0) {
-                pCtx.drawImage(img, sx-size/2, sy-size/2, size, size);
-            } else {
-                 pCtx.fillStyle = (o.t==='c') ? 'gold' : 'red';
-                 pCtx.beginPath(); pCtx.arc(sx, sy, size/2, 0, 6.28); pCtx.fill();
-            }
-        }
-
-        // 4. Bird
-        let pSize = 60 * scaleUser;
-        if(pImg.bird.src && pImg.bird.width > 0) {
-            pCtx.drawImage(pImg.bird, pCanvas.width/2 - pSize/2, pCanvas.height - 100, pSize, pSize);
-        }
-
-        pFrame++;
-        requestAnimationFrame(previewLoop);
-    }
     
-    initPreview();
-    window.addEventListener('resize', () => {
-         pCanvas.width = pCanvas.parentElement.offsetWidth;
-         pCanvas.height = pCanvas.parentElement.offsetHeight;
-    });
+    function updateQCount() {
+        const qs = parseQuestions();
+        document.getElementById('q-count').innerText = dict[currentLang].q_count + qs.length;
+    }
 
     // === GENERATE ===
     function parseQuestions() {
@@ -359,7 +312,6 @@
             img: assets
         };
 
-        // --- IMPROVED GAME LOGIC: STATIC OBJECTS & ROTATION ---
         const CODE = `
 <!DOCTYPE html>
 <html>
@@ -370,18 +322,17 @@
     body { font-family:'Segoe UI',sans-serif; user-select:none; -webkit-user-select:none; }
     
     #game-box { position:absolute; top:0; left:0; width:100%; height:100%; overflow:hidden; touch-action: none; }
-    canvas { display:block; width:100%; height:100%; pointer-events:none; } 
+    canvas { display:block; width:100%; height:100%; } 
     
     /* UI HUD */
     .hud { position:absolute; top:10px; color:#00d2ff; font-size:clamp(20px, 4vw, 30px); font-weight:bold; text-shadow:2px 2px 0 #000; padding:5px 15px; background:rgba(0,0,0,0.6); border-radius:10px; border:1px solid #00d2ff; z-index: 50; }
     
-    /* SCREENS */
+    /* SCREENS - MENUS */
     .screen { 
         position:absolute; top:0; left:0; width:100%; height:100%; 
         background:rgba(0,0,0,0.85); display:flex; flex-direction:column; 
         align-items:center; justify-content:center; 
-        z-index:100; /* Highest */
-        pointer-events:auto; 
+        z-index:100; pointer-events:auto; 
     }
     
     h1 { color:#00d2ff; font-size:clamp(30px, 6vw, 60px); text-transform:uppercase; text-shadow:0 0 20px #00d2ff; margin-bottom:20px; text-align:center; }
@@ -397,16 +348,19 @@
     button.btn-play:hover { transform: scale(1.05); background: #fff; color: #0088aa; }
     button.btn-play:active { transform: scale(0.95); }
 
-    /* QUIZ BOX */
+    /* QUIZ BOX - OVERLAY ON GAME */
+    #quiz-overlay {
+        display:none; position:absolute; top:0; left:0; width:100%; height:100%;
+        background: rgba(0,0,0,0.7); /* Semi-transparent */
+        z-index: 150;
+        align-items: center; justify-content: center;
+    }
     #quiz-box { 
-        display:none; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); 
         width:90%; max-width:500px; background:#1e293b; border:3px solid #00d2ff; 
         padding:20px; border-radius:15px; text-align:center; color:#fff; 
-        z-index:200; 
-        pointer-events: auto !important;
         box-shadow: 0 0 50px #000;
     }
-    .q-btn { display:block; width:100%; padding:15px; margin:8px 0; background:#334; border:1px solid #556; color:#fff; font-size:18px; cursor:pointer; z-index:201; position:relative; }
+    .q-btn { display:block; width:100%; padding:15px; margin:8px 0; background:#334; border:1px solid #556; color:#fff; font-size:18px; cursor:pointer; position:relative; }
     .q-btn:hover { background:#00d2ff; color:#000; }
     input.q-inp { width:80%; padding:10px; font-size:20px; text-align:center; margin-bottom:10px; color:#000; }
 
@@ -435,10 +389,12 @@
         <button class="btn-play" onclick="GM.reset()">↺</button>
     </div>
 
-    <!-- QUIZ MODAL -->
-    <div id="quiz-box">
-        <h2 id="q-txt" style="color:#00d2ff; margin-top:0">Question</h2>
-        <div id="q-body"></div>
+    <!-- QUIZ OVERLAY -->
+    <div id="quiz-overlay">
+        <div id="quiz-box">
+            <h2 id="q-txt" style="color:#00d2ff; margin-top:0">Question</h2>
+            <div id="q-body"></div>
+        </div>
     </div>
 </div>
 
@@ -456,7 +412,7 @@ let W, H;
 function resize() {
     W = cvs.width = window.innerWidth;
     H = cvs.height = window.innerHeight;
-    if(!GM.run) { GM.mx = W/2; GM.my = H/2; }
+    if(!GM.run) { GM.playerX = 0; GM.playerY = 0; }
 }
 window.addEventListener('resize', resize);
 setTimeout(resize, 100);
@@ -501,7 +457,7 @@ const GM = {
     time: parseInt(CFG.time), score: 0,
     objs: [], 
     mx: 0, my: 0, 
-    bgX: 0, bgY: 0,
+    playerX: 0, playerY: 0, // Virtual Camera Position
     hurt: 0,
     timerInt: null,
     
@@ -509,11 +465,18 @@ const GM = {
         document.getElementById('scr-start').style.display = 'none';
         resize();
         GM.mx = W/2; GM.my = H/2;
+        GM.playerX = 0; GM.playerY = 0;
+        
         if(AC.state === 'suspended') AC.resume();
         if(music) music.play().catch(e=>{});
+        
         GM.run = true;
         GM.objs = [];
         GM.frame = 0;
+        GM.score = 0;
+        GM.time = parseInt(CFG.time);
+        document.getElementById('ui-score').innerText = "0";
+        document.getElementById('ui-time').innerText = GM.time;
         
         loop();
         
@@ -524,22 +487,19 @@ const GM = {
                 if(GM.time <= 0) GM.end(false);
             }
         }, 1000);
-        document.getElementById('ui-time').innerText = GM.time;
     },
 
     reset: () => {
         clearInterval(GM.timerInt);
         GM.run = false;
         GM.pause = false;
-        GM.score = 0;
-        GM.time = parseInt(CFG.time);
-        GM.objs = [];
-        document.getElementById('ui-score').innerText = "0";
-        document.getElementById('ui-time').innerText = GM.time;
-        
+        // Hide End Screen, Show Start
         document.getElementById('scr-end').style.display = 'none';
         document.getElementById('scr-start').style.display = 'flex';
-        document.getElementById('quiz-box').style.display = 'none';
+        document.getElementById('quiz-overlay').style.display = 'none';
+        
+        // Music reset
+        if(music) { music.pause(); music.currentTime = 0; }
     },
 
     end: (win) => {
@@ -572,91 +532,123 @@ function loop() {
     ctx.clearRect(0,0,W,H);
     if(GM.pause) return; 
 
-    // 1. BG MOVEMENT (Illusion of turning)
-    let dx = (W/2 - GM.mx) * 0.1;
-    let dy = (H/2 - GM.my) * 0.1;
-    GM.bgX += dx;
-    GM.bgY += dy + parseInt(CFG.speed);
+    // --- 1. PLAYER MOVEMENT & INFINITE BG ---
+    // Instead of objects moving relative to screen, 
+    // The Player moves through the "World".
+    // dx/dy is how much the player moves this frame based on mouse pos relative to center
+    let dx = (GM.mx - W/2) * 0.1;
+    let dy = (GM.my - H/2) * 0.1;
+    
+    GM.playerX += dx;
+    GM.playerY += dy + parseInt(CFG.speed); // Fly forward (Y is forward in 2D topdown scrolling logic)
+    
+    // Background Tiling (Infinite)
+    // We move the background pattern opposite to player X
+    let bgScrollX = -GM.playerX;
+    let bgScrollY = GM.frame * parseInt(CFG.speed); // Simple forward scroll for speed sensation
 
     if(iBg.src && iBg.complete) {
         let ptrn = ctx.createPattern(iBg, 'repeat');
         if(ptrn) {
             ctx.save();
             ctx.fillStyle = ptrn;
-            ctx.translate(GM.bgX % iBg.width, GM.bgY % iBg.height);
-            ctx.fillRect(-W*2, -H*2, W*4, H*4); 
+            // Shift pattern based on player X position to simulate turning
+            ctx.translate(bgScrollX % iBg.width, bgScrollY % iBg.height);
+            // Draw a huge rectangle to cover all edges even when turning hard
+            // This prevents "white slides"
+            ctx.fillRect(-W*2 + (-bgScrollX%iBg.width), -H*2, W*5, H*5);
             ctx.restore();
         }
     } else {
         ctx.fillStyle = '#112'; ctx.fillRect(0,0,W,H);
         ctx.fillStyle = "rgba(255,255,255,0.4)";
-        for(let i=0; i<30; i++) {
-            let x = (Math.sin(i*132 + GM.bgX*0.002) * W + W)%W;
-            let y = (i*44 + GM.bgY) % H;
+        // Simple starfield that reacts to camera
+        for(let i=0; i<40; i++) {
+            let x = (Math.sin(i*99) * W * 2 - GM.playerX * 0.5) % W;
+            if(x < 0) x += W;
+            let y = (i*44 + GM.frame*parseInt(CFG.speed)) % H;
             ctx.fillRect(x, y, 3, 3);
         }
     }
 
-    // 2. SPAWN OBJECTS
+    // --- 2. SPAWN OBJECTS ---
+    // Spawn objects relative to the player's current X position
+    // so they appear "ahead"
     if(GM.frame % (60 - parseInt(CFG.speed)*2) === 0) {
         let isCoin = (CFG.qs.length > 0 && Math.random() > 0.6);
-        let sX = (Math.random()-0.5) * W * 1.2; 
-        let sY = (Math.random()-0.5) * H * 1.2;
-        GM.objs.push({ x: sX, y: sY, z: 2000, t: isCoin?'c':'o' });
+        // Spawn X is relative to PlayerX + random offset
+        // We create a wide "world"
+        let spawnWorldX = GM.playerX + (Math.random()-0.5) * W * 1.5; 
+        
+        GM.objs.push({ 
+            wx: spawnWorldX, // World X coordinate (fixed)
+            z: 2000,         // Distance (comes closer)
+            t: isCoin?'c':'o' 
+        });
     }
 
-    // 3. DRAW OBJECTS
+    // --- 3. DRAW OBJECTS ---
     GM.objs.sort((a,b) => b.z - a.z);
     let objScaleUser = parseFloat(CFG.objScale || 1.0);
     let speed = parseInt(CFG.speed);
 
     for(let i=0; i<GM.objs.length; i++) {
         let o = GM.objs[i];
-        o.z -= (2 + speed);
-        
-        // --- KEY FIX: OBJECTS ARE STATIC IN X/Y (Moving straight to camera) ---
-        // We removed o.x += dx... so they don't run away.
-        
-        // Add Floating effect (Hovering)
-        let hover = Math.sin(GM.frame * 0.05 + i) * 100; // gentle wave
+        o.z -= (2 + speed); // Object comes towards camera
 
+        // Calculate Screen X based on World X minus Player X (Parallax)
+        // If Object is at 100 and Player is at 100, Object is center screen.
+        let relX = (o.wx - GM.playerX);
+        
+        // Remove if behind camera
         if(o.z < 10) { GM.objs.splice(i,1); i--; continue; }
 
+        // Perspective projection
         let scale = 500 / o.z;
-        let sx = W/2 + o.x * scale;
-        // Obstacles float, coins spin
-        let sy = H/2 + (o.y + (o.t==='o' ? hover : 0)) * scale;
+        let sx = W/2 + relX * scale; // Position on screen
+        
+        // Floating Y effect
+        let hover = Math.sin(GM.frame * 0.05 + i) * 100;
+        let sy = H/2 + (0 + (o.t==='o' ? hover : 0)) * scale; // Keep Y centered but scale
+        
+        // Make objects move "down" visually as they get closer (standard runner perspective)
+        // Adjust SY slightly based on Z to fake ground plane
+        sy += (2000 - o.z) * 0.1;
+
         let size = 100 * scale * objScaleUser;
 
-        // Depth Line
-        ctx.strokeStyle = "rgba(255,255,255,0.1)";
-        ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx, H); ctx.stroke();
+        // Visual guide line (optional, helps depth)
+        // ctx.strokeStyle="rgba(255,255,255,0.1)"; ctx.beginPath(); ctx.moveTo(sx,sy); ctx.lineTo(sx,H); ctx.stroke();
 
         let img = (o.t==='c') ? iCoin : iObs;
         
         if (o.t === 'c') {
-            // ROTATION EFFECT FOR COINS
-            // Simulate 3D spin by oscillating width
+            // Coin spin
             let spin = Math.abs(Math.sin(GM.frame * 0.1 + i));
             let w = size * spin;
             if(img.src) ctx.drawImage(img, sx - w/2, sy - size/2, w, size);
-            else {
-                 ctx.fillStyle = 'gold';
-                 ctx.beginPath(); ctx.ellipse(sx, sy, w/2, size/2, 0, 0, 6.28); ctx.fill();
-            }
+            else { ctx.fillStyle = 'gold'; ctx.beginPath(); ctx.ellipse(sx, sy, w/2, size/2, 0, 0, 6.28); ctx.fill(); }
         } else {
-            // OBSTACLES (Static Image)
+            // Obstacle
             if(img.src) ctx.drawImage(img, sx-size/2, sy-size/2, size, size);
-            else {
-                ctx.fillStyle = 'red';
-                ctx.beginPath(); ctx.arc(sx, sy, size/2, 0, 6.28); ctx.fill();
-            }
+            else { ctx.fillStyle = 'red'; ctx.beginPath(); ctx.arc(sx, sy, size/2, 0, 6.28); ctx.fill(); }
         }
 
         // HIT DETECTION
+        // Check depth first (Z)
         if(o.z < 200 && o.z > 20) {
+            // Then check 2D distance on screen
+            // Since we control bird with mouse, bird is at GM.mx, GM.my
+            // But visually bird is center-ish. 
+            // Actually, in this logic, we are flying PAST objects.
+            // If screen X of object is close to screen X of Bird...
+            
+            // Where is the bird drawn?
+            // The bird is drawn at mouse position (GM.mx, GM.my).
+            
             let dist = Math.hypot(sx - GM.mx, sy - GM.my);
             let hitbox = (size * 0.8) + (60 * parseFloat(CFG.scale));
+            
             if(dist < hitbox) {
                 GM.objs.splice(i,1); i--;
                 hit(o.t);
@@ -664,7 +656,7 @@ function loop() {
         }
     }
 
-    // 4. DRAW BIRD
+    // --- 4. DRAW BIRD ---
     if(GM.hurt > 0) {
         GM.hurt--;
         if(Math.floor(GM.hurt / 5) % 2 === 0) return;
@@ -711,14 +703,16 @@ function quiz() {
     let idx = Math.floor(Math.random()*CFG.qs.length);
     let q = CFG.qs[idx];
 
-    let box = document.getElementById('quiz-box');
+    let overlay = document.getElementById('quiz-overlay');
     let body = document.getElementById('q-body');
     document.getElementById('q-txt').innerText = q.t;
     body.innerHTML = '';
-    box.style.display = 'block';
+    
+    // Show Overlay
+    overlay.style.display = 'flex';
 
     const processAns = (txt) => {
-        box.style.display = 'none';
+        overlay.style.display = 'none';
         if(txt.trim().toLowerCase() === q.c.trim().toLowerCase()) {
             sfx('win'); GM.score++;
         } else {
