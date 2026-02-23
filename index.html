@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Genially Game Editor: Pro</title>
+    <title>Genially Game Editor: Ultimate</title>
     <style>
         :root { --primary: #00d2ff; --bg: #1a1a2d; --panel: #252540; --text: #e0e0ff; --accent: #ff00ff; --success: #00ff88; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
@@ -37,20 +37,12 @@
         }
         .help-text { font-size: 12px; color: #888; margin-top: 5px; line-height: 1.4; }
 
-        /* Preview */
-        #livePreview { 
-            width: 100%; height: 250px; background: #000; border: 2px solid var(--primary); 
-            margin-bottom: 15px; position: relative; overflow: hidden; 
-            background-size: cover; background-position: center;
+        /* PREVIEW CANVAS */
+        #previewContainer {
+            width: 100%; height: 250px; border: 2px solid var(--primary); 
+            margin-bottom: 15px; position: relative; background: #000;
         }
-        #previewBird {
-            position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%);
-            width: 80px; height: 80px; 
-            background-size: contain; background-repeat: no-repeat; background-position: center;
-            border: 1px dashed rgba(255,255,255,0.3);
-        }
-        .anim-bg { animation: scrollBg linear infinite; }
-        @keyframes scrollBg { from { background-position: 0 0; } to { background-position: 0 500px; } }
+        #previewCanvas { width: 100%; height: 100%; display: block; }
 
         /* Main Buttons */
         .btn-main { 
@@ -87,8 +79,11 @@
         
         <!-- Preview -->
         <div class="card">
-            <h2 data-key="sec_visual">👁️ Визуал</h2>
-            <div id="livePreview"><div id="previewBird"></div></div>
+            <h2 data-key="sec_visual">👁️ Визуал (Живой просмотр)</h2>
+            
+            <div id="previewContainer">
+                <canvas id="previewCanvas"></canvas>
+            </div>
             
             <label data-key="lbl_bg">Фон (Картинка):</label>
             <input type="file" id="fBg" accept="image/*" onchange="loadAsset('bg')">
@@ -97,10 +92,10 @@
             <input type="file" id="fBird" accept="image/*" onchange="loadAsset('bird')">
             
             <label data-key="lbl_size">Размер аватара:</label>
-            <input type="range" id="sizeRange" min="0.5" max="2.0" step="0.1" value="1.0" oninput="updatePreview()">
+            <input type="range" id="sizeRange" min="0.5" max="2.0" step="0.1" value="1.0">
             
             <label data-key="lbl_speed">Скорость полета:</label>
-            <input type="range" id="speedRange" min="1" max="20" value="5" oninput="updatePreview()">
+            <input type="range" id="speedRange" min="1" max="20" value="5">
         </div>
 
         <!-- Settings -->
@@ -166,10 +161,13 @@
     const assets = { bg: null, bird: null, obs: null, coin: null, music: null };
     let currentLang = 'ru';
 
+    // Preview Images
+    const pImg = { bg: new Image(), bird: new Image(), obs: new Image(), coin: new Image() };
+
     const dict = {
         ru: {
             title: "💎 РЕДАКТОР ИГРЫ",
-            sec_visual: "👁️ Визуал",
+            sec_visual: "👁️ Визуал (Живой просмотр)",
             lbl_bg: "Фон:", lbl_bird: "Аватар:", lbl_size: "Размер:", lbl_speed: "Скорость:",
             sec_settings: "⚙️ Настройки",
             lbl_gameTitle: "Название:", lbl_btnStart: "Кнопка Старт:", lbl_win: "Победа:", lbl_lose: "Поражение:",
@@ -185,7 +183,7 @@
         },
         en: {
             title: "💎 GAME EDITOR",
-            sec_visual: "👁️ Visuals",
+            sec_visual: "👁️ Visuals (Live Preview)",
             lbl_bg: "Background:", lbl_bird: "Avatar:", lbl_size: "Size:", lbl_speed: "Speed:",
             sec_settings: "⚙️ Settings",
             lbl_gameTitle: "Title:", lbl_btnStart: "Start Button:", lbl_win: "Win Text:", lbl_lose: "Lose Text:",
@@ -209,7 +207,6 @@
         document.getElementById('btn-ru').className = lang === 'ru' ? 'active' : '';
         document.getElementById('btn-en').className = lang === 'en' ? 'active' : '';
         
-        // Defaults
         const d = dict[lang];
         document.getElementById('txtTitle').value = d.val_title;
         document.getElementById('txtStart').value = d.val_start;
@@ -217,37 +214,110 @@
         document.getElementById('txtLose').value = d.val_lose;
         document.getElementById('bulkQuestions').placeholder = d.ph_bulk;
         
-        // Reset button text
         const btn = document.getElementById('copyBtn');
         btn.className = 'btn-copy';
         document.getElementById('copyText').innerText = d.btn_copy;
     }
 
-    // === ASSETS & PREVIEW ===
+    // === ASSETS & PREVIEW ENGINE ===
     function loadAsset(key, isImg=true) {
         const input = document.getElementById(key === 'bg' ? 'fBg' : key === 'bird' ? 'fBird' : key === 'obs' ? 'fObs' : key === 'coin' ? 'fCoin' : 'fMusic');
         if(input.files && input.files[0]) {
             const reader = new FileReader();
             reader.onload = function(e) {
                 assets[key] = e.target.result;
-                updatePreview();
+                if(isImg) {
+                    if(key === 'bg') pImg.bg.src = e.target.result;
+                    if(key === 'bird') pImg.bird.src = e.target.result;
+                    if(key === 'obs') pImg.obs.src = e.target.result;
+                    if(key === 'coin') pImg.coin.src = e.target.result;
+                }
             }
             reader.readAsDataURL(input.files[0]);
         }
     }
 
-    function updatePreview() {
-        const pv = document.getElementById('livePreview');
-        const bird = document.getElementById('previewBird');
-        const size = document.getElementById('sizeRange').value;
-        const speed = document.getElementById('speedRange').value;
+    // --- PREVIEW GAME LOOP ---
+    const pCanvas = document.getElementById('previewCanvas');
+    const pCtx = pCanvas.getContext('2d');
+    let pObjs = [];
+    let pBgY = 0;
+    let pFrame = 0;
 
-        if(assets.bg) pv.style.backgroundImage = `url('${assets.bg}')`;
-        if(assets.bird) bird.style.backgroundImage = `url('${assets.bird}')`;
-        bird.style.transform = `translate(-50%, -50%) scale(${size})`;
-        pv.style.animationDuration = (11 - speed/2) + 's';
-        pv.classList.add('anim-bg');
+    function initPreview() {
+        pCanvas.width = pCanvas.parentElement.offsetWidth;
+        pCanvas.height = pCanvas.parentElement.offsetHeight;
+        requestAnimationFrame(previewLoop);
     }
+
+    function previewLoop() {
+        pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+        
+        const speed = parseInt(document.getElementById('speedRange').value);
+        const scaleUser = parseFloat(document.getElementById('sizeRange').value);
+
+        // 1. BG
+        pBgY += speed * 0.5;
+        if(pImg.bg.src) {
+            let sc = Math.max(pCanvas.width/pImg.bg.width, pCanvas.height/pImg.bg.height);
+            let bw = pImg.bg.width * sc; let bh = pImg.bg.height * sc;
+            let offY = pBgY % bh;
+            pCtx.drawImage(pImg.bg, (pCanvas.width-bw)/2, offY, bw, bh);
+            pCtx.drawImage(pImg.bg, (pCanvas.width-bw)/2, offY - bh, bw, bh);
+        } else {
+            pCtx.fillStyle = '#000'; pCtx.fillRect(0,0,pCanvas.width,pCanvas.height);
+            pCtx.strokeStyle = '#333';
+            pCtx.beginPath();
+            for(let i=0; i<pCanvas.width; i+=20) { pCtx.moveTo(i,0); pCtx.lineTo(i,pCanvas.height); }
+            pCtx.stroke();
+        }
+
+        // 2. Spawner
+        if(pFrame % (60 - speed*2) === 0) {
+            pObjs.push({
+                x: (Math.random()-0.5) * pCanvas.width * 2,
+                y: (Math.random()-0.5) * pCanvas.height * 2,
+                z: 2000,
+                t: Math.random() > 0.5 ? 'c' : 'o'
+            });
+        }
+
+        // 3. Objects
+        pObjs.sort((a,b) => b.z - a.z);
+        for(let i=0; i<pObjs.length; i++) {
+            let o = pObjs[i];
+            o.z -= (10 + speed*2);
+            if(o.z < 10) { pObjs.splice(i,1); i--; continue; }
+
+            let scale = 200 / o.z; // Smaller scale for preview box
+            let sx = pCanvas.width/2 + o.x * scale;
+            let sy = pCanvas.height/2 + o.y * scale;
+            let size = 50 * scale;
+
+            let img = (o.t === 'c') ? pImg.coin : pImg.obs;
+            if(img.src) {
+                pCtx.drawImage(img, sx-size/2, sy-size/2, size, size);
+            } else {
+                pCtx.fillStyle = (o.t==='c') ? 'gold' : 'red';
+                pCtx.fillRect(sx-size/2, sy-size/2, size, size);
+            }
+        }
+
+        // 4. Bird
+        let pSize = 60 * scaleUser;
+        if(pImg.bird.src) {
+            pCtx.drawImage(pImg.bird, pCanvas.width/2 - pSize/2, pCanvas.height - 80, pSize, pSize);
+        } else {
+            pCtx.fillStyle = '#0ff';
+            pCtx.beginPath(); pCtx.arc(pCanvas.width/2, pCanvas.height-50, 10*scaleUser, 0, 7); pCtx.fill();
+        }
+
+        pFrame++;
+        requestAnimationFrame(previewLoop);
+    }
+    
+    // Start preview immediately
+    initPreview();
 
     // === GENERATE ===
     function parseQuestions() {
@@ -255,15 +325,9 @@
         if(!raw) return [];
         return raw.split('\n').filter(line => line.trim() !== '').map(line => {
             const parts = line.split('|').map(s => s.trim());
-            const t = parts[0];
-            const c = parts[1];
-            if(parts.length > 2) {
-                // Multiple choice
-                return { t: t, type: 'choice', c: c, w: parts.slice(2) };
-            } else {
-                // Input
-                return { t: t, type: 'input', c: c };
-            }
+            return parts.length > 2 
+                ? { t: parts[0], type: 'choice', c: parts[1], w: parts.slice(2) }
+                : { t: parts[0], type: 'input', c: parts[1] };
         });
     }
 
@@ -281,48 +345,55 @@
             img: assets
         };
 
+        // FIXED GENIALLY CODE
         const CODE = `
 <!DOCTYPE html>
 <html>
 <head>
 <style>
-    /* CSS FIX FOR GENIALLY RESIZING */
-    html, body { margin:0; padding:0; width:100%; height:100%; overflow:hidden; }
-    body { background:#000; font-family:'Segoe UI',sans-serif; user-select:none; }
+    /* RESET & LAYOUT */
+    html, body { margin:0; padding:0; width:100%; height:100%; overflow:hidden; background:#000; }
+    body { font-family:'Segoe UI',sans-serif; user-select:none; }
     
     #game-box { position:absolute; top:0; left:0; width:100%; height:100%; overflow:hidden; }
-    canvas { display:block; width:100%; height:100%; object-fit:cover; }
+    canvas { display:block; width:100%; height:100%; }
     
+    /* UI */
     .ui-layer { position:absolute; width:100%; height:100%; top:0; left:0; pointer-events:none; z-index:10; }
-    .hud { position:absolute; top:10px; color:#00d2ff; font-size:clamp(16px, 4vw, 24px); font-weight:bold; text-shadow:2px 2px 0 #000; padding:5px 15px; background:rgba(0,0,0,0.6); border-radius:10px; border:1px solid #00d2ff; }
+    .hud { position:absolute; top:10px; color:#00d2ff; font-size:clamp(20px, 4vw, 30px); font-weight:bold; text-shadow:2px 2px 0 #000; padding:5px 15px; background:rgba(0,0,0,0.6); border-radius:10px; border:1px solid #00d2ff; }
     
+    /* SCREENS - FIX FOR CLICKING */
     .screen { 
         position:absolute; top:0; left:0; width:100%; height:100%; 
         background:rgba(0,0,0,0.85); display:flex; flex-direction:column; 
-        align-items:center; justify-content:center; z-index:20; pointer-events:auto; 
+        align-items:center; justify-content:center; 
+        z-index:100; /* High z-index */
+        pointer-events:auto; /* Enable clicks */
     }
     
-    h1 { color:#00d2ff; font-size:clamp(24px, 6vw, 48px); text-transform:uppercase; text-shadow:0 0 20px #00d2ff; margin-bottom:10px; text-align:center; }
+    h1 { color:#00d2ff; font-size:clamp(30px, 6vw, 60px); text-transform:uppercase; text-shadow:0 0 20px #00d2ff; margin-bottom:20px; text-align:center; }
     
     button.btn-play {
         background: linear-gradient(180deg, #00d2ff, #0088aa);
-        border: 3px solid #fff; padding: 10px 40px;
-        color: #fff; font-size: clamp(18px, 4vw, 28px); font-weight: bold; text-transform: uppercase;
-        border-radius: 50px; cursor: pointer; box-shadow: 0 0 25px #00d2ff;
+        border: 4px solid #fff; padding: 15px 60px;
+        color: #fff; font-size: clamp(24px, 5vw, 40px); font-weight: bold; text-transform: uppercase;
+        border-radius: 60px; cursor: pointer; box-shadow: 0 0 30px #00d2ff;
         transition: transform 0.1s; text-shadow: 1px 1px 2px #000;
-        pointer-events: auto;
+        pointer-events: auto; position: relative; z-index: 101;
     }
-    button.btn-play:active { transform: scale(0.95); background: #fff; color: #00d2ff; }
+    button.btn-play:hover { transform: scale(1.05); background: #fff; color: #0088aa; }
+    button.btn-play:active { transform: scale(0.95); }
 
+    /* QUIZ */
     #quiz-box { 
         display:none; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); 
-        width:90%; max-width:450px; background:#1e293b; border:2px solid #00d2ff; 
-        padding:20px; border-radius:15px; text-align:center; color:#fff; z-index:30; pointer-events:auto;
+        width:90%; max-width:500px; background:#1e293b; border:3px solid #00d2ff; 
+        padding:20px; border-radius:15px; text-align:center; color:#fff; z-index:90; pointer-events:auto;
         box-shadow: 0 0 50px #000;
     }
-    .q-btn { display:block; width:100%; padding:10px; margin:5px 0; background:#334; border:1px solid #556; color:#fff; font-size:16px; cursor:pointer; }
+    .q-btn { display:block; width:100%; padding:15px; margin:8px 0; background:#334; border:1px solid #556; color:#fff; font-size:18px; cursor:pointer; }
     .q-btn:hover { background:#00d2ff; color:#000; }
-    input.q-inp { width:80%; padding:10px; font-size:18px; text-align:center; margin-bottom:10px; }
+    input.q-inp { width:80%; padding:10px; font-size:20px; text-align:center; margin-bottom:10px; }
 
 </style>
 </head>
@@ -336,19 +407,22 @@
         <div class="hud" style="right:10px">🏆 <span id="ui-score">0</span></div>
     </div>
 
+    <!-- START SCREEN -->
     <div id="scr-start" class="screen">
         <h1 id="mt-title">TITLE</h1>
-        <button class="btn-play" id="btn-start" onclick="GM.start()">START</button>
+        <button class="btn-play" id="btn-start">START</button>
     </div>
 
+    <!-- END SCREEN -->
     <div id="scr-end" class="screen" style="display:none">
         <h1 id="mt-end">END</h1>
-        <p style="color:#fff; font-size:24px">Score: <span id="end-score">0</span></p>
+        <p style="color:#fff; font-size:30px">Score: <span id="end-score">0</span></p>
         <button class="btn-play" onclick="location.reload()">↺</button>
     </div>
 
+    <!-- QUIZ -->
     <div id="quiz-box">
-        <h3 id="q-txt" style="color:#00d2ff; margin-top:0">Question</h3>
+        <h2 id="q-txt" style="color:#00d2ff; margin-top:0">Question</h2>
         <div id="q-body"></div>
     </div>
 </div>
@@ -364,15 +438,13 @@ const cvs = document.getElementById('cvs');
 const ctx = cvs.getContext('2d');
 let W, H;
 
-// FORCE RESIZE FOR GENIALLY
 function resize() {
     W = cvs.width = window.innerWidth;
     H = cvs.height = window.innerHeight;
-    GM.mx = W/2; 
-    GM.my = H-100;
+    GM.mx = W/2; GM.my = H-100;
 }
 window.addEventListener('resize', resize);
-window.onload = resize;
+setTimeout(resize, 100); // Trigger resize early
 
 const AC = new (window.AudioContext || window.webkitAudioContext)();
 function sfx(type) {
@@ -402,9 +474,15 @@ const GM = {
     objs: [], mx: 0, my: 0, bgY: 0,
     
     start: () => {
+        // Explicitly focus window to ensure inputs work in iframe
+        window.focus();
         document.getElementById('scr-start').style.display = 'none';
         resize();
-        if(music) music.play().catch(e=>{});
+        
+        // Start Audio
+        if(AC.state === 'suspended') AC.resume();
+        if(music) music.play().catch(e=>console.log("Audio prevented"));
+        
         GM.run = true;
         loop();
         setInterval(() => {
@@ -427,6 +505,9 @@ const GM = {
     }
 };
 
+// ADD EVENT LISTENER TO START BUTTON
+document.getElementById('btn-start').addEventListener('click', GM.start);
+
 // Controls
 window.addEventListener('mousemove', e => {
     GM.mx = e.clientX;
@@ -446,32 +527,32 @@ function loop() {
 
     ctx.clearRect(0,0,W,H);
     
+    // Background
     GM.bgY += parseInt(CFG.speed) * 0.5; 
     if(iBg.src) {
-        // Cover logic
         let sc = Math.max(W/iBg.width, H/iBg.height);
         let bw = iBg.width * sc; let bh = iBg.height * sc;
         let offY = GM.bgY % bh;
         ctx.drawImage(iBg, (W-bw)/2, offY, bw, bh); 
         ctx.drawImage(iBg, (W-bw)/2, offY - bh, bw, bh);
-    } else {
-        ctx.fillStyle = '#112'; ctx.fillRect(0,0,W,H);
-    }
+    } else { ctx.fillStyle = '#112'; ctx.fillRect(0,0,W,H); }
 
+    // Stars
     ctx.fillStyle = "rgba(255,255,255,0.4)";
     for(let i=0; i<4; i++) {
         let x = Math.random()*W; let y = Math.random()*H;
         ctx.fillRect(x, y, 2, Math.random()*40);
     }
 
+    // Spawn
     if(GM.frame % (60 - parseInt(CFG.speed)*2) === 0) {
         let isCoin = (CFG.qs.length > 0 && Math.random() > 0.6);
-        // Better Spawn Logic for different aspect ratios
-        let sX = (Math.random()-0.5) * (W*2); 
+        let sX = (Math.random()-0.5) * (W*2.5); 
         let sY = (Math.random()-0.5) * (H*1.5);
         GM.objs.push({ x: sX, y: sY, z: 2000, t: isCoin?'c':'o' });
     }
 
+    // Objects
     GM.objs.sort((a,b) => b.z - a.z);
     for(let i=0; i<GM.objs.length; i++) {
         let o = GM.objs[i];
@@ -500,6 +581,7 @@ function loop() {
         }
     }
 
+    // Player
     let pSize = 120 * parseFloat(CFG.scale);
     if(iBird.src) {
         let tilt = (GM.mx - W/2) * 0.05;
