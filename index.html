@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Полет Аватара: Редактор (Исправленный)</title>
+    <title>Полет Аватара: Мастер</title>
     <style>
         :root { --primary: #00d2ff; --bg: #1a1a2d; --panel: #252540; --text: #e0e0ff; --accent: #ff00ff; --success: #00ff88; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
@@ -223,7 +223,6 @@
     }
 
     // === ASSETS & PREVIEW ENGINE ===
-    // This is the stable image loader that works
     function loadAsset(key, isImg=true) {
         const input = document.getElementById(key === 'bg' ? 'fBg' : key === 'bird' ? 'fBird' : key === 'obs' ? 'fObs' : key === 'coin' ? 'fCoin' : 'fMusic');
         if(input.files && input.files[0]) {
@@ -241,8 +240,7 @@
         }
     }
 
-    // --- PREVIEW GAME LOOP (STABLE VERSION) ---
-    // This loop is kept simple so it doesn't break when loading images
+    // --- PREVIEW GAME LOOP ---
     const pCanvas = document.getElementById('previewCanvas');
     const pCtx = pCanvas.getContext('2d');
     let pObjs = [];
@@ -269,7 +267,7 @@
         const scaleUser = parseFloat(document.getElementById('sizeRange').value);
         const objScale = parseFloat(document.getElementById('objSizeRange').value);
 
-        // 1. BG - Stable scrolling logic for Preview
+        // 1. BG
         if(pImg.bg.src && pImg.bg.width > 0) {
             pBgY += speed * 0.5;
             let sc = Math.max(pCanvas.width/pImg.bg.width, pCanvas.height/pImg.bg.height);
@@ -278,7 +276,6 @@
             pCtx.drawImage(pImg.bg, (pCanvas.width-bw)/2, offY, bw, bh);
             pCtx.drawImage(pImg.bg, (pCanvas.width-bw)/2, offY - bh, bw, bh);
         } else {
-            // Draw Stars if no BG
             pCtx.fillStyle = '#000'; pCtx.fillRect(0,0,pCanvas.width,pCanvas.height);
             pCtx.fillStyle = 'rgba(255,255,255,0.3)';
             for(let i=0; i<10; i++) {
@@ -298,7 +295,7 @@
             });
         }
 
-        // 3. Objects
+        // 3. Objects (Preview version is simple)
         pObjs.sort((a,b) => b.z - a.z);
         for(let i=0; i<pObjs.length; i++) {
             let o = pObjs[i];
@@ -362,7 +359,7 @@
             img: assets
         };
 
-        // --- HERE IS THE IMPROVED GAME CODE (Background moves all ways, buttons fixed) ---
+        // --- IMPROVED GAME LOGIC: STATIC OBJECTS & ROTATION ---
         const CODE = `
 <!DOCTYPE html>
 <html>
@@ -405,7 +402,7 @@
         display:none; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); 
         width:90%; max-width:500px; background:#1e293b; border:3px solid #00d2ff; 
         padding:20px; border-radius:15px; text-align:center; color:#fff; 
-        z-index:200; /* Above everything to fix clicking */
+        z-index:200; 
         pointer-events: auto !important;
         box-shadow: 0 0 50px #000;
     }
@@ -540,7 +537,6 @@ const GM = {
         document.getElementById('ui-score').innerText = "0";
         document.getElementById('ui-time').innerText = GM.time;
         
-        // Screens
         document.getElementById('scr-end').style.display = 'none';
         document.getElementById('scr-start').style.display = 'flex';
         document.getElementById('quiz-box').style.display = 'none';
@@ -559,7 +555,6 @@ const GM = {
 
 document.getElementById('btn-start').addEventListener('click', GM.start);
 
-// Control tracking
 window.addEventListener('mousemove', e => {
     GM.mx = e.clientX;
     GM.my = e.clientY;
@@ -575,32 +570,24 @@ function loop() {
     requestAnimationFrame(loop);
     
     ctx.clearRect(0,0,W,H);
-
-    // If paused, keep drawing current frame but no updates
     if(GM.pause) return; 
 
-    // 1. CALCULATE MOVEMENT (Full Direction Parallax)
-    // How far is player from center?
+    // 1. BG MOVEMENT (Illusion of turning)
     let dx = (W/2 - GM.mx) * 0.1;
     let dy = (H/2 - GM.my) * 0.1;
-    
-    // Move background
     GM.bgX += dx;
     GM.bgY += dy + parseInt(CFG.speed);
 
-    // Draw BG (Tiled Pattern)
     if(iBg.src && iBg.complete) {
         let ptrn = ctx.createPattern(iBg, 'repeat');
         if(ptrn) {
             ctx.save();
             ctx.fillStyle = ptrn;
             ctx.translate(GM.bgX % iBg.width, GM.bgY % iBg.height);
-            // Draw very large to cover screen during tilt
             ctx.fillRect(-W*2, -H*2, W*4, H*4); 
             ctx.restore();
         }
     } else {
-        // Starfield fallback
         ctx.fillStyle = '#112'; ctx.fillRect(0,0,W,H);
         ctx.fillStyle = "rgba(255,255,255,0.4)";
         for(let i=0; i<30; i++) {
@@ -613,7 +600,6 @@ function loop() {
     // 2. SPAWN OBJECTS
     if(GM.frame % (60 - parseInt(CFG.speed)*2) === 0) {
         let isCoin = (CFG.qs.length > 0 && Math.random() > 0.6);
-        // Easier spread (narrower)
         let sX = (Math.random()-0.5) * W * 1.2; 
         let sY = (Math.random()-0.5) * H * 1.2;
         GM.objs.push({ x: sX, y: sY, z: 2000, t: isCoin?'c':'o' });
@@ -628,34 +614,49 @@ function loop() {
         let o = GM.objs[i];
         o.z -= (2 + speed);
         
-        // Move objects opposite to player movement (illusion of turning)
-        o.x += dx * (2000/o.z); 
-        o.y += dy * (2000/o.z);
+        // --- KEY FIX: OBJECTS ARE STATIC IN X/Y (Moving straight to camera) ---
+        // We removed o.x += dx... so they don't run away.
+        
+        // Add Floating effect (Hovering)
+        let hover = Math.sin(GM.frame * 0.05 + i) * 100; // gentle wave
 
         if(o.z < 10) { GM.objs.splice(i,1); i--; continue; }
 
         let scale = 500 / o.z;
         let sx = W/2 + o.x * scale;
-        let sy = H/2 + o.y * scale;
+        // Obstacles float, coins spin
+        let sy = H/2 + (o.y + (o.t==='o' ? hover : 0)) * scale;
         let size = 100 * scale * objScaleUser;
 
-        // Draw "Depth line" to help catching
+        // Depth Line
         ctx.strokeStyle = "rgba(255,255,255,0.1)";
         ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx, H); ctx.stroke();
 
         let img = (o.t==='c') ? iCoin : iObs;
-        if(img.src) ctx.drawImage(img, sx-size/2, sy-size/2, size, size);
-        else {
-            ctx.fillStyle = (o.t==='c') ? 'gold' : 'red';
-            ctx.beginPath(); ctx.arc(sx, sy, size/2, 0, 6.28); ctx.fill();
+        
+        if (o.t === 'c') {
+            // ROTATION EFFECT FOR COINS
+            // Simulate 3D spin by oscillating width
+            let spin = Math.abs(Math.sin(GM.frame * 0.1 + i));
+            let w = size * spin;
+            if(img.src) ctx.drawImage(img, sx - w/2, sy - size/2, w, size);
+            else {
+                 ctx.fillStyle = 'gold';
+                 ctx.beginPath(); ctx.ellipse(sx, sy, w/2, size/2, 0, 0, 6.28); ctx.fill();
+            }
+        } else {
+            // OBSTACLES (Static Image)
+            if(img.src) ctx.drawImage(img, sx-size/2, sy-size/2, size, size);
+            else {
+                ctx.fillStyle = 'red';
+                ctx.beginPath(); ctx.arc(sx, sy, size/2, 0, 6.28); ctx.fill();
+            }
         }
 
         // HIT DETECTION
         if(o.z < 200 && o.z > 20) {
             let dist = Math.hypot(sx - GM.mx, sy - GM.my);
-            // Increased Hitbox
             let hitbox = (size * 0.8) + (60 * parseFloat(CFG.scale));
-            
             if(dist < hitbox) {
                 GM.objs.splice(i,1); i--;
                 hit(o.t);
@@ -666,7 +667,7 @@ function loop() {
     // 4. DRAW BIRD
     if(GM.hurt > 0) {
         GM.hurt--;
-        if(Math.floor(GM.hurt / 5) % 2 === 0) return; // Blink
+        if(Math.floor(GM.hurt / 5) % 2 === 0) return;
     }
 
     let pSize = 120 * parseFloat(CFG.scale);
