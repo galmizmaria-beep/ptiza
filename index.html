@@ -2,422 +2,651 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Genially Avatar Editor (Fixed)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genially Game Editor: Flight Edition</title>
     <style>
-        body { background: #121212; color: #eee; font-family: sans-serif; padding: 20px; }
-        .container { max-width: 800px; margin: 0 auto; background: #1e1e1e; padding: 20px; border-radius: 8px; }
-        h1 { color: #00d2ff; text-align: center; }
-        .section { margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 20px; }
-        label { display: block; margin-top: 10px; font-weight: bold; }
-        input, select, button { width: 100%; padding: 10px; margin-top: 5px; background: #333; color: white; border: 1px solid #444; border-radius: 4px; box-sizing: border-box;}
-        button { cursor: pointer; background: #00d2ff; color: #000; font-weight: bold; }
-        button:hover { background: #fff; }
-        textarea { width: 100%; height: 150px; background: #000; color: #0f0; font-family: monospace; }
-        .q-item { background: #2a2a2a; padding: 10px; margin-top: 10px; border-left: 3px solid #00d2ff; }
-        .preview { font-size: 12px; color: #aaa; margin-top: 2px; }
+        :root { --primary: #00d2ff; --bg: #1a1a2d; --panel: #252540; --text: #e0e0ff; --accent: #ff00ff; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        
+        /* Header & Lang Switch */
+        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary); padding-bottom: 20px; margin-bottom: 20px; }
+        h1 { margin: 0; color: var(--primary); text-transform: uppercase; text-shadow: 0 0 10px var(--primary); font-size: 24px; }
+        .lang-switch button { background: #333; color: #fff; border: 1px solid #555; padding: 5px 10px; cursor: pointer; }
+        .lang-switch button.active { background: var(--primary); color: #000; font-weight: bold; }
+
+        /* Grid Layout */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .card { background: var(--panel); padding: 20px; border-radius: 10px; border: 1px solid #444; position: relative; }
+        .full-width { grid-column: 1 / -1; }
+        
+        h2 { margin-top: 0; color: var(--primary); border-bottom: 1px solid #555; padding-bottom: 10px; font-size: 18px; }
+        
+        /* Form Inputs */
+        label { display: block; margin-top: 10px; font-weight: bold; font-size: 14px; color: #aaa; }
+        input[type="text"], input[type="number"], select {
+            width: 100%; padding: 8px; margin-top: 5px; background: #111; border: 1px solid #555; color: #fff; border-radius: 4px; box-sizing: border-box;
+        }
+        input[type="range"] { width: 100%; margin: 10px 0; }
+        input[type="file"] { margin-top: 5px; font-size: 12px; }
+
+        /* Real-time Preview */
+        #livePreview { 
+            width: 100%; height: 250px; background: #000; border: 2px solid var(--primary); 
+            margin-bottom: 15px; position: relative; overflow: hidden; 
+            background-size: cover; background-position: center;
+        }
+        #previewBird {
+            position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%);
+            width: 80px; height: 80px; 
+            background-size: contain; background-repeat: no-repeat; background-position: center;
+            border: 1px dashed rgba(255,255,255,0.3);
+        }
+        .anim-bg { animation: scrollBg linear infinite; }
+        @keyframes scrollBg { from { background-position: 0 0; } to { background-position: 0 500px; } }
+
+        /* Questions */
+        .q-list { max-height: 300px; overflow-y: auto; }
+        .q-item { background: #1e1e30; padding: 10px; margin-bottom: 8px; border-left: 3px solid var(--accent); position: relative; }
+        .del-btn { position: absolute; top: 5px; right: 5px; background: #f44; color: #fff; border: none; cursor: pointer; padding: 2px 8px; font-size: 12px; }
+
+        /* Buttons */
+        .btn-main { 
+            background: linear-gradient(45deg, var(--primary), #0088ff); color: #fff; border: none; 
+            padding: 15px; width: 100%; font-size: 18px; font-weight: bold; cursor: pointer; 
+            border-radius: 5px; margin-top: 10px; text-transform: uppercase;
+        }
+        .btn-small { background: #444; color: #fff; border: none; padding: 8px; cursor: pointer; width: 100%; margin-top: 10px; }
+        
+        textarea { width: 100%; height: 150px; background: #000; color: #0f0; margin-top: 10px; border: 1px solid #333; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🔧 Редактор для Genially (Исправленный)</h1>
-    <p style="text-align:center; color:#aaa;">Эта версия исправляет управление мышкой внутри Genially.</p>
+    <header>
+        <h1 data-key="title">💎 Game Editor</h1>
+        <div class="lang-switch">
+            <button onclick="setLang('ru')" id="btn-ru" class="active">RU</button>
+            <button onclick="setLang('en')" id="btn-en">EN</button>
+        </div>
+    </header>
 
-    <!-- 1. Файлы -->
-    <div class="section">
-        <h3>1. Загрузка файлов</h3>
-        <label>Фон (Картинка):</label>
-        <input type="file" id="bg" accept="image/*" onchange="encode(this, 'bg')">
-        <div id="p_bg" class="preview">Нет файла</div>
-
-        <label>Птица (Икран):</label>
-        <input type="file" id="bird" accept="image/*" onchange="encode(this, 'bird')">
-        <div id="p_bird" class="preview">Нет файла</div>
-
-        <label>Препятствие (Враг):</label>
-        <input type="file" id="obs" accept="image/*" onchange="encode(this, 'obs')">
-        <div id="p_obs" class="preview">Нет файла</div>
-
-        <label>Монета (Вопрос):</label>
-        <input type="file" id="coin" accept="image/*" onchange="encode(this, 'coin')">
-        <div id="p_coin" class="preview">Нет файла</div>
+    <div class="grid">
         
-        <label>Музыка (MP3):</label>
-        <input type="file" id="music" accept="audio/*" onchange="encode(this, 'music')">
-        <div id="p_music" class="preview">Нет файла</div>
-    </div>
+        <!-- Live Preview & Visuals -->
+        <div class="card">
+            <h2 data-key="sec_visual">👁️ Визуал и Предпросмотр</h2>
+            <div id="livePreview">
+                <div id="previewBird"></div>
+            </div>
+            
+            <label data-key="lbl_bg">Фон (Бесшовный для лучшего эффекта):</label>
+            <input type="file" id="fBg" accept="image/*" onchange="loadAsset('bg')">
+            
+            <label data-key="lbl_bird">Аватар (Птица):</label>
+            <input type="file" id="fBird" accept="image/*" onchange="loadAsset('bird')">
+            
+            <label data-key="lbl_size">Размер аватара:</label>
+            <input type="range" id="sizeRange" min="0.5" max="2.0" step="0.1" value="1.0" oninput="updatePreview()">
+            
+            <label data-key="lbl_speed">Скорость полета:</label>
+            <input type="range" id="speedRange" min="1" max="20" value="5" oninput="updatePreview()">
+        </div>
 
-    <!-- 2. Настройки -->
-    <div class="section">
-        <h3>2. Настройки</h3>
-        <label>Время (сек):</label> <input type="number" id="time" value="60">
-        <label>Скорость (1-10):</label> <input type="number" id="speed" value="6">
-    </div>
+        <!-- Texts & Settings -->
+        <div class="card">
+            <h2 data-key="sec_settings">⚙️ Настройки и Текст</h2>
+            
+            <label data-key="lbl_gameTitle">Название игры:</label>
+            <input type="text" id="txtTitle" value="ПОЛЕТ АВАТАРА">
+            
+            <label data-key="lbl_btnStart">Текст кнопки старт:</label>
+            <input type="text" id="txtStart" value="ИГРАТЬ">
+            
+            <label data-key="lbl_win">Текст победы:</label>
+            <input type="text" id="txtWin" value="ТЫ ПОБЕДИЛ!">
+            
+            <label data-key="lbl_lose">Текст поражения:</label>
+            <input type="text" id="txtLose" value="ВРЕМЯ ВЫШЛО">
 
-    <!-- 3. Вопросы -->
-    <div class="section">
-        <h3>3. Вопросы</h3>
-        <div id="qList"></div>
-        <button onclick="addQ()" style="background:#444; margin-top:10px;">+ Добавить вопрос</button>
-    </div>
+            <div style="display: flex; gap: 10px;">
+                <div style="flex:1">
+                    <label data-key="lbl_time">Время (сек):</label>
+                    <input type="number" id="valTime" value="60">
+                </div>
+            </div>
 
-    <!-- 4. Генерация -->
-    <div class="section">
-        <button onclick="generate()">🚀 СГЕНЕРИРОВАТЬ КОД</button>
-        <label>Скопируйте этот код и вставьте в Genially (Insert -> Others):</label>
-        <textarea id="output" readonly></textarea>
-        <button onclick="copy()">Копировать в буфер</button>
+            <h3 style="font-size:14px; margin-top:15px; color:#fff;" data-key="sec_assets">Доп. Картинки</h3>
+            <label data-key="lbl_obs">Препятствие:</label>
+            <input type="file" id="fObs" accept="image/*" onchange="loadAsset('obs')">
+            
+            <label data-key="lbl_coin">Монета (Вопрос):</label>
+            <input type="file" id="fCoin" accept="image/*" onchange="loadAsset('coin')">
+            
+            <label data-key="lbl_music">Музыка (MP3):</label>
+            <input type="file" id="fMusic" accept="audio/*" onchange="loadAsset('music', false)">
+        </div>
+
+        <!-- Questions -->
+        <div class="card full-width">
+            <h2 data-key="sec_questions">❓ Вопросы</h2>
+            <div id="qList" class="q-list"></div>
+            <button class="btn-small" onclick="addQ()" data-key="btn_addQ">+ Добавить вопрос</button>
+        </div>
+
+        <!-- Generate -->
+        <div class="card full-width" style="text-align: center;">
+            <button class="btn-main" onclick="generate()" data-key="btn_gen">🚀 СГЕНЕРИРОВАТЬ КОД</button>
+            <div id="outputBlock" style="display:none; text-align: left; margin-top: 15px;">
+                <label data-key="lbl_copy">Скопируйте код и вставьте в Genially (Insert -> Others):</label>
+                <textarea id="outCode" readonly></textarea>
+                <button class="btn-small" onclick="copyCode()" data-key="btn_copy">Копировать</button>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
-    const assets = { bg: "", bird: "", obs: "", coin: "", music: "" };
+    // === DATA & LANG ===
+    const assets = { bg: null, bird: null, obs: null, coin: null, music: null };
+    let currentLang = 'ru';
 
-    function encode(input, key) {
-        if (input.files && input.files[0]) {
+    const dict = {
+        ru: {
+            title: "💎 РЕДАКТОР ИГРЫ",
+            sec_visual: "👁️ Визуал и Предпросмотр",
+            lbl_bg: "Фон (Бесшовный):",
+            lbl_bird: "Аватар (Птица):",
+            lbl_size: "Размер аватара:",
+            lbl_speed: "Скорость анимации:",
+            sec_settings: "⚙️ Настройки и Текст",
+            lbl_gameTitle: "Название игры:",
+            lbl_btnStart: "Текст кнопки старт:",
+            lbl_win: "Текст победы:",
+            lbl_lose: "Текст поражения:",
+            lbl_time: "Время (сек):",
+            sec_assets: "Игровые объекты",
+            lbl_obs: "Препятствие:",
+            lbl_coin: "Монета:",
+            lbl_music: "Музыка:",
+            sec_questions: "❓ Вопросы",
+            btn_addQ: "+ Добавить вопрос",
+            btn_gen: "🚀 СГЕНЕРИРОВАТЬ КОД",
+            lbl_copy: "Скопируйте код для Genially:",
+            btn_copy: "Копировать",
+            ph_q: "Текст вопроса",
+            ph_c: "Верный ответ",
+            ph_w1: "Неверный 1",
+            ph_w2: "Неверный 2",
+            ph_i: "Правильный ответ (текст)",
+            val_title: "ПОЛЕТ АВАТАРА",
+            val_start: "ИГРАТЬ",
+            val_win: "ТЫ ПОБЕДИЛ!",
+            val_lose: "ТЫ ПРОИГРАЛ"
+        },
+        en: {
+            title: "💎 GAME EDITOR",
+            sec_visual: "👁️ Visuals & Preview",
+            lbl_bg: "Background (Seamless):",
+            lbl_bird: "Avatar (Bird):",
+            lbl_size: "Avatar Size:",
+            lbl_speed: "Animation Speed:",
+            sec_settings: "⚙️ Settings & Text",
+            lbl_gameTitle: "Game Title:",
+            lbl_btnStart: "Start Button Text:",
+            lbl_win: "Win Message:",
+            lbl_lose: "Lose Message:",
+            lbl_time: "Time (sec):",
+            sec_assets: "Game Objects",
+            lbl_obs: "Obstacle:",
+            lbl_coin: "Coin:",
+            lbl_music: "Music:",
+            sec_questions: "❓ Questions",
+            btn_addQ: "+ Add Question",
+            btn_gen: "🚀 GENERATE CODE",
+            lbl_copy: "Copy code for Genially:",
+            btn_copy: "Copy to clipboard",
+            ph_q: "Question text",
+            ph_c: "Correct answer",
+            ph_w1: "Wrong 1",
+            ph_w2: "Wrong 2",
+            ph_i: "Correct answer (text)",
+            val_title: "AVATAR FLIGHT",
+            val_start: "PLAY",
+            val_win: "YOU WON!",
+            val_lose: "GAME OVER"
+        }
+    };
+
+    function setLang(lang) {
+        currentLang = lang;
+        document.querySelectorAll('[data-key]').forEach(el => {
+            if(dict[lang][el.dataset.key]) el.innerText = dict[lang][el.dataset.key];
+        });
+        document.getElementById('btn-ru').className = lang === 'ru' ? 'active' : '';
+        document.getElementById('btn-en').className = lang === 'en' ? 'active' : '';
+
+        // Update default placeholders inputs
+        const d = dict[lang];
+        document.getElementById('txtTitle').value = d.val_title;
+        document.getElementById('txtStart').value = d.val_start;
+        document.getElementById('txtWin').value = d.val_win;
+        document.getElementById('txtLose').value = d.val_lose;
+        
+        // Update placeholders in dynamic questions
+        updatePlaceholders();
+    }
+
+    function updatePlaceholders() {
+        const d = dict[currentLang];
+        document.querySelectorAll('.ph-q').forEach(el => el.placeholder = d.ph_q);
+        document.querySelectorAll('.ph-c').forEach(el => el.placeholder = d.ph_c);
+        document.querySelectorAll('.ph-w').forEach(el => el.placeholder = d.ph_w1);
+        document.querySelectorAll('.ph-i').forEach(el => el.placeholder = d.ph_i);
+    }
+
+    // === PREVIEW LOGIC ===
+    function loadAsset(key, isImg=true) {
+        const input = document.getElementById(key === 'bg' ? 'fBg' : key === 'bird' ? 'fBird' : key === 'obs' ? 'fObs' : key === 'coin' ? 'fCoin' : 'fMusic');
+        if(input.files && input.files[0]) {
             const reader = new FileReader();
             reader.onload = function(e) {
                 assets[key] = e.target.result;
-                document.getElementById('p_' + key).innerText = "Загружено! (" + Math.round(e.target.result.length/1024) + " KB)";
+                updatePreview();
             }
             reader.readAsDataURL(input.files[0]);
         }
     }
 
+    function updatePreview() {
+        const pv = document.getElementById('livePreview');
+        const bird = document.getElementById('previewBird');
+        const size = document.getElementById('sizeRange').value;
+        const speed = document.getElementById('speedRange').value;
+
+        if(assets.bg) pv.style.backgroundImage = `url('${assets.bg}')`;
+        if(assets.bird) bird.style.backgroundImage = `url('${assets.bird}')`;
+        
+        // Scale bird
+        bird.style.transform = `translate(-50%, -50%) scale(${size})`;
+        
+        // Animate BG
+        pv.style.animationDuration = (11 - speed/2) + 's'; // simple visual mapping
+        pv.classList.add('anim-bg');
+    }
+
+    // === QUESTIONS ===
     function addQ() {
+        const d = dict[currentLang];
         const div = document.createElement('div');
         div.className = 'q-item';
         div.innerHTML = `
-            <input type="text" class="q-text" placeholder="Текст вопроса">
-            <select class="q-type" onchange="this.nextElementSibling.style.display=this.value=='choice'?'block':'none'; this.nextElementSibling.nextElementSibling.style.display=this.value=='input'?'block':'none'">
-                <option value="choice">Выбор ответа</option>
-                <option value="input">Ввод текста</option>
+            <button class="del-btn" onclick="this.parentElement.remove()">x</button>
+            <input type="text" class="q-txt ph-q" placeholder="${d.ph_q}">
+            <select class="q-type" onchange="toggleType(this)">
+                <option value="choice">Choice</option>
+                <option value="input">Input</option>
             </select>
-            <div class="opt-c">
-                <input type="text" class="c-ans" placeholder="Правильный ответ" style="border-color:green">
-                <input type="text" class="w-ans1" placeholder="Неверный 1">
-                <input type="text" class="w-ans2" placeholder="Неверный 2">
+            <div class="opt-choice">
+                <input type="text" class="c-ans ph-c" placeholder="${d.ph_c}" style="border-color: #0f0;">
+                <input type="text" class="w-ans1 ph-w" placeholder="${d.ph_w1}">
+                <input type="text" class="w-ans2 ph-w" placeholder="${d.ph_w2}">
             </div>
-            <div class="opt-i" style="display:none">
-                <input type="text" class="i-ans" placeholder="Правильный ответ">
+            <div class="opt-input" style="display:none">
+                <input type="text" class="i-ans ph-i" placeholder="${d.ph_i}">
             </div>
-            <button onclick="this.parentElement.remove()" style="background:red; margin-top:5px; padding:5px;">Удалить</button>
         `;
         document.getElementById('qList').appendChild(div);
     }
 
-    function copy() {
-        document.getElementById('output').select();
+    function toggleType(sel) {
+        const p = sel.parentElement;
+        p.querySelector('.opt-choice').style.display = sel.value === 'choice' ? 'block' : 'none';
+        p.querySelector('.opt-input').style.display = sel.value === 'input' ? 'block' : 'none';
+    }
+
+    // === GENERATOR ===
+    function copyCode() {
+        document.getElementById('outCode').select();
         document.execCommand('copy');
-        alert("Код скопирован!");
+        alert("Copied!");
     }
 
     function generate() {
-        const qs = [];
+        const questions = [];
         document.querySelectorAll('.q-item').forEach(el => {
             const type = el.querySelector('.q-type').value;
-            const obj = { t: el.querySelector('.q-text').value, type: type };
-            if (type === 'choice') {
+            const obj = { t: el.querySelector('.q-txt').value, type };
+            if(type === 'choice') {
                 obj.c = el.querySelector('.c-ans').value;
                 obj.w = [el.querySelector('.w-ans1').value, el.querySelector('.w-ans2').value];
             } else {
                 obj.c = el.querySelector('.i-ans').value;
             }
-            qs.push(obj);
+            questions.push(obj);
         });
 
-        const cfg = {
-            t: document.getElementById('time').value,
-            s: document.getElementById('speed').value,
-            q: qs,
-            img: assets
+        const CONFIG = {
+            title: document.getElementById('txtTitle').value,
+            btn: document.getElementById('txtStart').value,
+            win: document.getElementById('txtWin').value,
+            lose: document.getElementById('txtLose').value,
+            time: document.getElementById('valTime').value,
+            speed: document.getElementById('speedRange').value,
+            scale: document.getElementById('sizeRange').value,
+            qs: questions,
+            img: assets,
+            lang: currentLang
         };
 
-        const code = `
+        const CODE = `
 <!DOCTYPE html>
 <html>
 <head>
 <style>
-    body, html { margin:0; padding:0; width:100%; height:100%; overflow:hidden; background:#000; font-family:Arial, sans-serif; }
-    #game-container { position:relative; width:100%; height:100%; }
-    canvas { display:block; width:100%; height:100%; }
+    body { margin:0; overflow:hidden; background:#000; font-family:'Segoe UI',sans-serif; user-select:none; -webkit-user-select:none; }
+    #game-box { position:relative; width:100vw; height:100vh; overflow:hidden; }
+    canvas { display:block; width:100%; height:100%; position:absolute; top:0; left:0; z-index:0; }
     
-    /* UI слои */
-    .ui-layer { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index: 10; }
-    .hud-text { font-size:20px; font-weight:bold; color:#0ff; text-shadow:1px 1px 0 #000; position:absolute; top:10px; }
+    /* UI ELEMENTS */
+    .ui-layer { position:absolute; width:100%; height:100%; top:0; left:0; pointer-events:none; z-index:10; }
+    .hud { position:absolute; top:10px; color:#00d2ff; font-size:24px; font-weight:bold; text-shadow:2px 2px 0 #000; padding:5px 15px; background:rgba(0,0,0,0.6); border-radius:10px; border:1px solid #00d2ff; }
     
-    /* Экраны (Старт/Конец) */
+    /* MODALS */
     .screen { 
         position:absolute; top:0; left:0; width:100%; height:100%; 
-        background:rgba(0,0,0,0.85); z-index: 20;
-        display:flex; flex-direction:column; align-items:center; justify-content:center;
+        background:rgba(0,0,0,0.85); display:flex; flex-direction:column; 
+        align-items:center; justify-content:center; z-index:20; pointer-events:auto; 
     }
     
-    h1 { color:#00d2ff; text-align:center; margin-bottom:20px; font-size: 32px; text-transform:uppercase; text-shadow: 0 0 20px #00d2ff; }
+    h1 { color:#00d2ff; font-size:48px; text-transform:uppercase; text-shadow:0 0 20px #00d2ff; margin-bottom:10px; text-align:center; }
     
-    .btn { 
-        background: #00d2ff; color: #000; border: 2px solid #fff; 
-        padding: 15px 40px; font-size: 24px; font-weight: bold; cursor: pointer; 
-        border-radius: 50px; text-transform:uppercase; box-shadow: 0 0 15px #00d2ff;
-        pointer-events: auto; /* Важно для клика */
-        transition: transform 0.1s;
+    button.btn-play {
+        background: linear-gradient(180deg, #00d2ff, #0088aa);
+        border: 3px solid #fff; padding: 15px 50px;
+        color: #fff; font-size: 28px; font-weight: bold; text-transform: uppercase;
+        border-radius: 50px; cursor: pointer; box-shadow: 0 0 25px #00d2ff;
+        transition: transform 0.1s; text-shadow: 1px 1px 2px #000;
+        pointer-events: auto;
     }
-    .btn:active { transform: scale(0.95); background: #fff; }
+    button.btn-play:active { transform: scale(0.95); background: #fff; color: #00d2ff; }
 
-    /* Окно вопроса */
-    #q-modal { 
+    /* QUIZ MODAL */
+    #quiz-box { 
         display:none; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); 
-        width:90%; max-width:400px; background:#1a2a40; border:2px solid #00d2ff; 
-        padding:15px; text-align:center; z-index:30; border-radius:10px; pointer-events:auto;
+        width:90%; max-width:450px; background:#1e293b; border:2px solid #00d2ff; 
+        padding:20px; border-radius:15px; text-align:center; color:#fff; z-index:30; pointer-events:auto;
     }
-    .q-btn { display:block; width:100%; padding:10px; margin:5px 0; background:#000; color:#fff; border:1px solid #555; cursor:pointer; font-size:16px; }
+    .q-btn { display:block; width:100%; padding:12px; margin:8px 0; background:#334; border:1px solid #556; color:#fff; font-size:18px; cursor:pointer; }
     .q-btn:hover { background:#00d2ff; color:#000; }
-    input.q-inp { width:90%; padding:10px; font-size:18px; text-align:center; margin-bottom:10px; }
+    input.q-inp { width:80%; padding:10px; font-size:18px; text-align:center; margin-bottom:10px; }
 
 </style>
 </head>
 <body>
 
-<div id="game-container">
+<div id="game-box">
     <canvas id="cvs"></canvas>
     
     <div class="ui-layer">
-        <div class="hud-text" style="left:10px">⏳ <span id="ui-time">0</span></div>
-        <div class="hud-text" style="right:10px">📀 <span id="ui-score">0</span></div>
+        <div class="hud" style="left:20px">⏱ <span id="ui-time">0</span></div>
+        <div class="hud" style="right:20px">🏆 <span id="ui-score">0</span></div>
     </div>
 
-    <div id="start-screen" class="screen">
-        <h1>Полет Аватара</h1>
-        <button class="btn" id="start-btn">НАЧАТЬ ПОЛЕТ</button>
+    <div id="scr-start" class="screen">
+        <h1 id="mt-title">TITLE</h1>
+        <p style="color:#aaa; margin-bottom:30px">Genially Game</p>
+        <button class="btn-play" id="btn-start" onclick="GM.start()">START</button>
     </div>
 
-    <div id="end-screen" class="screen" style="display:none">
-        <h1 id="end-title"></h1>
-        <p style="color:#fff; font-size:18px">Собрано: <span id="end-score">0</span></p>
-        <button class="btn" onclick="location.reload()">ЗАНОВО</button>
+    <div id="scr-end" class="screen" style="display:none">
+        <h1 id="mt-end">END</h1>
+        <p style="color:#fff; font-size:24px">Score: <span id="end-score">0</span></p>
+        <button class="btn-play" onclick="location.reload()">↺</button>
     </div>
 
-    <div id="q-modal">
-        <h3 id="q-text" style="color:#0ff; margin-top:0"></h3>
-        <div id="q-opts"></div>
+    <div id="quiz-box">
+        <h3 id="q-txt" style="color:#00d2ff; margin-top:0">Question</h3>
+        <div id="q-body"></div>
     </div>
 </div>
 
 <script>
-// ДАННЫЕ ИЗ РЕДАКТОРА
-const CFG = ${JSON.stringify(cfg)};
+const CFG = ${JSON.stringify(CONFIG)};
 const IMG = CFG.img;
 
-// Инициализация Canvas
+// Set Texts
+document.getElementById('mt-title').innerText = CFG.title;
+document.getElementById('btn-start').innerText = CFG.btn;
+
 const cvs = document.getElementById('cvs');
 const ctx = cvs.getContext('2d');
 let W, H;
 
-// Ресурсы
-const iBg = new Image(); if(IMG.bg) iBg.src = IMG.bg;
-const iBird = new Image(); if(IMG.bird) iBird.src = IMG.bird;
-const iObs = new Image(); if(IMG.obs) iObs.src = IMG.obs;
-const iCoin = new Image(); if(IMG.coin) iCoin.src = IMG.coin;
-let music = null; if(IMG.music) { music = new Audio(IMG.music); music.loop = true; music.volume=0.5; }
-
-// Звуковые эффекты (без файлов)
+// Audio Synth
 const AC = new (window.AudioContext || window.webkitAudioContext)();
-function beep(type) {
-    if(AC.state==='suspended') AC.resume();
+function sfx(type) {
+    if(AC.state === 'suspended') AC.resume();
     const o = AC.createOscillator(); const g = AC.createGain();
     o.connect(g); g.connect(AC.destination);
     const t = AC.currentTime;
     if(type==='win') { 
-        o.frequency.setValueAtTime(500,t); o.frequency.linearRampToValueAtTime(1000,t+0.2); 
-        g.gain.setValueAtTime(0.1,t); g.gain.linearRampToValueAtTime(0,t+0.5);
-    } else { 
-        o.type='sawtooth'; o.frequency.setValueAtTime(200,t); o.frequency.exponentialRampToValueAtTime(50,t+0.3);
-        g.gain.setValueAtTime(0.1,t); g.gain.linearRampToValueAtTime(0,t+0.3);
+        o.frequency.setValueAtTime(500, t); o.frequency.linearRampToValueAtTime(1000, t+0.2);
+        g.gain.setValueAtTime(0.1, t); g.gain.linearRampToValueAtTime(0, t+0.5);
+    } else {
+        o.type='sawtooth'; o.frequency.setValueAtTime(200, t); o.frequency.exponentialRampToValueAtTime(50, t+0.3);
+        g.gain.setValueAtTime(0.1, t); g.gain.linearRampToValueAtTime(0, t+0.3);
     }
     o.start(t); o.stop(t+0.5);
 }
 
-// Состояние игры
-const G = {
+// Assets
+const iBg = new Image(); if(IMG.bg) iBg.src = IMG.bg;
+const iBird = new Image(); if(IMG.bird) iBird.src = IMG.bird;
+const iObs = new Image(); if(IMG.obs) iObs.src = IMG.obs;
+const iCoin = new Image(); if(IMG.coin) iCoin.src = IMG.coin;
+let music = null; if(IMG.music) { music = new Audio(IMG.music); music.loop=true; music.volume=0.4; }
+
+// Game Logic
+const GM = {
     run: false, pause: false, frame: 0,
-    time: parseInt(CFG.t), score: 0,
+    time: parseInt(CFG.time), score: 0,
     objs: [],
-    mx: 0, my: 0, // Мышь
+    mx: 0, my: 0,
+    bgY: 0, // For scroll effect
     
     resize: () => {
-        // Важное исправление для Genially: берем размер контейнера
         W = cvs.width = document.body.clientWidth;
         H = cvs.height = document.body.clientHeight;
-        G.mx = W/2; G.my = H-100;
+        GM.mx = W/2; GM.my = H-100;
     },
-    
+
     start: () => {
-        document.getElementById('start-screen').style.display = 'none';
-        G.resize();
-        if(music) music.play().catch(e=>console.log(e));
-        G.run = true;
+        document.getElementById('scr-start').style.display = 'none';
+        GM.resize();
+        if(music) music.play().catch(e=>{});
+        GM.run = true;
         loop();
         setInterval(() => {
-            if(G.run && !G.pause) {
-                G.time--;
-                document.getElementById('ui-time').innerText = G.time;
-                if(G.time <= 0) G.end(false);
+            if(GM.run && !GM.pause) {
+                GM.time--;
+                document.getElementById('ui-time').innerText = GM.time;
+                if(GM.time <= 0) GM.end(false);
             }
         }, 1000);
-        document.getElementById('ui-time').innerText = G.time;
+        document.getElementById('ui-time').innerText = GM.time;
     },
-    
+
     end: (win) => {
-        G.run = false;
-        document.getElementById('end-screen').style.display = 'flex';
-        document.getElementById('end-score').innerText = G.score;
-        let t = document.getElementById('end-title');
-        t.innerText = win ? "ПОБЕДА!" : "ВРЕМЯ ВЫШЛО";
-        t.style.color = win ? "#0f0" : "#f00";
-        beep(win ? 'win' : 'lose');
+        GM.run = false;
+        document.getElementById('scr-end').style.display = 'flex';
+        document.getElementById('mt-end').innerText = win ? CFG.win : CFG.lose;
+        document.getElementById('mt-end').style.color = win ? '#0f0' : '#f00';
+        document.getElementById('end-score').innerText = GM.score;
+        sfx(win?'win':'lose');
     }
 };
 
-// Обработка кнопки СТАРТ
-document.getElementById('start-btn').addEventListener('click', G.start);
-
-// Управление МЫШЬЮ (Исправлено для iFrame)
+// Controls
 window.addEventListener('mousemove', e => {
-    const rect = cvs.getBoundingClientRect();
-    G.mx = e.clientX - rect.left;
-    G.my = e.clientY - rect.top;
-    // Ограничение, чтобы не улетал вверх
-    if(G.my < H/2) G.my = H/2;
+    const r = cvs.getBoundingClientRect();
+    GM.mx = e.clientX - r.left;
+    GM.my = e.clientY - r.top;
+    if(GM.my < H/2) GM.my = H/2; // Limit height
 });
-window.addEventListener('resize', G.resize);
+window.addEventListener('resize', GM.resize);
 
-// Игровой цикл
 function loop() {
-    if(!G.run) return;
+    if(!GM.run) return;
     requestAnimationFrame(loop);
-    if(G.pause) return;
+    if(GM.pause) return;
 
     ctx.clearRect(0,0,W,H);
     
-    // 1. Фон
+    // 1. Moving Background (Flight Effect)
+    // We scroll BG vertically to simulate moving forward over ground
+    GM.bgY += parseInt(CFG.speed) * 0.5; 
     if(iBg.src) {
-        // Растягиваем фон как cover
-        let scale = Math.max(W/iBg.width, H/iBg.height);
-        let bw = iBg.width*scale; let bh = iBg.height*scale;
-        ctx.drawImage(iBg, (W-bw)/2, (H-bh)/2, bw, bh);
+        let sc = Math.max(W/iBg.width, H/iBg.height);
+        let bw = iBg.width * sc; let bh = iBg.height * sc;
+        
+        // Draw twice for seamless loop
+        let offY = GM.bgY % bh;
+        ctx.drawImage(iBg, (W-bw)/2, offY, bw, bh); 
+        ctx.drawImage(iBg, (W-bw)/2, offY - bh, bw, bh);
     } else {
-        ctx.fillStyle="#111"; ctx.fillRect(0,0,W,H);
+        ctx.fillStyle = '#112'; ctx.fillRect(0,0,W,H);
     }
-    
-    // 2. Линии скорости
-    ctx.fillStyle="rgba(255,255,255,0.3)";
-    for(let i=0; i<5; i++) ctx.fillRect(Math.random()*W, Math.random()*H, 2, Math.random()*30);
-    
-    // 3. Спавн объектов
-    if(G.frame % (60 - parseInt(CFG.s)*3) === 0) {
-        let isCoin = (CFG.q.length > 0 && Math.random() > 0.6);
-        G.objs.push({ x: (Math.random()-0.5)*W*2, y: (Math.random()-0.5)*H*1.5, z: 2000, type: isCoin?'coin':'obs' });
+
+    // 2. Speed Lines (Starfield effect)
+    ctx.fillStyle = "rgba(255,255,255,0.4)";
+    for(let i=0; i<4; i++) {
+        let x = Math.random()*W;
+        let y = Math.random()*H;
+        ctx.fillRect(x, y, 2, Math.random()*40);
     }
-    
-    // 4. Отрисовка объектов
-    G.objs.sort((a,b)=>b.z-a.z);
-    for(let i=0; i<G.objs.length; i++) {
-        let o = G.objs[i];
-        o.z -= (10 + parseInt(CFG.s)*2);
+
+    // 3. Spawner
+    if(GM.frame % (60 - parseInt(CFG.speed)*2) === 0) {
+        let isCoin = (CFG.qs.length > 0 && Math.random() > 0.6);
+        // Spawn spread out
+        GM.objs.push({ x: (Math.random()-0.5)*W*2.5, y: (Math.random()-0.5)*H*2, z: 2000, t: isCoin?'c':'o' });
+    }
+
+    // 4. Objects
+    GM.objs.sort((a,b) => b.z - a.z);
+    for(let i=0; i<GM.objs.length; i++) {
+        let o = GM.objs[i];
+        o.z -= (10 + parseInt(CFG.speed)*2); // Move closer
         
-        if(o.z < 10) { G.objs.splice(i,1); i--; continue; }
-        
-        let scale = 500/o.z;
-        let sx = W/2 + o.x*scale;
-        let sy = H/2 + o.y*scale;
-        let size = 100*scale;
-        
-        let img = (o.type==='coin') ? iCoin : iObs;
+        if(o.z < 10) { GM.objs.splice(i,1); i--; continue; }
+
+        let scale = 500 / o.z;
+        let sx = W/2 + o.x * scale;
+        let sy = H/2 + o.y * scale;
+        let size = 100 * scale;
+
+        let img = (o.t==='c') ? iCoin : iObs;
         if(img.src) ctx.drawImage(img, sx-size/2, sy-size/2, size, size);
         else {
-            ctx.fillStyle = (o.type==='coin') ? 'gold' : 'red';
+            ctx.fillStyle = (o.t==='c') ? 'gold' : 'red';
             ctx.fillRect(sx-size/2, sy-size/2, size, size);
         }
-        
-        // Столкновение
+
+        // Collision
         if(o.z < 150 && o.z > 50) {
-            let dist = Math.hypot(sx - G.mx, sy - G.my);
-            if(dist < size/2 + 40) {
-                G.objs.splice(i,1); i--;
-                hit(o.type);
+            let dist = Math.hypot(sx - GM.mx, sy - GM.my);
+            // Player Radius approx 40 * scale setting
+            if(dist < (size/2) + (30 * parseFloat(CFG.scale))) {
+                GM.objs.splice(i,1); i--;
+                hit(o.t);
             }
         }
     }
-    
-    // 5. Отрисовка Игрока
+
+    // 5. Player
+    let pSize = 120 * parseFloat(CFG.scale);
     if(iBird.src) {
-        ctx.drawImage(iBird, G.mx-60, G.my-60, 120, 120);
+        // Tilt effect
+        let tilt = (GM.mx - W/2) * 0.05;
+        ctx.save();
+        ctx.translate(GM.mx, GM.my);
+        ctx.rotate(tilt * Math.PI/180);
+        ctx.drawImage(iBird, -pSize/2, -pSize/2, pSize, pSize);
+        ctx.restore();
     } else {
-        ctx.fillStyle = "#0ff";
-        ctx.beginPath(); ctx.arc(G.mx, G.my, 20, 0, 7); ctx.fill();
+        ctx.fillStyle = '#0ff'; 
+        ctx.beginPath(); ctx.arc(GM.mx, GM.my, 20, 0, 7); ctx.fill();
     }
-    
-    G.frame++;
+
+    GM.frame++;
 }
 
 function hit(type) {
-    if(type==='obs') {
-        beep('lose');
-        ctx.fillStyle="rgba(255,0,0,0.5)"; ctx.fillRect(0,0,W,H);
-        G.time -= 5;
+    if(type === 'o') {
+        sfx('lose');
+        ctx.fillStyle = 'rgba(255,0,0,0.5)';
+        ctx.fillRect(0,0,W,H);
+        GM.time -= 5;
     } else {
-        beep('win');
-        G.pause = true;
-        showQ();
+        sfx('win');
+        GM.pause = true;
+        quiz();
     }
 }
 
-function showQ() {
-    if(CFG.q.length === 0) {
-        G.score++; document.getElementById('ui-score').innerText = G.score; G.pause=false; return;
+function quiz() {
+    if(CFG.qs.length === 0) {
+        GM.score++; document.getElementById('ui-score').innerText = GM.score; GM.pause = false; return;
     }
-    let idx = Math.floor(Math.random()*CFG.q.length);
-    let q = CFG.q[idx];
-    CFG.q.splice(idx,1); // Удалить использованный
     
-    let m = document.getElementById('q-modal');
-    let div = document.getElementById('q-opts');
-    document.getElementById('q-text').innerText = q.t;
-    div.innerHTML = '';
-    m.style.display = 'block';
-    
+    let idx = Math.floor(Math.random()*CFG.qs.length);
+    let q = CFG.qs[idx];
+    CFG.qs.splice(idx, 1);
+
+    let box = document.getElementById('quiz-box');
+    let body = document.getElementById('q-body');
+    document.getElementById('q-txt').innerText = q.t;
+    body.innerHTML = '';
+    box.style.display = 'block';
+
     const ans = (txt) => {
-        m.style.display = 'none';
-        if(txt.toLowerCase().trim() === q.c.toLowerCase().trim()) {
-            beep('win'); G.score++; 
+        box.style.display = 'none';
+        if(txt.trim().toLowerCase() === q.c.trim().toLowerCase()) {
+            sfx('win'); GM.score++;
         } else {
-            beep('lose'); G.time -= 10; alert("Ошибка! -10 сек");
+            sfx('lose'); GM.time -= 10;
         }
-        document.getElementById('ui-score').innerText = G.score;
-        if(CFG.q.length===0) G.end(true);
-        else G.pause = false;
+        document.getElementById('ui-score').innerText = GM.score;
+        if(CFG.qs.length===0) GM.end(true);
+        else GM.pause = false;
     };
-    
+
     if(q.type === 'choice') {
-        let arr = [q.c, ...q.w].sort(()=>Math.random()-0.5);
+        let arr = [q.c, ...q.w].sort(() => Math.random()-0.5);
         arr.forEach(t => {
             let b = document.createElement('button'); b.className='q-btn'; b.innerText=t;
             b.onclick = () => ans(t);
-            div.appendChild(b);
+            body.appendChild(b);
         });
     } else {
         let inp = document.createElement('input'); inp.className='q-inp';
         let b = document.createElement('button'); b.className='q-btn'; b.innerText='OK';
         b.onclick = () => ans(inp.value);
-        div.appendChild(inp); div.appendChild(b);
+        body.appendChild(inp); body.appendChild(b);
     }
 }
+
 <\/script>
 </body>
 </html>`;
-        
-        document.getElementById('output').value = code;
+        document.getElementById('outCode').value = CODE;
+        document.getElementById('outputBlock').style.display = 'block';
     }
+
+    // Init with defaults
+    setLang('ru');
 </script>
 </body>
 </html>
