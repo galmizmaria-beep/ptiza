@@ -24,7 +24,7 @@
         
         /* Inputs */
         label { display: block; margin-top: 10px; font-weight: bold; font-size: 14px; color: #aaa; }
-        input[type="text"], input[type="number"], select, textarea {
+        input[type="text"], input[type="number"], select {
             width: 100%; padding: 8px; margin-top: 5px; background: #111; border: 1px solid #555; color: #fff; border-radius: 4px; box-sizing: border-box;
         }
         input[type="range"] { width: 100%; margin: 10px 0; }
@@ -37,9 +37,8 @@
 
         /* Questions Textarea */
         textarea.bulk-input {
-            height: 200px;
-            font-family: monospace;
-            resize: vertical;
+            width: 100%; height: 200px; background: #111; color: #fff; border: 1px solid #555; 
+            font-family: monospace; padding: 10px; box-sizing: border-box; resize: vertical; margin-top: 5px;
         }
         .help-text { font-size: 12px; color: #888; margin-top: 5px; line-height: 1.4; }
 
@@ -83,27 +82,30 @@
 
     <div class="grid">
         
-        <!-- Visuals and Avatar -->
+        <!-- Preview -->
         <div class="card">
             <h2 data-key="sec_visual">👁️ Визуал (Живой просмотр)</h2>
-            <div id="previewContainer"><canvas id="previewCanvas"></canvas></div>
+            
+            <div id="previewContainer">
+                <canvas id="previewCanvas"></canvas>
+            </div>
             
             <label data-key="lbl_bg">Фон (Картинка):</label>
             <div class="file-group">
                 <input type="file" id="fBg" accept="image/*" onchange="loadAsset('bg')">
-                <span id="st-bg" class="status-badge"></span>
+                <span id="st-bg" class="status-badge">✔ Загружено</span>
             </div>
             
             <label data-key="lbl_bird">Аватар (Картинка):</label>
             <div class="file-group">
                 <input type="file" id="fBird" accept="image/*" onchange="loadAsset('bird')">
-                <span id="st-bird" class="status-badge"></span>
+                <span id="st-bird" class="status-badge">✔ Загружено</span>
             </div>
-
+            
             <label data-key="lbl_size">Размер аватара:</label>
             <input type="range" id="sizeRange" min="0.5" max="2.0" step="0.1" value="1.0">
             
-            <label data-key="lbl_obj_size">Размер объектов:</label>
+            <label data-key="lbl_obj_size">Размер препятствий/монет:</label>
             <input type="range" id="objSizeRange" min="0.5" max="2.0" step="0.1" value="1.0">
             
             <label data-key="lbl_speed">Скорость полета:</label>
@@ -126,36 +128,41 @@
             <label data-key="lbl_lose">Текст поражения:</label>
             <input type="text" id="txtLose" value="ВРЕМЯ ВЫШЛО">
 
-            <label data-key="lbl_time">Время (с):</label>
-            <input type="number" id="valTime" value="60">
+            <div style="display: flex; gap: 10px;">
+                <div style="flex:1">
+                    <label data-key="lbl_time">Время (с):</label>
+                    <input type="number" id="valTime" value="60">
+                </div>
+            </div>
 
             <h3 style="font-size:14px; margin-top:15px; color:#fff;" data-key="sec_assets">Объекты</h3>
             <label data-key="lbl_obs">Препятствие:</label>
             <div class="file-group">
                 <input type="file" id="fObs" accept="image/*" onchange="loadAsset('obs')">
-                <span id="st-obs" class="status-badge"></span>
+                <span id="st-obs" class="status-badge">✔ Загружено</span>
             </div>
 
             <label data-key="lbl_coin">Монета:</label>
             <div class="file-group">
                 <input type="file" id="fCoin" accept="image/*" onchange="loadAsset('coin')">
-                <span id="st-coin" class="status-badge"></span>
+                <span id="st-coin" class="status-badge">✔ Загружено</span>
             </div>
 
             <label data-key="lbl_music">Музыка:</label>
             <div class="file-group">
                 <input type="file" id="fMusic" accept="audio/*" onchange="loadAsset('music', false)">
-                <span id="st-music" class="status-badge"></span>
+                <span id="st-music" class="status-badge">✔ Загружено</span>
             </div>
         </div>
 
         <!-- Questions Bulk -->
         <div class="card full-width">
             <h2 data-key="sec_questions">❓ Список вопросов</h2>
-            <textarea id="bulkQuestions" class="bulk-input" data-placeholder-key="ph_bulk"></textarea>
+            <textarea id="bulkQuestions" class="bulk-input" placeholder=""></textarea>
             <div class="help-text" data-key="help_q">
-                 Формат: <b>Вопрос | Правильный ответ | Неверный 1 | Неверный 2</b><br>
-                Для простого ввода текста: <b>Вопрос | Ответ</b>
+                Вставляйте вопросы списком. Формат:<br>
+                <b>Вопрос | Правильный ответ | Неверный 1 | Неверный 2</b><br>
+                <i>Пример: Сколько будет 2+2? | 4 | 5 | 6</i>
             </div>
         </div>
 
@@ -179,20 +186,22 @@
     const assets = { bg: null, bird: null, obs: null, coin: null, music: null };
     let currentLang = 'ru';
 
+    // Preview Images holders
     const pImg = { bg: new Image(), bird: new Image(), obs: new Image(), coin: new Image() };
 
     const dict = {
         ru: {
             title: "Полет Аватара",
-            sec_visual: "👁️ Визуал и Аватар",
-            lbl_bg: "Фон:", lbl_bird: "Аватар:",
-            lbl_size: "Размер аватара:", lbl_obj_size: "Размер объектов:", lbl_speed: "Скорость полета:",
+            sec_visual: "👁️ Визуал (Живой просмотр)",
+            lbl_bg: "Фон:", lbl_bird: "Аватар:", lbl_size: "Размер аватара:", lbl_obj_size: "Размер препятствий/монет:", lbl_speed: "Скорость:",
             sec_settings: "⚙️ Настройки",
-            lbl_gameTitle: "Заголовок:", lbl_btnStart: "Кнопка Старт:", lbl_win: "Победа:", lbl_lose: "Поражение:",
+            lbl_gameTitle: "Название:", lbl_btnStart: "Кнопка Старт:", lbl_win: "Победа:", lbl_lose: "Поражение:",
             lbl_time: "Время (сек):", sec_assets: "Объекты", lbl_obs: "Препятствие:", lbl_coin: "Монета:", lbl_music: "Музыка:",
             sec_questions: "❓ Список вопросов",
             help_q: "Формат: Вопрос | Правильный | Неверный 1 | Неверный 2\nДля ввода текста просто: Вопрос | Ответ",
-            btn_gen: "🚀 СОЗДАТЬ ИГРУ", btn_copy: "СКОПИРОВАТЬ КОД", btn_copied: "СКОПИРОВАНО!",
+            btn_gen: "🚀 СОЗДАТЬ ИГРУ",
+            btn_copy: "СКОПИРОВАТЬ КОД",
+            btn_copied: "СКОПИРОВАНО!",
             lbl_copy_hint: "Вставьте в Genially (Insert -> Others) и растяните.",
             ph_bulk: "Сколько будет 2+2? | 4 | 5 | 6\nСтолица Франции? | Париж | Лондон | Берлин\nНапиши слово Привет | Привет",
             val_title: "ПОЛЕТ АВАТАРА", val_start: "ИГРАТЬ", val_win: "ПОБЕДА!", val_lose: "ВРЕМЯ ВЫШЛО",
@@ -200,15 +209,16 @@
         },
         en: {
             title: "Avatar Flight",
-            sec_visual: "👁️ Visuals & Avatar",
-            lbl_bg: "Background:", lbl_bird: "Avatar:",
-            lbl_size: "Avatar Size:", lbl_obj_size: "Objects Size:", lbl_speed: "Flight Speed:",
+            sec_visual: "👁️ Visuals (Live Preview)",
+            lbl_bg: "Background:", lbl_bird: "Avatar:", lbl_size: "Avatar Size:", lbl_obj_size: "Objects Size:", lbl_speed: "Speed:",
             sec_settings: "⚙️ Settings",
             lbl_gameTitle: "Title:", lbl_btnStart: "Start Button:", lbl_win: "Win Text:", lbl_lose: "Lose Text:",
             lbl_time: "Time (s):", sec_assets: "Objects", lbl_obs: "Obstacle:", lbl_coin: "Coin:", lbl_music: "Music:",
             sec_questions: "❓ Questions List",
             help_q: "Format: Question | Correct | Wrong 1 | Wrong 2\nFor text input: Question | Answer",
-            btn_gen: "🚀 CREATE GAME", btn_copy: "COPY CODE", btn_copied: "COPIED!",
+            btn_gen: "🚀 CREATE GAME",
+            btn_copy: "COPY CODE",
+            btn_copied: "COPIED!",
             lbl_copy_hint: "Paste into Genially (Insert -> Others) and stretch full screen.",
             ph_bulk: "2+2? | 4 | 5 | 6\nCapital of France? | Paris | London\nType Hello | Hello",
             val_title: "AVATAR FLIGHT", val_start: "PLAY", val_win: "YOU WON!", val_lose: "GAME OVER",
@@ -219,14 +229,8 @@
     function setLang(lang) {
         currentLang = lang;
         document.querySelectorAll('[data-key]').forEach(el => {
-            const key = el.dataset.key;
-            if(dict[lang][key] && typeof dict[lang][key] === 'string') el.innerText = dict[lang][key];
+            if(dict[lang][el.dataset.key]) el.innerText = dict[lang][el.dataset.key];
         });
-        document.querySelectorAll('[data-placeholder-key]').forEach(el => {
-            const key = el.dataset.placeholderKey;
-            if(dict[lang][key]) el.placeholder = dict[lang][key];
-        });
-
         document.getElementById('btn-ru').className = lang === 'ru' ? 'active' : '';
         document.getElementById('btn-en').className = lang === 'en' ? 'active' : '';
         
@@ -235,25 +239,31 @@
         document.getElementById('txtStart').value = d.val_start;
         document.getElementById('txtWin').value = d.val_win;
         document.getElementById('txtLose').value = d.val_lose;
+        document.getElementById('bulkQuestions').placeholder = d.ph_bulk;
         
-        document.querySelectorAll('.status-badge.visible').forEach(el => el.innerText = d.loaded);
+        // Update loaded badges text
+        document.querySelectorAll('.status-badge').forEach(el => el.innerText = d.loaded);
+
         const btn = document.getElementById('copyBtn');
-        if(btn.className.includes('success')) {
-            document.getElementById('copyText').innerText = d.btn_copied;
-        } else {
-            document.getElementById('copyText').innerText = d.btn_copy;
-        }
+        btn.className = 'btn-copy';
+        document.getElementById('copyText').innerText = d.btn_copy;
     }
 
+    // === ASSETS & PREVIEW ENGINE ===
     function loadAsset(key, isImg=true) {
-        const input = document.getElementById(`f${key.charAt(0).toUpperCase() + key.slice(1)}`);
-        const badge = document.getElementById(`st-${key}`);
+        const input = document.getElementById(key === 'bg' ? 'fBg' : key === 'bird' ? 'fBird' : key === 'obs' ? 'fObs' : key === 'coin' ? 'fCoin' : 'fMusic');
+        const badge = document.getElementById('st-' + key);
         
         if(input.files && input.files[0]) {
             const reader = new FileReader();
             reader.onload = function(e) {
                 assets[key] = e.target.result;
-                if(isImg) pImg[key].src = e.target.result;
+                if(isImg) {
+                    if(key === 'bg') pImg.bg.src = e.target.result;
+                    if(key === 'bird') pImg.bird.src = e.target.result;
+                    if(key === 'obs') pImg.obs.src = e.target.result;
+                    if(key === 'coin') pImg.coin.src = e.target.result;
+                }
                 badge.classList.add('visible');
                 badge.innerText = dict[currentLang].loaded;
             }
@@ -261,72 +271,131 @@
         }
     }
 
-    // --- PREVIEW ---
+    // --- PREVIEW GAME LOOP (UPDATED TO MATCH REAL GAMEPLAY) ---
     const pCanvas = document.getElementById('previewCanvas');
     const pCtx = pCanvas.getContext('2d');
-    let pObjs = []; let pBgY = 0; let pBgX = 0; let pFrame = 0;
+    let pObjs = [];
+    let pBgY = 0;
+    let pBgX = 0;
+    let pFrame = 0;
+    let pMx = 0; // Fake mouse X for preview
     
+    // Auto-move camera in preview
+    let pAutoMoveDir = 1;
+
     function initPreview() {
         if(pCanvas.parentElement) {
             pCanvas.width = pCanvas.parentElement.offsetWidth;
             pCanvas.height = pCanvas.parentElement.offsetHeight;
+            pMx = pCanvas.width / 2;
         }
         requestAnimationFrame(previewLoop);
     }
 
     function previewLoop() {
-        requestAnimationFrame(previewLoop);
-        if(!pCanvas.parentElement) return;
-        let W = pCanvas.width = pCanvas.parentElement.offsetWidth;
-        let H = pCanvas.height = pCanvas.parentElement.offsetHeight;
+        if(pCanvas.width === 0) {
+            pCanvas.width = pCanvas.parentElement.offsetWidth;
+            pCanvas.height = pCanvas.parentElement.offsetHeight;
+        }
+
+        let W = pCanvas.width;
+        let H = pCanvas.height;
         pCtx.clearRect(0, 0, W, H);
         
         const speed = parseInt(document.getElementById('speedRange').value);
         const scaleUser = parseFloat(document.getElementById('sizeRange').value);
         const objScale = parseFloat(document.getElementById('objSizeRange').value);
-        const pMx = W / 2 + Math.sin(pFrame * 0.01) * W * 0.2;
 
-        pBgY += speed * 0.5;
-        pBgX += (W/2 - pMx) * 0.1;
+        // Simulate Mouse Movement (Camera)
+        pMx += pAutoMoveDir * 2;
+        if(pMx > W * 0.7) pAutoMoveDir = -1;
+        if(pMx < W * 0.3) pAutoMoveDir = 1;
 
-        if(pImg.bg.src && pImg.bg.complete) {
+        // 1. BACKGROUND (Infinite Tiling)
+        // Camera shift calculation
+        let dx = (W/2 - pMx) * 0.1;
+        pBgX += dx;
+        pBgY += speed; // Simple vertical scroll for speed
+
+        if(pImg.bg.src && pImg.bg.complete && pImg.bg.width > 0) {
             let ptrn = pCtx.createPattern(pImg.bg, 'repeat');
-            pCtx.save(); pCtx.translate(pBgX, pBgY); pCtx.fillStyle = ptrn; pCtx.fillRect(-W, -H, W*2, H*2); pCtx.restore();
-        } else { pCtx.fillStyle = '#000'; pCtx.fillRect(0,0,W,H); }
-
-        if(pFrame % (60 - speed*2) === 0) {
-            pObjs.push({ x: (Math.random() - 0.5) * W * 2, y: (Math.random()-0.5) * H, z: 2000, t: Math.random() > 0.5 ? 'c' : 'o' });
+            if(ptrn) {
+                pCtx.save();
+                pCtx.translate(pBgX, pBgY);
+                // Draw huge rect to cover rotation/movement gaps
+                pCtx.fillStyle = ptrn;
+                pCtx.fillRect(-W*5, -H*5, W*10, H*10);
+                pCtx.restore();
+            }
+        } else {
+            // No background - just black
+            pCtx.fillStyle = '#000'; pCtx.fillRect(0,0,W,H);
         }
-        pObjs.sort((a,b) => b.z - a.z);
 
-        let camOffset = (pMx - W/2) * 2;
-        for(let i=pObjs.length-1; i>=0; i--) {
+        // 2. Spawner
+        if(pFrame % (60 - speed*2) === 0) {
+            // Spawn in World Coordinates centered around 0
+            let spawnX = (Math.random() - 0.5) * W * 2; 
+            pObjs.push({
+                x: spawnX, // World position
+                y: (Math.random()-0.5) * H * 1.5,
+                z: 2000,
+                t: Math.random() > 0.5 ? 'c' : 'o'
+            });
+        }
+
+        // 3. Objects Logic
+        pObjs.sort((a,b) => b.z - a.z);
+        for(let i=0; i<pObjs.length; i++) {
             let o = pObjs[i];
             o.z -= (2 + speed); 
-            if(o.z < 10) { pObjs.splice(i,1); continue; }
+            if(o.z < 10) { pObjs.splice(i,1); i--; continue; }
+
+            // Perspective Transform
+            // Object stays at o.x in world. Camera is at pMx.
+            // ScreenX = Center + (WorldPos - CameraPos) * ScaleFactor
+            
+            // Adjust camera factor to make it look like we are flying past
+            let camOffset = (pMx - W/2) * 2; 
 
             let scale = 500 / o.z; 
-            let bob = Math.sin(o.z * 0.1 + pFrame * 0.05) * 15;
             let sx = W/2 + (o.x - camOffset) * scale;
-            let sy = H/2 + (o.y + bob) * scale;
+            let sy = H/2 + o.y * scale;
             let size = 100 * scale * objScale;
+
             let img = (o.t === 'c') ? pImg.coin : pImg.obs;
-            if(img.src && img.complete) pCtx.drawImage(img, sx-size/2, sy-size/2, size, size);
+            
+            // Draw only if image exists (NO SHAPES)
+            if(img.src && img.complete && img.width > 0) {
+                 if (o.t === 'c') {
+                    let spin = Math.abs(Math.sin(pFrame * 0.1 + i));
+                    pCtx.drawImage(img, sx - (size*spin)/2, sy - size/2, size*spin, size);
+                } else {
+                    pCtx.drawImage(img, sx-size/2, sy-size/2, size, size);
+                }
+            } 
         }
 
-        let pSize = 100 * scaleUser;
-        if(pImg.bird.src && pImg.bird.complete) {
-            let tilt = (pMx - W/2) * 0.05;
+        // 4. Bird
+        let pSize = 120 * scaleUser;
+        if(pImg.bird.src && pImg.bird.complete && pImg.bird.width > 0) {
+            let tilt = (pMx - W/2) * 0.1;
             pCtx.save();
-            pCtx.translate(pMx, H - pSize/2 - 20);
+            pCtx.translate(pMx, H - 100);
             pCtx.rotate(tilt * Math.PI/180);
             pCtx.drawImage(pImg.bird, -pSize/2, -pSize/2, pSize, pSize);
             pCtx.restore();
         }
+
         pFrame++;
+        requestAnimationFrame(previewLoop);
     }
     
     initPreview();
+    window.addEventListener('resize', () => {
+         pCanvas.width = pCanvas.parentElement.offsetWidth;
+         pCanvas.height = pCanvas.parentElement.offsetHeight;
+    });
 
     // === GENERATE ===
     function parseQuestions() {
@@ -359,31 +428,81 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <style>
     html, body { margin:0; padding:0; width:100%; height:100%; overflow:hidden; background:#000; }
     body { font-family:'Segoe UI',sans-serif; user-select:none; -webkit-user-select:none; }
+    
     #game-box { position:absolute; top:0; left:0; width:100%; height:100%; overflow:hidden; touch-action: none; }
-    canvas { display:block; width:100%; height:100%; }
+    canvas { display:block; width:100%; height:100%; pointer-events:none; } 
+    
     .hud { position:absolute; top:10px; color:#00d2ff; font-size:clamp(20px, 4vw, 30px); font-weight:bold; text-shadow:2px 2px 0 #000; padding:5px 15px; background:rgba(0,0,0,0.6); border-radius:10px; border:1px solid #00d2ff; z-index: 50; }
-    .screen { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:100; pointer-events:auto; }
-    h1 { color:#00d2ff; font-size:clamp(30px, 6vw, 60px); text-transform:uppercase; text-shadow:0 0 20px #00d2ff; margin-bottom:20px; text-align:center; padding: 0 10px; }
-    button.btn-play { background: linear-gradient(180deg, #00d2ff, #0088aa); border: 4px solid #fff; padding: 15px 60px; color: #fff; font-size: clamp(24px, 5vw, 40px); font-weight: bold; text-transform: uppercase; border-radius: 60px; cursor: pointer; box-shadow: 0 0 30px #00d2ff; transition: transform 0.1s; text-shadow: 1px 1px 2px #000; }
-    button.btn-play:hover { transform: scale(1.05); } button.btn-play:active { transform: scale(0.95); }
-    #quiz-box { display:none; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:90%; max-width:500px; background: rgba(30, 41, 59, 0.95); border:3px solid #00d2ff; padding:20px; border-radius:15px; text-align:center; color:#fff; z-index:200; pointer-events: auto; box-shadow: 0 0 50px #000; backdrop-filter: blur(5px); }
-    .q-btn { display:block; width:100%; padding:15px; margin:8px 0; background:#334; border:1px solid #556; color:#fff; font-size:18px; cursor:pointer; } .q-btn:hover { background:#00d2ff; color:#000; }
+    
+    .screen { 
+        position:absolute; top:0; left:0; width:100%; height:100%; 
+        background:rgba(0,0,0,0.85); display:flex; flex-direction:column; 
+        align-items:center; justify-content:center; 
+        z-index:100; pointer-events:auto; 
+    }
+    
+    h1 { color:#00d2ff; font-size:clamp(30px, 6vw, 60px); text-transform:uppercase; text-shadow:0 0 20px #00d2ff; margin-bottom:20px; text-align:center; }
+    
+    button.btn-play {
+        background: linear-gradient(180deg, #00d2ff, #0088aa);
+        border: 4px solid #fff; padding: 15px 60px;
+        color: #fff; font-size: clamp(24px, 5vw, 40px); font-weight: bold; text-transform: uppercase;
+        border-radius: 60px; cursor: pointer; box-shadow: 0 0 30px #00d2ff;
+        transition: transform 0.1s; text-shadow: 1px 1px 2px #000;
+        z-index: 200; pointer-events: auto;
+    }
+    button.btn-play:hover { transform: scale(1.05); background: #fff; color: #0088aa; }
+    button.btn-play:active { transform: scale(0.95); }
+
+    /* QUIZ BOX ON TRANSPARENT BG */
+    #quiz-box { 
+        display:none; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); 
+        width:90%; max-width:500px; 
+        background: rgba(30, 41, 59, 0.95); /* Semi-transparent dark */
+        border:3px solid #00d2ff; 
+        padding:20px; border-radius:15px; text-align:center; color:#fff; 
+        z-index:200; 
+        pointer-events: auto !important;
+        box-shadow: 0 0 50px #000;
+        backdrop-filter: blur(5px);
+    }
+    .q-btn { display:block; width:100%; padding:15px; margin:8px 0; background:#334; border:1px solid #556; color:#fff; font-size:18px; cursor:pointer; z-index:201; position:relative; }
+    .q-btn:hover { background:#00d2ff; color:#000; }
     input.q-inp { width:80%; padding:10px; font-size:20px; text-align:center; margin-bottom:10px; color:#000; }
+
 </style>
 </head>
 <body>
+
 <div id="game-box">
+    <!-- UI -->
     <div class="hud" style="left:10px">⏱ <span id="ui-time">0</span></div>
     <div class="hud" style="right:10px">🏆 <span id="ui-score">0</span></div>
+
+    <!-- CANVAS -->
     <canvas id="cvs"></canvas>
 
-    <div id="scr-start" class="screen"><h1 id="mt-title"></h1><button class="btn-play" id="btn-start"></button></div>
-    <div id="scr-end" class="screen" style="display:none"><h1 id="mt-end"></h1><p style="color:#fff; font-size:30px">Score: <span id="end-score">0</span></p><button class="btn-play" onclick="location.reload()">↺</button></div>
-    <div id="quiz-box"><h2 id="q-txt"></h2><div id="q-body"></div></div>
+    <!-- START SCREEN -->
+    <div id="scr-start" class="screen">
+        <h1 id="mt-title">TITLE</h1>
+        <button class="btn-play" id="btn-start">START</button>
+    </div>
+
+    <!-- END SCREEN -->
+    <div id="scr-end" class="screen" style="display:none">
+        <h1 id="mt-end">END</h1>
+        <p style="color:#fff; font-size:30px">Score: <span id="end-score">0</span></p>
+        <button class="btn-play" onclick="GM.reset()">↺</button>
+    </div>
+
+    <!-- QUIZ MODAL -->
+    <div id="quiz-box">
+        <h2 id="q-txt" style="color:#00d2ff; margin-top:0">Question</h2>
+        <div id="q-body"></div>
+    </div>
 </div>
 
 <script>
@@ -393,53 +512,104 @@ const IMG = CFG.img;
 document.getElementById('mt-title').innerText = CFG.title;
 document.getElementById('btn-start').innerText = CFG.btn;
 
-const cvs = document.getElementById('cvs'), ctx = cvs.getContext('2d');
+const cvs = document.getElementById('cvs');
+const ctx = cvs.getContext('2d');
 let W, H;
-const iBg=new Image(), iBird=new Image(), iObs=new Image(), iCoin=new Image();
-if(IMG.bg) iBg.src = IMG.bg; 
-if(IMG.bird) iBird.src = IMG.bird;
-if(IMG.obs) iObs.src = IMG.obs; 
-if(IMG.coin) iCoin.src = IMG.coin;
-let music = null; if(IMG.music) { music = new Audio(IMG.music); music.loop=true; music.volume=0.4; }
+
+function resize() {
+    W = cvs.width = window.innerWidth;
+    H = cvs.height = window.innerHeight;
+    if(!GM.run) { GM.mx = W/2; GM.my = H/2; }
+}
+window.addEventListener('resize', resize);
+setTimeout(resize, 100);
 
 const AC = new (window.AudioContext || window.webkitAudioContext)();
-function sfx(type){ if(AC.state === 'suspended') AC.resume(); const o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime; o.connect(g);g.connect(AC.destination); if(type==='coin'){o.type='sine';o.frequency.setValueAtTime(1200,t);g.gain.setValueAtTime(0.1,t);g.gain.exponentialRampToValueAtTime(0.01,t+0.5);o.start(t);o.stop(t+0.5)}else if(type==='boom'){o.type='sawtooth';o.frequency.setValueAtTime(100,t);o.frequency.exponentialRampToValueAtTime(10,t+0.3);g.gain.setValueAtTime(0.3,t);g.gain.linearRampToValueAtTime(0,t+0.3);o.start(t);o.stop(t+0.3)}else if(type==='win'){o.type='triangle';o.frequency.setValueAtTime(523,t);o.frequency.linearRampToValueAtTime(1000,t+0.3);g.gain.setValueAtTime(0.1,t);g.gain.linearRampToValueAtTime(0,t+0.6);o.start(t);o.stop(t+0.6)}else if(type==='lose'){o.type='triangle';o.frequency.setValueAtTime(300,t);o.frequency.linearRampToValueAtTime(100,t+0.4);g.gain.setValueAtTime(0.2,t);g.gain.linearRampToValueAtTime(0,t+0.4);o.start(t);o.stop(t+0.4)}}
+function sfx(type) {
+    if(AC.state === 'suspended') AC.resume();
+    const o = AC.createOscillator(); const g = AC.createGain();
+    o.connect(g); g.connect(AC.destination);
+    const t = AC.currentTime;
+    
+    if(type==='coin') {
+        o.type = 'sine'; o.frequency.setValueAtTime(1200, t);
+        g.gain.setValueAtTime(0.1, t); g.gain.exponentialRampToValueAtTime(0.01, t+0.5);
+        o.start(t); o.stop(t+0.5);
+    } else if(type==='boom') {
+        o.type = 'sawtooth';
+        o.frequency.setValueAtTime(100, t); o.frequency.exponentialRampToValueAtTime(10, t+0.3);
+        g.gain.setValueAtTime(0.3, t); g.gain.linearRampToValueAtTime(0, t+0.3);
+        o.start(t); o.stop(t+0.3);
+    } else if(type==='win') { 
+        o.type='triangle'; 
+        o.frequency.setValueAtTime(523, t); o.frequency.linearRampToValueAtTime(1000, t+0.3);
+        g.gain.setValueAtTime(0.1, t); g.gain.linearRampToValueAtTime(0, t+0.6);
+        o.start(t); o.stop(t+0.6);
+    } else if (type==='lose') {
+        o.type='triangle';
+        o.frequency.setValueAtTime(300, t); o.frequency.linearRampToValueAtTime(100, t+0.4);
+        g.gain.setValueAtTime(0.2, t); g.gain.linearRampToValueAtTime(0, t+0.4);
+        o.start(t); o.stop(t+0.4);
+    }
+}
+
+const iBg = new Image(); if(IMG.bg) iBg.src = IMG.bg;
+const iBird = new Image(); if(IMG.bird) iBird.src = IMG.bird;
+const iObs = new Image(); if(IMG.obs) iObs.src = IMG.obs;
+const iCoin = new Image(); if(IMG.coin) iCoin.src = IMG.coin;
+let music = null; if(IMG.music) { music = new Audio(IMG.music); music.loop=true; music.volume=0.4; }
 
 const GM = {
     run: false, pause: false, frame: 0,
-    time: parseInt(CFG.time), score: 0, objs: [], mx: 0, my: 0, 
-    bgX: 0, bgY: 0, hurt: 0, timerInt: null,
+    time: parseInt(CFG.time), score: 0,
+    objs: [], 
+    mx: 0, my: 0, 
+    bgX: 0, bgY: 0,
+    hurt: 0,
+    timerInt: null,
     
     start: () => {
         document.getElementById('scr-start').style.display = 'none';
-        resize(); GM.mx = W/2;
-        if(AC.state === 'suspended') AC.resume(); if(music) music.play().catch(e=>{});
+        resize();
+        GM.mx = W/2; GM.my = H/2;
+        if(AC.state === 'suspended') AC.resume();
+        if(music) music.play().catch(e=>{});
         GM.run = true;
-        
         GM.objs = [];
-        const numCoins = CFG.qs.length;
-        if (numCoins > 0) {
-            const numObs = numCoins * 2;
-            let objTypes = Array(numCoins).fill('c').concat(Array(numObs).fill('o'));
-            for(let i = objTypes.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [objTypes[i], objTypes[j]] = [objTypes[j], objTypes[i]]; }
-            
-            for(let i=0; i<objTypes.length; i++) {
-                GM.objs.push({
-                    t: objTypes[i],
-                    x: (Math.random() - 0.5) * W * 4,
-                    y: (Math.random() - 0.5) * H * 1.5,
-                    z: 2000 + (i * (40000 / objTypes.length)) + (Math.random()-0.5) * 100
-                });
-            }
-        }
+        GM.frame = 0;
         
         loop();
-        GM.timerInt = setInterval(() => { if(GM.run && !GM.pause) { GM.time--; document.getElementById('ui-time').innerText = GM.time; if(GM.time <= 0) GM.end(false); }}, 1000);
+        
+        GM.timerInt = setInterval(() => {
+            if(GM.run && !GM.pause) {
+                GM.time--;
+                document.getElementById('ui-time').innerText = GM.time;
+                if(GM.time <= 0) GM.end(false);
+            }
+        }, 1000);
         document.getElementById('ui-time').innerText = GM.time;
     },
 
+    reset: () => {
+        clearInterval(GM.timerInt);
+        GM.run = false;
+        GM.pause = false;
+        GM.score = 0;
+        GM.time = parseInt(CFG.time);
+        GM.objs = [];
+        GM.frame = 0;
+        document.getElementById('ui-score').innerText = "0";
+        document.getElementById('ui-time').innerText = GM.time;
+        
+        // HIDE End Screen, SHOW Start Screen
+        document.getElementById('scr-end').style.display = 'none';
+        document.getElementById('scr-start').style.display = 'flex';
+        document.getElementById('quiz-box').style.display = 'none';
+    },
+
     end: (win) => {
-        GM.run = false; clearInterval(GM.timerInt);
+        GM.run = false;
+        clearInterval(GM.timerInt);
         document.getElementById('scr-end').style.display = 'flex';
         document.getElementById('mt-end').innerText = win ? CFG.win : CFG.lose;
         document.getElementById('mt-end').style.color = win ? '#0f0' : '#f00';
@@ -449,85 +619,187 @@ const GM = {
 };
 
 document.getElementById('btn-start').addEventListener('click', GM.start);
-window.addEventListener('resize', resize);
-window.addEventListener('mousemove', e => { GM.mx = e.clientX; });
-window.addEventListener('touchmove', e => { e.preventDefault(); GM.mx = e.touches[0].clientX; }, {passive:false});
 
-function resize() { W = cvs.width = window.innerWidth; H = cvs.height = window.innerHeight; if(!GM.run) GM.mx = W/2; }
+window.addEventListener('mousemove', e => {
+    GM.mx = e.clientX;
+    GM.my = e.clientY;
+});
+window.addEventListener('touchmove', e => {
+    e.preventDefault();
+    GM.mx = e.touches[0].clientX;
+    GM.my = e.touches[0].clientY;
+}, {passive:false});
 
 function loop() {
-    if(!GM.run) return; requestAnimationFrame(loop);
-    ctx.clearRect(0,0,W,H); if(GM.pause) return; 
+    if(!GM.run) return;
+    requestAnimationFrame(loop);
+    
+    ctx.clearRect(0,0,W,H);
+    if(GM.pause) return; 
 
-    GM.bgY += parseInt(CFG.speed) * 0.5; GM.bgX += (W/2 - GM.mx) * 0.05;
-    if(iBg.src && iBg.complete) { let ptrn = ctx.createPattern(iBg, 'repeat'); if(ptrn) { ctx.save(); ctx.translate(GM.bgX, GM.bgY); ctx.fillStyle = ptrn; ctx.fillRect(-W, -H, W*2, H*2); ctx.restore(); }}
+    // 1. BG INFINITE MOVEMENT (Fixed Logic)
+    let dx = (W/2 - GM.mx) * 0.1;
+    let dy = (H/2 - GM.my) * 0.05; 
+    
+    GM.bgX += dx;
+    GM.bgY += parseInt(CFG.speed) + dy;
 
+    if(iBg.src && iBg.complete) {
+        let ptrn = ctx.createPattern(iBg, 'repeat');
+        if(ptrn) {
+            ctx.save();
+            ctx.translate(GM.bgX, GM.bgY);
+            ctx.fillStyle = ptrn;
+            // Draw a huge area to cover rotations and movements
+            ctx.fillRect(-W*5, -H*5, W*10, H*10); 
+            ctx.restore();
+        }
+    } else {
+        ctx.fillStyle = '#000'; ctx.fillRect(0,0,W,H);
+    }
+
+    // 2. SPAWN OBJECTS (Fixed in Space)
+    if(GM.frame % (60 - parseInt(CFG.speed)*2) === 0) {
+        let isCoin = (CFG.qs.length > 0 && Math.random() > 0.6);
+        // Spawn world coordinates wide enough
+        let sX = (Math.random()-0.5) * W * 3; 
+        let sY = (Math.random()-0.5) * H * 1.5;
+        GM.objs.push({ x: sX, y: sY, z: 2000, t: isCoin?'c':'o' });
+    }
+
+    // 3. DRAW OBJECTS
     GM.objs.sort((a,b) => b.z - a.z);
     let objScaleUser = parseFloat(CFG.objScale || 1.0);
     let speed = parseInt(CFG.speed);
+
+    // Camera Offset (Avatar moves relative to world)
     let camOffset = (GM.mx - W/2) * 2;
-    let pSize = 100 * parseFloat(CFG.scale);
 
-    for(let i=GM.objs.length-1; i>=0; i--) {
+    for(let i=0; i<GM.objs.length; i++) {
         let o = GM.objs[i];
-        o.z -= (2 + speed); if(o.z < 10) { GM.objs.splice(i,1); continue; }
+        o.z -= (2 + speed);
         
-        let scale = 500 / o.z;
-        let bob = Math.sin(o.z * 0.01 + GM.frame * 0.03) * 20;
-        let sx = W/2 + (o.x - camOffset) * scale;
-        let sy = H/2 + (o.y + bob) * scale;
-        let size = 100 * scale * objScaleUser;
-        let img = (o.t==='c') ? iCoin : iObs;
-        if(img.src) ctx.drawImage(img, sx-size/2, sy-size/2, size, size);
+        if(o.z < 10) { GM.objs.splice(i,1); i--; continue; }
 
+        let scale = 500 / o.z;
+        
+        // Transform World to Screen, considering Camera Shift
+        let sx = W/2 + (o.x - camOffset) * scale;
+        let sy = H/2 + o.y * scale;
+        
+        let size = 100 * scale * objScaleUser;
+
+        let img = (o.t==='c') ? iCoin : iObs;
+        
+        if(img.src) {
+             if (o.t === 'c') {
+                let spin = Math.abs(Math.sin(GM.frame * 0.1 + i));
+                let w = size * spin;
+                ctx.drawImage(img, sx - w/2, sy - size/2, w, size);
+            } else {
+                ctx.drawImage(img, sx-size/2, sy-size/2, size, size);
+            }
+        }
+
+        // HIT DETECTION
         if(o.z < 200 && o.z > 20) {
-            let avatarY = H - pSize/2 - 20;
-            let dist = Math.hypot(sx - GM.mx, sy - avatarY);
-            if(dist < (size * 0.5) + (pSize * 0.5)) { GM.objs.splice(i,1); hit(o.t); }
+            let dist = Math.hypot(sx - GM.mx, sy - GM.my);
+            let hitbox = (size * 0.6) + (60 * parseFloat(CFG.scale)); // Rough collision
+            
+            // Check if on screen (if we flew past it sideways, no hit)
+            if(dist < hitbox) {
+                GM.objs.splice(i,1); i--;
+                hit(o.t);
+            }
         }
     }
-    
-    if(GM.hurt > 0) { GM.hurt--; if(Math.floor(GM.hurt/5)%2===0) return; }
-    if(iBird.src) { let tilt = (GM.mx - W/2) * 0.05; ctx.save(); ctx.translate(GM.mx, H - pSize/2 - 20); ctx.rotate(tilt*Math.PI/180); ctx.drawImage(iBird, -pSize/2, -pSize/2, pSize, pSize); ctx.restore(); }
+
+    // 4. DRAW BIRD
+    if(GM.hurt > 0) {
+        GM.hurt--;
+        if(Math.floor(GM.hurt / 5) % 2 === 0) return;
+    }
+
+    let pSize = 120 * parseFloat(CFG.scale);
+    if(iBird.src) {
+        let tilt = (GM.mx - W/2) * 0.05;
+        ctx.save();
+        ctx.translate(GM.mx, GM.my);
+        ctx.rotate(tilt * Math.PI/180);
+        ctx.drawImage(iBird, -pSize/2, -pSize/2, pSize, pSize);
+        ctx.restore();
+    } else {
+        ctx.fillStyle = '#0ff'; ctx.beginPath(); ctx.arc(GM.mx, GM.my, 20, 0, 7); ctx.fill();
+    }
     GM.frame++;
 }
 
 function hit(type) {
-    if(type === 'o') { sfx('boom'); GM.hurt = 30; GM.time = Math.max(0, GM.time - 5); } 
-    else { sfx('coin'); if(CFG.qs.length > 0) { GM.pause = true; quiz(); } else { GM.score++; } }
-    document.getElementById('ui-time').innerText = GM.time; document.getElementById('ui-score').innerText = GM.score;
+    if(type === 'o') {
+        sfx('boom');
+        GM.hurt = 30;
+        let f = document.createElement('div');
+        f.style = "position:absolute;top:0;left:0;width:100%;height:100%;background:red;opacity:0.5;pointer-events:none;z-index:99";
+        document.body.appendChild(f);
+        setTimeout(()=>f.remove(), 100);
+        GM.time -= 5;
+        document.getElementById('ui-time').innerText = GM.time;
+        if(GM.time<=0) GM.end(false);
+    } else {
+        sfx('coin');
+        if(CFG.qs.length > 0) {
+            GM.pause = true; 
+            quiz();
+        } else {
+            GM.score++; 
+            document.getElementById('ui-score').innerText = GM.score; 
+        }
+    }
 }
 
 function quiz() {
-    if (GM.score >= CFG.qs.length) { 
-        GM.pause = false; 
-        return; 
-    }
-    let q = CFG.qs[GM.score];
-    let box = document.getElementById('quiz-box'), body = document.getElementById('q-body');
-    document.getElementById('q-txt').innerText = q.t; body.innerHTML = ''; box.style.display = 'block';
+    let idx = Math.floor(Math.random()*CFG.qs.length);
+    let q = CFG.qs[idx];
+
+    let box = document.getElementById('quiz-box');
+    let body = document.getElementById('q-body');
+    document.getElementById('q-txt').innerText = q.t;
+    body.innerHTML = '';
+    box.style.display = 'block';
 
     const processAns = (txt) => {
         box.style.display = 'none';
-        if(txt.trim().toLowerCase() === q.c.trim().toLowerCase()) { sfx('win'); GM.score++; } 
-        else { sfx('lose'); GM.time = Math.max(0, GM.time - 10); }
-        document.getElementById('ui-score').innerText = GM.score; document.getElementById('ui-time').innerText = GM.time;
-        setTimeout(() => { GM.pause = false; if (GM.score >= CFG.qs.length) GM.end(true); }, 200);
+        if(txt.trim().toLowerCase() === q.c.trim().toLowerCase()) {
+            sfx('win'); GM.score++;
+        } else {
+            sfx('lose'); GM.time -= 10;
+        }
+        document.getElementById('ui-score').innerText = GM.score;
+        document.getElementById('ui-time').innerText = GM.time;
+        
+        setTimeout(() => { GM.pause = false; }, 200);
     };
 
     if(q.type === 'choice') {
-        let arr = [q.c, ...q.w].sort(()=>Math.random()-0.5);
-        arr.forEach(t => { let b = document.createElement('button'); b.className='q-btn'; b.innerText=t; b.onclick = (e)=>{e.stopPropagation();processAns(t)}; body.appendChild(b); });
+        let arr = [q.c, ...q.w].sort(() => Math.random()-0.5);
+        arr.forEach(t => {
+            let b = document.createElement('button'); 
+            b.className='q-btn'; 
+            b.innerText=t;
+            b.onclick = (e) => { e.stopPropagation(); processAns(t); };
+            body.appendChild(b);
+        });
     } else {
-        let inp = document.createElement('input'); inp.className='q-inp';
-        let b = document.createElement('button'); b.className='q-btn'; b.innerText='OK';
+        let inp = document.createElement('input'); 
+        inp.className='q-inp';
+        let b = document.createElement('button'); 
+        b.className='q-btn'; 
+        b.innerText='OK';
         b.onclick = (e) => { e.stopPropagation(); processAns(inp.value); };
-        inp.onkeydown = (e) => { if(e.key === 'Enter') processAns(inp.value); };
-        body.appendChild(inp); body.appendChild(b); inp.focus();
+        body.appendChild(inp); body.appendChild(b);
+        inp.focus();
     }
 }
-
-resize();
 <\/script>
 </body>
 </html>`;
@@ -537,13 +809,25 @@ resize();
 
     function doCopy() {
         const txt = document.getElementById('finalCode');
-        txt.select(); document.execCommand('copy');
-        const btn = document.getElementById('copyBtn'), span = document.getElementById('copyText'), icon = document.getElementById('copyIcon');
-        btn.classList.add('success'); span.innerText = dict[currentLang].btn_copied; icon.innerText = "✅";
-        setTimeout(() => { btn.classList.remove('success'); span.innerText = dict[currentLang].btn_copy; icon.innerText = "📋"; }, 3000);
+        txt.select();
+        document.execCommand('copy');
+        
+        const btn = document.getElementById('copyBtn');
+        const span = document.getElementById('copyText');
+        const icon = document.getElementById('copyIcon');
+        
+        btn.classList.add('success');
+        span.innerText = dict[currentLang].btn_copied;
+        icon.innerText = "✅";
+        
+        setTimeout(() => {
+            btn.classList.remove('success');
+            span.innerText = dict[currentLang].btn_copy;
+            icon.innerText = "📋";
+        }, 3000);
     }
-    
+
     setLang('ru');
 </script>
 </body>
-</html>
+</html> 
