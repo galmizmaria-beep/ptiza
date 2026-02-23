@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Полет Аватара: Конструктор PRO</title>
+    <title>Полет Аватара: Мастер 2.0</title>
     <style>
         :root { --primary: #00d2ff; --bg: #1a1a2d; --panel: #252540; --text: #e0e0ff; --accent: #ff00ff; --success: #00ff88; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
@@ -12,10 +12,8 @@
         /* Header */
         header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary); padding-bottom: 20px; margin-bottom: 20px; }
         h1 { margin: 0; color: var(--primary); text-transform: uppercase; text-shadow: 0 0 10px var(--primary); font-size: 24px; }
-        .lang-switch button { background: #333; color: #fff; border: 1px solid #555; padding: 5px 10px; cursor: pointer; transition: 0.3s; }
-        .lang-switch button.active { background: var(--primary); color: #000; font-weight: bold; }
 
-        /* Layout */
+        /* Grid & Cards */
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .card { background: var(--panel); padding: 20px; border-radius: 10px; border: 1px solid #444; position: relative; }
         .full-width { grid-column: 1 / -1; }
@@ -24,38 +22,42 @@
         
         /* Inputs */
         label { display: block; margin-top: 10px; font-weight: bold; font-size: 14px; color: #aaa; }
-        input[type="text"], input[type="number"], select {
+        input[type="text"], input[type="number"] {
             width: 100%; padding: 8px; margin-top: 5px; background: #111; border: 1px solid #555; color: #fff; border-radius: 4px; box-sizing: border-box;
         }
         input[type="range"] { width: 100%; margin: 10px 0; }
-        input[type="file"] { margin-top: 5px; font-size: 12px; }
         
-        .status-check { color: var(--success); font-weight: bold; font-size: 12px; margin-left: 10px; display: none; }
+        /* File Input Wrapper */
+        .file-group { margin-top: 5px; display: flex; align-items: center; gap: 10px; }
+        .status-badge { 
+            font-size: 12px; font-weight: bold; color: var(--success); 
+            background: rgba(0,255,136, 0.1); padding: 2px 8px; border-radius: 4px;
+            display: none; /* Hidden by default */
+            border: 1px solid var(--success);
+        }
+        .status-badge.visible { display: inline-block; }
 
-        /* Questions Textarea */
+        /* Questions */
         textarea.bulk-input {
-            width: 100%; height: 200px; background: #111; color: #fff; border: 1px solid #555; 
+            width: 100%; height: 150px; background: #111; color: #fff; border: 1px solid #555; 
             font-family: monospace; padding: 10px; box-sizing: border-box; resize: vertical; margin-top: 5px;
         }
-        .help-text { font-size: 12px; color: #888; margin-top: 5px; line-height: 1.4; }
-
-        /* STATIC PREVIEW GALLERY */
-        #staticPreview {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;
-        }
-        .prev-box {
-            background: #000; border: 1px solid #555; border-radius: 5px; 
-            height: 100px; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            overflow: hidden; text-align: center;
-        }
-        .prev-box img { max-width: 100%; max-height: 80px; object-fit: contain; }
-        .prev-box span { font-size: 10px; color: #888; margin-top: 5px; }
         #questionsPreview {
-            grid-column: 1 / -1; height: auto; padding: 10px; text-align: left; font-size: 12px; color: #fff;
-            background: #112; align-items: flex-start;
+            margin-top: 10px; max-height: 150px; overflow-y: auto; 
+            background: #111; border: 1px solid #444; padding: 10px; font-size: 12px; color: #aaa;
         }
+        .q-item { border-bottom: 1px solid #333; padding: 4px 0; }
+        .q-item b { color: #fff; }
 
-        /* Main Buttons */
+        /* PREVIEW CANVAS (Static Gallery) */
+        #previewContainer {
+            width: 100%; height: 250px; border: 2px solid var(--primary); 
+            margin-bottom: 15px; background: #000; display: flex; 
+            align-items: center; justify-content: center; overflow: hidden; position: relative;
+        }
+        #previewCanvas { width: 100%; height: 100%; object-fit: contain; }
+
+        /* Buttons */
         .btn-main { 
             background: linear-gradient(45deg, var(--primary), #0088ff); color: #fff; border: none; 
             padding: 15px; width: 100%; font-size: 18px; font-weight: bold; cursor: pointer; 
@@ -65,13 +67,12 @@
 
         /* Copy Section */
         #copySection { display: none; margin-top: 20px; background: #111; padding: 15px; border-radius: 5px; text-align: center; }
+        .hidden-code { position: absolute; left: -9999px; }
         .btn-copy {
             background: #444; color: white; border: 2px solid #666; padding: 12px 30px; 
-            font-size: 16px; cursor: pointer; border-radius: 50px; display: inline-flex; align-items: center; gap: 10px;
-            transition: all 0.3s ease;
+            font-size: 16px; cursor: pointer; border-radius: 50px;
         }
         .btn-copy.success { background: var(--success); color: #000; border-color: var(--success); }
-        .hidden-code { position: absolute; left: -9999px; }
 
     </style>
 </head>
@@ -79,114 +80,100 @@
 
 <div class="container">
     <header>
-        <h1 data-key="title">Полет Аватара</h1>
-        <div class="lang-switch">
-            <button onclick="setLang('ru')" id="btn-ru" class="active">RU</button>
-            <button onclick="setLang('en')" id="btn-en">EN</button>
-        </div>
+        <h1>Полет Аватара: Мастер</h1>
     </header>
 
     <div class="grid">
         
         <!-- Preview -->
         <div class="card">
-            <h2 data-key="sec_visual">👁️ Активы (Предпросмотр)</h2>
+            <h2>👁️ Визуал (Предпросмотр)</h2>
             
-            <div id="staticPreview">
-                <div class="prev-box">
-                    <img id="view-bg" alt="Нет фона">
-                    <span data-key="lbl_bg">Фон</span>
-                </div>
-                <div class="prev-box">
-                    <img id="view-bird" alt="Нет аватара">
-                    <span data-key="lbl_bird">Аватар</span>
-                </div>
-                <div class="prev-box">
-                    <img id="view-obs" alt="Нет препятствия">
-                    <span data-key="lbl_obs">Препятствие</span>
-                </div>
-                <div class="prev-box">
-                    <img id="view-coin" alt="Нет монеты">
-                    <span data-key="lbl_coin">Монета</span>
-                </div>
-                <div class="prev-box" id="questionsPreview">
-                    <div id="q-count">Вопросов загружено: 0</div>
-                </div>
+            <div id="previewContainer">
+                <canvas id="previewCanvas"></canvas>
             </div>
             
-            <label>Фон (Картинка): <span id="st-bg" class="status-check">✅ Загружено</span></label>
-            <input type="file" id="fBg" accept="image/*" onchange="loadAsset('bg')">
+            <label>Фон (Картинка):</label>
+            <div class="file-group">
+                <input type="file" id="fBg" accept="image/*" onchange="loadAsset('bg')">
+                <span id="st-bg" class="status-badge">✅ ЗАГРУЖЕНО</span>
+            </div>
             
-            <label>Аватар (Картинка): <span id="st-bird" class="status-check">✅ Загружено</span></label>
-            <input type="file" id="fBird" accept="image/*" onchange="loadAsset('bird')">
+            <label>Аватар (Картинка):</label>
+            <div class="file-group">
+                <input type="file" id="fBird" accept="image/*" onchange="loadAsset('bird')">
+                <span id="st-bird" class="status-badge">✅ ЗАГРУЖЕНО</span>
+            </div>
             
-            <label data-key="lbl_size">Размер аватара:</label>
-            <input type="range" id="sizeRange" min="0.5" max="2.0" step="0.1" value="1.0">
+            <label>Размер аватара:</label>
+            <input type="range" id="sizeRange" min="0.5" max="2.0" step="0.1" value="1.0" oninput="drawStaticPreview()">
             
-            <label data-key="lbl_obj_size">Размер препятствий/монет:</label>
-            <input type="range" id="objSizeRange" min="0.5" max="2.0" step="0.1" value="1.0">
+            <label>Размер объектов:</label>
+            <input type="range" id="objSizeRange" min="0.5" max="2.0" step="0.1" value="1.0" oninput="drawStaticPreview()">
             
-            <label data-key="lbl_speed">Скорость полета:</label>
-            <input type="range" id="speedRange" min="1" max="10" value="3">
+            <label>Скорость игры:</label>
+            <input type="range" id="speedRange" min="1" max="15" value="5">
         </div>
 
         <!-- Settings -->
         <div class="card">
-            <h2 data-key="sec_settings">⚙️ Настройки</h2>
+            <h2>⚙️ Настройки</h2>
             
-            <label data-key="lbl_gameTitle">Заголовок:</label>
+            <label>Заголовок игры:</label>
             <input type="text" id="txtTitle" value="ПОЛЕТ АВАТАРА">
             
-            <label data-key="lbl_btnStart">Кнопка Старт:</label>
+            <label>Текст кнопки Старт:</label>
             <input type="text" id="txtStart" value="ИГРАТЬ">
             
-            <label data-key="lbl_win">Текст победы:</label>
-            <input type="text" id="txtWin" value="ТЫ ПОБЕДИЛ!">
-            
-            <label data-key="lbl_lose">Текст поражения:</label>
-            <input type="text" id="txtLose" value="ВРЕМЯ ВЫШЛО">
-
-            <div style="display: flex; gap: 10px;">
-                <div style="flex:1">
-                    <label data-key="lbl_time">Время (с):</label>
-                    <input type="number" id="valTime" value="60">
-                </div>
+            <label>Текст Победы / Поражения:</label>
+            <div style="display:flex; gap:10px">
+                <input type="text" id="txtWin" value="ПОБЕДА!">
+                <input type="text" id="txtLose" value="НЕУДАЧА">
             </div>
 
-            <h3 style="font-size:14px; margin-top:15px; color:#fff;" data-key="sec_assets">Объекты</h3>
-            
-            <label>Препятствие: <span id="st-obs" class="status-check">✅ Загружено</span></label>
-            <input type="file" id="fObs" accept="image/*" onchange="loadAsset('obs')">
-            
-            <label>Монета: <span id="st-coin" class="status-check">✅ Загружено</span></label>
-            <input type="file" id="fCoin" accept="image/*" onchange="loadAsset('coin')">
-            
-            <label>Музыка: <span id="st-music" class="status-check">✅ Загружено</span></label>
-            <input type="file" id="fMusic" accept="audio/*" onchange="loadAsset('music', false)">
+            <label>Время (секунды):</label>
+            <input type="number" id="valTime" value="60">
+
+            <h3 style="font-size:14px; margin-top:15px; color:#fff;">Объекты</h3>
+            <label>Препятствие (Враг):</label>
+            <div class="file-group">
+                <input type="file" id="fObs" accept="image/*" onchange="loadAsset('obs')">
+                <span id="st-obs" class="status-badge">✅ ЗАГРУЖЕНО</span>
+            </div>
+
+            <label>Монета (Бонус):</label>
+            <div class="file-group">
+                <input type="file" id="fCoin" accept="image/*" onchange="loadAsset('coin')">
+                <span id="st-coin" class="status-badge">✅ ЗАГРУЖЕНО</span>
+            </div>
+
+            <label>Музыка (MP3):</label>
+            <div class="file-group">
+                <input type="file" id="fMusic" accept="audio/*" onchange="loadAsset('music', false)">
+                <span id="st-music" class="status-badge">✅ ЗАГРУЖЕНО</span>
+            </div>
         </div>
 
-        <!-- Questions Bulk -->
+        <!-- Questions -->
         <div class="card full-width">
-            <h2 data-key="sec_questions">❓ Список вопросов</h2>
-            <textarea id="bulkQuestions" class="bulk-input" placeholder="" oninput="updateQCount()"></textarea>
-            <div class="help-text" data-key="help_q">
-                Вставляйте вопросы списком. Формат:<br>
-                <b>Вопрос | Правильный ответ | Неверный 1 | Неверный 2</b><br>
-                <i>Пример: Сколько будет 2+2? | 4 | 5 | 6</i>
-            </div>
+            <h2>❓ Вопросы</h2>
+            <p style="font-size:12px; color:#aaa; margin-bottom:5px">
+                Вставьте список: <b>Вопрос | Верный ответ | Неверный 1 | Неверный 2</b>
+            </p>
+            <textarea id="bulkQuestions" class="bulk-input" oninput="updateQPreview()" placeholder="2+2? | 4 | 5 | 6"></textarea>
+            
+            <label>Предпросмотр загруженных вопросов:</label>
+            <div id="questionsPreview">Waiting for input...</div>
         </div>
 
         <!-- Generate -->
         <div class="card full-width" style="text-align: center;">
-            <button class="btn-main" onclick="generate()" data-key="btn_gen">🚀 СОЗДАТЬ ИГРУ</button>
+            <button class="btn-main" onclick="generate()">🚀 СОЗДАТЬ ИГРУ</button>
             
             <div id="copySection">
                 <textarea id="finalCode" class="hidden-code"></textarea>
-                <button class="btn-copy" id="copyBtn" onclick="doCopy()">
-                    <span id="copyIcon">📋</span> 
-                    <span id="copyText" data-key="btn_copy">СКОПИРОВАТЬ КОД</span>
-                </button>
-                <p style="color:#666; font-size:12px; margin-top:10px;" data-key="lbl_copy_hint">Вставьте этот код в Genially (Insert -> Others) и растяните на весь слайд.</p>
+                <button class="btn-copy" id="copyBtn" onclick="doCopy()">СКОПИРОВАТЬ КОД</button>
+                <p style="color:#666; font-size:12px; margin-top:10px;">Вставьте код в Genially (Insert -> Others) и растяните на весь слайд.</p>
             </div>
         </div>
     </div>
@@ -194,111 +181,112 @@
 
 <script>
     const assets = { bg: null, bird: null, obs: null, coin: null, music: null };
-    let currentLang = 'ru';
+    const pImg = { bg: new Image(), bird: new Image(), obs: new Image(), coin: new Image() };
 
-    const dict = {
-        ru: {
-            title: "Полет Аватара",
-            sec_visual: "👁️ Активы (Предпросмотр)",
-            lbl_bg: "Фон", lbl_bird: "Аватар", lbl_size: "Размер аватара:", lbl_obj_size: "Размер предметов:", lbl_speed: "Скорость:",
-            sec_settings: "⚙️ Настройки",
-            lbl_gameTitle: "Название:", lbl_btnStart: "Кнопка Старт:", lbl_win: "Победа:", lbl_lose: "Поражение:",
-            lbl_time: "Время (сек):", sec_assets: "Объекты", lbl_obs: "Препятствие", lbl_coin: "Монета",
-            sec_questions: "❓ Список вопросов",
-            help_q: "Формат: Вопрос | Правильный | Неверный 1 | Неверный 2",
-            btn_gen: "🚀 СОЗДАТЬ ИГРУ",
-            btn_copy: "СКОПИРОВАТЬ КОД",
-            btn_copied: "СКОПИРОВАНО!",
-            lbl_copy_hint: "Вставьте в Genially (Insert -> Others) и растяните.",
-            ph_bulk: "Сколько будет 2+2? | 4 | 5 | 6\nСтолица Франции? | Париж | Лондон | Берлин\nНапиши слово Привет | Привет",
-            val_title: "ПОЛЕТ АВАТАРА", val_start: "ИГРАТЬ", val_win: "ПОБЕДА!", val_lose: "ВРЕМЯ ВЫШЛО",
-            loaded: "✅ Загружено", q_count: "Вопросов загружено: "
-        },
-        en: {
-            title: "Avatar Flight",
-            sec_visual: "👁️ Assets (Preview)",
-            lbl_bg: "Background", lbl_bird: "Avatar", lbl_size: "Avatar Size:", lbl_obj_size: "Objects Size:", lbl_speed: "Speed:",
-            sec_settings: "⚙️ Settings",
-            lbl_gameTitle: "Title:", lbl_btnStart: "Start Button:", lbl_win: "Win Text:", lbl_lose: "Lose Text:",
-            lbl_time: "Time (s):", sec_assets: "Objects", lbl_obs: "Obstacle", lbl_coin: "Coin",
-            sec_questions: "❓ Questions List",
-            help_q: "Format: Question | Correct | Wrong 1 | Wrong 2",
-            btn_gen: "🚀 CREATE GAME",
-            btn_copy: "COPY CODE",
-            btn_copied: "COPIED!",
-            lbl_copy_hint: "Paste into Genially (Insert -> Others) and stretch full screen.",
-            ph_bulk: "2+2? | 4 | 5 | 6\nCapital of France? | Paris | London\nType Hello | Hello",
-            val_title: "AVATAR FLIGHT", val_start: "PLAY", val_win: "YOU WON!", val_lose: "GAME OVER",
-            loaded: "✅ Loaded", q_count: "Questions loaded: "
-        }
-    };
-
-    function setLang(lang) {
-        currentLang = lang;
-        document.querySelectorAll('[data-key]').forEach(el => {
-            if(dict[lang][el.dataset.key]) el.innerText = dict[lang][el.dataset.key];
-        });
-        document.getElementById('btn-ru').className = lang === 'ru' ? 'active' : '';
-        document.getElementById('btn-en').className = lang === 'en' ? 'active' : '';
-        
-        const d = dict[lang];
-        document.getElementById('txtTitle').value = d.val_title;
-        document.getElementById('txtStart').value = d.val_start;
-        document.getElementById('txtWin').value = d.val_win;
-        document.getElementById('txtLose').value = d.val_lose;
-        document.getElementById('bulkQuestions').placeholder = d.ph_bulk;
-        
-        const btn = document.getElementById('copyBtn');
-        btn.className = 'btn-copy';
-        document.getElementById('copyText').innerText = d.btn_copy;
-        
-        document.querySelectorAll('.status-check').forEach(el => el.innerText = d.loaded);
-        updateQCount();
-    }
-
+    // --- ASSET LOADING ---
     function loadAsset(key, isImg=true) {
-        const input = document.getElementById(key === 'bg' ? 'fBg' : key === 'bird' ? 'fBird' : key === 'obs' ? 'fObs' : key === 'coin' ? 'fCoin' : 'fMusic');
-        const status = document.getElementById(key === 'bg' ? 'st-bg' : key === 'bird' ? 'st-bird' : key === 'obs' ? 'st-obs' : key === 'coin' ? 'st-coin' : 'st-music');
+        const fileInp = document.getElementById(key === 'bg' ? 'fBg' : key === 'bird' ? 'fBird' : key === 'obs' ? 'fObs' : key === 'coin' ? 'fCoin' : 'fMusic');
+        const badge = document.getElementById('st-'+key);
         
-        if(input.files && input.files[0]) {
+        if(fileInp.files && fileInp.files[0]) {
             const reader = new FileReader();
             reader.onload = function(e) {
                 assets[key] = e.target.result;
-                // Update Status
-                if(status) {
-                    status.style.display = 'inline';
-                    status.innerText = dict[currentLang].loaded;
-                }
-                // Update Preview Image
+                badge.classList.add('visible'); // Show Checkmark
+                
                 if(isImg) {
-                    const imgId = 'view-' + key;
-                    const imgEl = document.getElementById(imgId);
-                    if(imgEl) imgEl.src = e.target.result;
+                    pImg[key].src = e.target.result;
+                    pImg[key].onload = drawStaticPreview;
                 }
             }
-            reader.readAsDataURL(input.files[0]);
+            reader.readAsDataURL(fileInp.files[0]);
         }
     }
-    
-    function updateQCount() {
-        const qs = parseQuestions();
-        document.getElementById('q-count').innerText = dict[currentLang].q_count + qs.length;
+
+    // --- QUESTIONS PREVIEW ---
+    function updateQPreview() {
+        const raw = document.getElementById('bulkQuestions').value;
+        const div = document.getElementById('questionsPreview');
+        if(!raw.trim()) { div.innerHTML = "Нет вопросов"; return; }
+        
+        const lines = raw.split('\n').filter(l => l.trim());
+        let html = '';
+        lines.forEach((l, i) => {
+            const p = l.split('|');
+            html += `<div class="q-item"><b>${i+1}.</b> ${p[0]} <span style="color:#0f0">(${p[1]||'?'})</span></div>`;
+        });
+        div.innerHTML = html;
     }
 
-    // === GENERATE ===
+    // --- STATIC CANVAS PREVIEW (NO GEOMETRY, ONLY IMAGES) ---
+    const cvs = document.getElementById('previewCanvas');
+    const ctx = cvs.getContext('2d');
+
+    function drawStaticPreview() {
+        // Set canvas resolution
+        const cont = document.getElementById('previewContainer');
+        cvs.width = cont.offsetWidth;
+        cvs.height = cont.offsetHeight;
+        const W = cvs.width;
+        const H = cvs.height;
+
+        ctx.clearRect(0,0,W,H);
+        
+        // 1. Draw BG
+        if(pImg.bg.src) {
+            // Draw scaled to cover
+            const ratio = Math.max(W/pImg.bg.width, H/pImg.bg.height);
+            const bw = pImg.bg.width * ratio;
+            const bh = pImg.bg.height * ratio;
+            ctx.drawImage(pImg.bg, (W-bw)/2, (H-bh)/2, bw, bh);
+        } else {
+            // If no BG, just black
+            ctx.fillStyle = "#000"; ctx.fillRect(0,0,W,H);
+            ctx.fillStyle = "#333"; ctx.font="14px sans-serif"; ctx.textAlign="center";
+            ctx.fillText("Фон не загружен", W/2, H/2);
+        }
+
+        // 2. Draw Coin (Left)
+        const objSc = parseFloat(document.getElementById('objSizeRange').value);
+        if(pImg.coin.src) {
+            let s = 60 * objSc;
+            ctx.drawImage(pImg.coin, W*0.2, H*0.6, s, s);
+        }
+
+        // 3. Draw Obstacle (Right)
+        if(pImg.obs.src) {
+            let s = 60 * objSc;
+            ctx.drawImage(pImg.obs, W*0.8 - s, H*0.6, s, s);
+        }
+
+        // 4. Draw Avatar (Center)
+        const avSc = parseFloat(document.getElementById('sizeRange').value);
+        if(pImg.bird.src) {
+            let s = 80 * avSc;
+            ctx.drawImage(pImg.bird, W/2 - s/2, H/2 - s/2, s, s);
+        } else {
+             // Text placeholder only
+            ctx.fillStyle = "#fff"; ctx.font="12px sans-serif";
+            ctx.fillText("(Аватар)", W/2, H/2 + 20);
+        }
+    }
+
+    window.addEventListener('resize', drawStaticPreview);
+    setTimeout(drawStaticPreview, 500); // init
+
+    // --- GENERATE GAME CODE ---
     function parseQuestions() {
         const raw = document.getElementById('bulkQuestions').value.trim();
         if(!raw) return [];
-        return raw.split('\n').filter(line => line.trim() !== '').map(line => {
-            const parts = line.split('|').map(s => s.trim());
-            return parts.length > 2 
-                ? { t: parts[0], type: 'choice', c: parts[1], w: parts.slice(2) }
-                : { t: parts[0], type: 'input', c: parts[1] };
+        return raw.split('\n').filter(l => l.trim()).map(l => {
+            const p = l.split('|').map(s => s.trim());
+            return p.length > 2 
+                ? { t: p[0], type: 'choice', c: p[1], w: p.slice(2) }
+                : { t: p[0], type: 'input', c: p[1] };
         });
     }
 
     function generate() {
-        const questions = parseQuestions();
         const CONFIG = {
             title: document.getElementById('txtTitle').value,
             btn: document.getElementById('txtStart').value,
@@ -308,7 +296,7 @@
             speed: document.getElementById('speedRange').value,
             scale: document.getElementById('sizeRange').value,
             objScale: document.getElementById('objSizeRange').value,
-            qs: questions,
+            qs: parseQuestions(),
             img: assets
         };
 
@@ -316,83 +304,82 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
 <style>
-    /* RESET */
     html, body { margin:0; padding:0; width:100%; height:100%; overflow:hidden; background:#000; }
     body { font-family:'Segoe UI',sans-serif; user-select:none; -webkit-user-select:none; }
+    #game-box { position:absolute; top:0; left:0; width:100%; height:100%; overflow:hidden; }
+    canvas { display:block; width:100%; height:100%; }
     
-    #game-box { position:absolute; top:0; left:0; width:100%; height:100%; overflow:hidden; touch-action: none; }
-    canvas { display:block; width:100%; height:100%; } 
+    /* HUD */
+    .hud { position:absolute; top:15px; color:#00d2ff; font-size:clamp(20px, 4vw, 30px); font-weight:bold; text-shadow:2px 2px 0 #000; padding:5px 15px; background:rgba(0,0,0,0.6); border-radius:10px; border:1px solid #00d2ff; z-index:50; }
     
-    /* UI HUD */
-    .hud { position:absolute; top:10px; color:#00d2ff; font-size:clamp(20px, 4vw, 30px); font-weight:bold; text-shadow:2px 2px 0 #000; padding:5px 15px; background:rgba(0,0,0,0.6); border-radius:10px; border:1px solid #00d2ff; z-index: 50; }
-    
-    /* SCREENS - MENUS */
+    /* Screens */
     .screen { 
         position:absolute; top:0; left:0; width:100%; height:100%; 
         background:rgba(0,0,0,0.85); display:flex; flex-direction:column; 
-        align-items:center; justify-content:center; 
-        z-index:100; pointer-events:auto; 
+        align-items:center; justify-content:center; z-index:100; pointer-events:auto; 
     }
-    
     h1 { color:#00d2ff; font-size:clamp(30px, 6vw, 60px); text-transform:uppercase; text-shadow:0 0 20px #00d2ff; margin-bottom:20px; text-align:center; }
     
-    button.btn-play {
+    .btn-play {
         background: linear-gradient(180deg, #00d2ff, #0088aa);
-        border: 4px solid #fff; padding: 15px 60px;
-        color: #fff; font-size: clamp(24px, 5vw, 40px); font-weight: bold; text-transform: uppercase;
+        border: 4px solid #fff; padding: 15px 50px;
+        color: #fff; font-size: clamp(20px, 4vw, 36px); font-weight: bold; text-transform: uppercase;
         border-radius: 60px; cursor: pointer; box-shadow: 0 0 30px #00d2ff;
-        transition: transform 0.1s; text-shadow: 1px 1px 2px #000;
-        z-index: 200; pointer-events: auto;
+        transition: transform 0.1s;
     }
-    button.btn-play:hover { transform: scale(1.05); background: #fff; color: #0088aa; }
-    button.btn-play:active { transform: scale(0.95); }
+    .btn-play:hover { transform: scale(1.05); background: #fff; color: #0088aa; }
+    .btn-play:active { transform: scale(0.95); }
 
-    /* QUIZ BOX - OVERLAY ON GAME */
+    /* QUIZ POPUP (Fixed dark overlay) */
     #quiz-overlay {
-        display:none; position:absolute; top:0; left:0; width:100%; height:100%;
-        background: rgba(0,0,0,0.7); /* Semi-transparent */
-        z-index: 150;
-        align-items: center; justify-content: center;
+        display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+        background: rgba(20, 20, 35, 0.95); z-index: 200;
+        flex-direction: column; align-items: center; justify-content: center;
     }
-    #quiz-box { 
-        width:90%; max-width:500px; background:#1e293b; border:3px solid #00d2ff; 
-        padding:20px; border-radius:15px; text-align:center; color:#fff; 
-        box-shadow: 0 0 50px #000;
+    .quiz-card {
+        width: 90%; max-width: 500px; background: #252540; 
+        border: 2px solid #00d2ff; padding: 20px; border-radius: 15px;
+        box-shadow: 0 0 50px rgba(0,0,0,0.8); text-align: center;
     }
-    .q-btn { display:block; width:100%; padding:15px; margin:8px 0; background:#334; border:1px solid #556; color:#fff; font-size:18px; cursor:pointer; position:relative; }
-    .q-btn:hover { background:#00d2ff; color:#000; }
-    input.q-inp { width:80%; padding:10px; font-size:20px; text-align:center; margin-bottom:10px; color:#000; }
+    .q-txt { color: #fff; font-size: 24px; margin-bottom: 20px; }
+    .q-btn { 
+        display: block; width: 100%; padding: 15px; margin: 10px 0; 
+        background: #334; border: 1px solid #556; color: #fff; 
+        font-size: 18px; cursor: pointer; border-radius: 8px; transition: 0.2s;
+    }
+    .q-btn:hover { background: #00d2ff; color: #000; }
+    input.q-inp { width: 80%; padding: 12px; font-size: 20px; text-align: center; margin-bottom: 10px; }
 
 </style>
 </head>
 <body>
 
 <div id="game-box">
-    <!-- UI -->
-    <div class="hud" style="left:10px">⏱ <span id="ui-time">0</span></div>
-    <div class="hud" style="right:10px">🏆 <span id="ui-score">0</span></div>
+    <!-- HUD -->
+    <div class="hud" style="left:15px">⏱ <span id="ui-time">0</span></div>
+    <div class="hud" style="right:15px">🏆 <span id="ui-score">0</span></div>
 
-    <!-- CANVAS -->
     <canvas id="cvs"></canvas>
 
-    <!-- START SCREEN -->
+    <!-- START -->
     <div id="scr-start" class="screen">
         <h1 id="mt-title">TITLE</h1>
-        <button class="btn-play" id="btn-start">START</button>
+        <button class="btn-play" onclick="GM.start()">START</button>
     </div>
 
-    <!-- END SCREEN -->
+    <!-- END -->
     <div id="scr-end" class="screen" style="display:none">
         <h1 id="mt-end">END</h1>
-        <p style="color:#fff; font-size:30px">Score: <span id="end-score">0</span></p>
+        <p style="color:#fff; font-size:30px">Счет: <span id="end-score">0</span></p>
         <button class="btn-play" onclick="GM.reset()">↺</button>
     </div>
 
-    <!-- QUIZ OVERLAY -->
+    <!-- QUIZ -->
     <div id="quiz-overlay">
-        <div id="quiz-box">
-            <h2 id="q-txt" style="color:#00d2ff; margin-top:0">Question</h2>
+        <div class="quiz-card">
+            <div id="q-txt" class="q-txt">Вопрос</div>
             <div id="q-body"></div>
         </div>
     </div>
@@ -402,9 +389,11 @@
 const CFG = ${JSON.stringify(CONFIG)};
 const IMG = CFG.img;
 
+// Set Texts
 document.getElementById('mt-title').innerText = CFG.title;
-document.getElementById('btn-start').innerText = CFG.btn;
+document.querySelector('#scr-start button').innerText = CFG.btn;
 
+// Canvas Setup
 const cvs = document.getElementById('cvs');
 const ctx = cvs.getContext('2d');
 let W, H;
@@ -412,334 +401,261 @@ let W, H;
 function resize() {
     W = cvs.width = window.innerWidth;
     H = cvs.height = window.innerHeight;
-    if(!GM.run) { GM.playerX = 0; GM.playerY = 0; }
 }
 window.addEventListener('resize', resize);
-setTimeout(resize, 100);
+resize();
 
+// Audio
 const AC = new (window.AudioContext || window.webkitAudioContext)();
-function sfx(type) {
+let music = null; 
+if(IMG.music) { music = new Audio(IMG.music); music.loop=true; music.volume=0.4; }
+
+function sfx(t) {
     if(AC.state === 'suspended') AC.resume();
     const o = AC.createOscillator(); const g = AC.createGain();
     o.connect(g); g.connect(AC.destination);
-    const t = AC.currentTime;
+    const now = AC.currentTime;
     
-    if(type==='coin') {
-        o.type = 'sine'; o.frequency.setValueAtTime(1200, t);
-        g.gain.setValueAtTime(0.1, t); g.gain.exponentialRampToValueAtTime(0.01, t+0.5);
-        o.start(t); o.stop(t+0.5);
-    } else if(type==='boom') {
-        o.type = 'sawtooth';
-        o.frequency.setValueAtTime(100, t); o.frequency.exponentialRampToValueAtTime(10, t+0.3);
-        g.gain.setValueAtTime(0.3, t); g.gain.linearRampToValueAtTime(0, t+0.3);
-        o.start(t); o.stop(t+0.3);
-    } else if(type==='win') { 
-        o.type='triangle'; 
-        o.frequency.setValueAtTime(523, t); o.frequency.linearRampToValueAtTime(1000, t+0.3);
-        g.gain.setValueAtTime(0.1, t); g.gain.linearRampToValueAtTime(0, t+0.6);
-        o.start(t); o.stop(t+0.6);
-    } else if (type==='lose') {
-        o.type='triangle';
-        o.frequency.setValueAtTime(300, t); o.frequency.linearRampToValueAtTime(100, t+0.4);
-        g.gain.setValueAtTime(0.2, t); g.gain.linearRampToValueAtTime(0, t+0.4);
-        o.start(t); o.stop(t+0.4);
+    if(t==='coin') {
+        o.type='sine'; o.frequency.setValueAtTime(1000, now); g.gain.linearRampToValueAtTime(0, now+0.3);
+        o.start(now); o.stop(now+0.3);
+    } else if(t==='hit') {
+        o.type='sawtooth'; o.frequency.setValueAtTime(100, now); o.frequency.exponentialRampToValueAtTime(10, now+0.3);
+        g.gain.linearRampToValueAtTime(0, now+0.3); o.start(now); o.stop(now+0.3);
+    } else if(t==='win') {
+        o.type='triangle'; o.frequency.setValueAtTime(400, now); o.frequency.linearRampToValueAtTime(800, now+0.4);
+        g.gain.linearRampToValueAtTime(0, now+0.5); o.start(now); o.stop(now+0.5);
     }
 }
 
+// Images
 const iBg = new Image(); if(IMG.bg) iBg.src = IMG.bg;
 const iBird = new Image(); if(IMG.bird) iBird.src = IMG.bird;
 const iObs = new Image(); if(IMG.obs) iObs.src = IMG.obs;
 const iCoin = new Image(); if(IMG.coin) iCoin.src = IMG.coin;
-let music = null; if(IMG.music) { music = new Audio(IMG.music); music.loop=true; music.volume=0.4; }
 
+// Game Logic
 const GM = {
-    run: false, pause: false, frame: 0,
-    time: parseInt(CFG.time), score: 0,
-    objs: [], 
-    mx: 0, my: 0, 
-    playerX: 0, playerY: 0, // Virtual Camera Position
-    hurt: 0,
+    run: false, pause: false,
+    frame: 0, time: 0, score: 0,
+    mx: 0, my: 0, // Mouse position
+    camX: 0, camY: 0, // Camera position (follows mouse slightly)
+    speed: parseFloat(CFG.speed),
+    objs: [],
     timerInt: null,
     
     start: () => {
         document.getElementById('scr-start').style.display = 'none';
-        resize();
-        GM.mx = W/2; GM.my = H/2;
-        GM.playerX = 0; GM.playerY = 0;
-        
-        if(AC.state === 'suspended') AC.resume();
-        if(music) music.play().catch(e=>{});
-        
-        GM.run = true;
-        GM.objs = [];
-        GM.frame = 0;
-        GM.score = 0;
+        GM.run = true; GM.pause = false;
         GM.time = parseInt(CFG.time);
-        document.getElementById('ui-score').innerText = "0";
+        GM.score = 0; GM.frame = 0;
+        GM.objs = [];
+        GM.mx = W/2; GM.my = H/2;
+        
         document.getElementById('ui-time').innerText = GM.time;
-        
-        loop();
-        
-        GM.timerInt = setInterval(() => {
-            if(GM.run && !GM.pause) {
-                GM.time--;
-                document.getElementById('ui-time').innerText = GM.time;
-                if(GM.time <= 0) GM.end(false);
-            }
+        document.getElementById('ui-score').innerText = 0;
+
+        if(AC.state==='suspended') AC.resume();
+        if(music) music.play().catch(()=>{});
+
+        // Timer
+        GM.timerInt = setInterval(()=>{
+            if(!GM.run || GM.pause) return;
+            GM.time--;
+            document.getElementById('ui-time').innerText = GM.time;
+            if(GM.time <= 0) GM.end(false);
         }, 1000);
+
+        loop();
     },
 
     reset: () => {
         clearInterval(GM.timerInt);
-        GM.run = false;
-        GM.pause = false;
-        // Hide End Screen, Show Start
+        GM.run = false; GM.pause = false;
         document.getElementById('scr-end').style.display = 'none';
         document.getElementById('scr-start').style.display = 'flex';
         document.getElementById('quiz-overlay').style.display = 'none';
-        
-        // Music reset
-        if(music) { music.pause(); music.currentTime = 0; }
+        if(music) { music.pause(); music.currentTime=0; }
     },
 
     end: (win) => {
         GM.run = false;
         clearInterval(GM.timerInt);
         document.getElementById('scr-end').style.display = 'flex';
-        document.getElementById('mt-end').innerText = win ? CFG.win : CFG.lose;
-        document.getElementById('mt-end').style.color = win ? '#0f0' : '#f00';
+        const h = document.getElementById('mt-end');
+        h.innerText = win ? CFG.win : CFG.lose;
+        h.style.color = win ? '#0f0' : '#f00';
         document.getElementById('end-score').innerText = GM.score;
-        sfx(win?'win':'lose');
+        sfx(win?'win':'hit');
     }
 };
 
-document.getElementById('btn-start').addEventListener('click', GM.start);
-
-window.addEventListener('mousemove', e => {
-    GM.mx = e.clientX;
-    GM.my = e.clientY;
-});
+// Input
+window.addEventListener('mousemove', e => { GM.mx = e.clientX; GM.my = e.clientY; });
 window.addEventListener('touchmove', e => {
     e.preventDefault();
-    GM.mx = e.touches[0].clientX;
-    GM.my = e.touches[0].clientY;
+    GM.mx = e.touches[0].clientX; GM.my = e.touches[0].clientY;
 }, {passive:false});
 
 function loop() {
     if(!GM.run) return;
     requestAnimationFrame(loop);
-    
+    if(GM.pause) return;
+
     ctx.clearRect(0,0,W,H);
-    if(GM.pause) return; 
 
-    // --- 1. PLAYER MOVEMENT & INFINITE BG ---
-    // Instead of objects moving relative to screen, 
-    // The Player moves through the "World".
-    // dx/dy is how much the player moves this frame based on mouse pos relative to center
-    let dx = (GM.mx - W/2) * 0.1;
-    let dy = (GM.my - H/2) * 0.1;
+    // 1. Camera Logic (Avatar moves to Mouse)
+    // Lerp camera towards mouse for smooth movement
+    GM.camX += (GM.mx - GM.camX) * 0.1; 
+    GM.camY += (GM.my - GM.camY) * 0.1;
     
-    GM.playerX += dx;
-    GM.playerY += dy + parseInt(CFG.speed); // Fly forward (Y is forward in 2D topdown scrolling logic)
-    
-    // Background Tiling (Infinite)
-    // We move the background pattern opposite to player X
-    let bgScrollX = -GM.playerX;
-    let bgScrollY = GM.frame * parseInt(CFG.speed); // Simple forward scroll for speed sensation
-
-    if(iBg.src && iBg.complete) {
-        let ptrn = ctx.createPattern(iBg, 'repeat');
-        if(ptrn) {
-            ctx.save();
-            ctx.fillStyle = ptrn;
-            // Shift pattern based on player X position to simulate turning
-            ctx.translate(bgScrollX % iBg.width, bgScrollY % iBg.height);
-            // Draw a huge rectangle to cover all edges even when turning hard
-            // This prevents "white slides"
-            ctx.fillRect(-W*2 + (-bgScrollX%iBg.width), -H*2, W*5, H*5);
-            ctx.restore();
-        }
+    // 2. Infinite Background
+    if(iBg.src && iBg.complete && iBg.width > 0) {
+        // Create Pattern
+        const pat = ctx.createPattern(iBg, 'repeat');
+        ctx.save();
+        // Shift pattern opposite to camera + constant speed forward illusion
+        let bgSpeedY = GM.frame * GM.speed * 2;
+        ctx.translate(-GM.camX, -GM.camY + bgSpeedY); 
+        ctx.fillStyle = pat;
+        // Draw HUGE rect around camera to ensure no white edges
+        ctx.fillRect(GM.camX - W, GM.camY - H - bgSpeedY, W*3, H*3); 
+        ctx.restore();
     } else {
-        ctx.fillStyle = '#112'; ctx.fillRect(0,0,W,H);
-        ctx.fillStyle = "rgba(255,255,255,0.4)";
-        // Simple starfield that reacts to camera
-        for(let i=0; i<40; i++) {
-            let x = (Math.sin(i*99) * W * 2 - GM.playerX * 0.5) % W;
-            if(x < 0) x += W;
-            let y = (i*44 + GM.frame*parseInt(CFG.speed)) % H;
-            ctx.fillRect(x, y, 3, 3);
-        }
+        ctx.fillStyle = "#112"; ctx.fillRect(0,0,W,H);
     }
 
-    // --- 2. SPAWN OBJECTS ---
-    // Spawn objects relative to the player's current X position
-    // so they appear "ahead"
-    if(GM.frame % (60 - parseInt(CFG.speed)*2) === 0) {
+    // 3. Spawning Objects (World Coordinates)
+    // Objects spawn far away (Z=2000), at random X/Y relative to center + some offset
+    if(GM.frame % (60 - GM.speed*2) === 0) {
         let isCoin = (CFG.qs.length > 0 && Math.random() > 0.6);
-        // Spawn X is relative to PlayerX + random offset
-        // We create a wide "world"
-        let spawnWorldX = GM.playerX + (Math.random()-0.5) * W * 1.5; 
-        
-        GM.objs.push({ 
-            wx: spawnWorldX, // World X coordinate (fixed)
-            z: 2000,         // Distance (comes closer)
-            t: isCoin?'c':'o' 
+        // Spawn area is wider than screen to force player to move
+        let spawnW = W * 2; 
+        let spawnH = H * 2;
+        GM.objs.push({
+            x: GM.camX + (Math.random()-0.5) * spawnW, // Spawn near where player is looking
+            y: GM.camY + (Math.random()-0.5) * spawnH - H, // Start slightly above
+            z: 2000, 
+            type: isCoin ? 'c' : 'o'
         });
     }
 
-    // --- 3. DRAW OBJECTS ---
-    GM.objs.sort((a,b) => b.z - a.z);
-    let objScaleUser = parseFloat(CFG.objScale || 1.0);
-    let speed = parseInt(CFG.speed);
+    // 4. Update & Draw Objects
+    GM.objs.sort((a,b) => b.z - a.z); // Painter's algo
+    const scaleUsr = parseFloat(CFG.objScale || 1.0);
 
     for(let i=0; i<GM.objs.length; i++) {
         let o = GM.objs[i];
-        o.z -= (2 + speed); // Object comes towards camera
+        o.z -= (5 + GM.speed); // Move towards camera
 
-        // Calculate Screen X based on World X minus Player X (Parallax)
-        // If Object is at 100 and Player is at 100, Object is center screen.
-        let relX = (o.wx - GM.playerX);
-        
-        // Remove if behind camera
         if(o.z < 10) { GM.objs.splice(i,1); i--; continue; }
 
-        // Perspective projection
-        let scale = 500 / o.z;
-        let sx = W/2 + relX * scale; // Position on screen
-        
-        // Floating Y effect
-        let hover = Math.sin(GM.frame * 0.05 + i) * 100;
-        let sy = H/2 + (0 + (o.t==='o' ? hover : 0)) * scale; // Keep Y centered but scale
-        
-        // Make objects move "down" visually as they get closer (standard runner perspective)
-        // Adjust SY slightly based on Z to fake ground plane
-        sy += (2000 - o.z) * 0.1;
+        // Perspective Projection
+        let perspective = 600 / o.z; 
+        // Parallax: World Position minus Camera Position
+        let screenX = W/2 + (o.x - GM.camX) * perspective;
+        let screenY = H/2 + (o.y - GM.camY) * perspective;
+        let size = 100 * perspective * scaleUsr;
 
-        let size = 100 * scale * objScaleUser;
-
-        // Visual guide line (optional, helps depth)
-        // ctx.strokeStyle="rgba(255,255,255,0.1)"; ctx.beginPath(); ctx.moveTo(sx,sy); ctx.lineTo(sx,H); ctx.stroke();
-
-        let img = (o.t==='c') ? iCoin : iObs;
-        
-        if (o.t === 'c') {
-            // Coin spin
-            let spin = Math.abs(Math.sin(GM.frame * 0.1 + i));
-            let w = size * spin;
-            if(img.src) ctx.drawImage(img, sx - w/2, sy - size/2, w, size);
-            else { ctx.fillStyle = 'gold'; ctx.beginPath(); ctx.ellipse(sx, sy, w/2, size/2, 0, 0, 6.28); ctx.fill(); }
+        // Draw
+        let img = (o.type==='c') ? iCoin : iObs;
+        if(img.src) {
+             ctx.drawImage(img, screenX - size/2, screenY - size/2, size, size);
         } else {
-            // Obstacle
-            if(img.src) ctx.drawImage(img, sx-size/2, sy-size/2, size, size);
-            else { ctx.fillStyle = 'red'; ctx.beginPath(); ctx.arc(sx, sy, size/2, 0, 6.28); ctx.fill(); }
+             ctx.fillStyle = o.type==='c'?'gold':'red';
+             ctx.beginPath(); ctx.arc(screenX, screenY, size/2, 0, 7); ctx.fill();
         }
 
-        // HIT DETECTION
-        // Check depth first (Z)
-        if(o.z < 200 && o.z > 20) {
-            // Then check 2D distance on screen
-            // Since we control bird with mouse, bird is at GM.mx, GM.my
-            // But visually bird is center-ish. 
-            // Actually, in this logic, we are flying PAST objects.
-            // If screen X of object is close to screen X of Bird...
+        // Collision
+        // Check only if close (z < 100) and overlapped
+        if(o.z < 150 && o.z > 20) {
+            let dx = screenX - GM.mx; // Mouse is basically Player Screen Pos
+            let dy = screenY - GM.my;
+            let dist = Math.hypot(dx, dy);
+            let hitRad = (size/2) * 0.8 + (40 * parseFloat(CFG.scale)); // hitbox
             
-            // Where is the bird drawn?
-            // The bird is drawn at mouse position (GM.mx, GM.my).
-            
-            let dist = Math.hypot(sx - GM.mx, sy - GM.my);
-            let hitbox = (size * 0.8) + (60 * parseFloat(CFG.scale));
-            
-            if(dist < hitbox) {
+            if(dist < hitRad) {
                 GM.objs.splice(i,1); i--;
-                hit(o.t);
+                handleHit(o.type);
             }
         }
     }
 
-    // --- 4. DRAW BIRD ---
-    if(GM.hurt > 0) {
-        GM.hurt--;
-        if(Math.floor(GM.hurt / 5) % 2 === 0) return;
-    }
-
-    let pSize = 120 * parseFloat(CFG.scale);
+    // 5. Draw Avatar (At Mouse Position)
+    let avSize = 120 * parseFloat(CFG.scale);
     if(iBird.src) {
-        let tilt = (GM.mx - W/2) * 0.05;
         ctx.save();
         ctx.translate(GM.mx, GM.my);
+        // Tilt based on horizontal movement
+        let tilt = (GM.mx - GM.camX) * 0.2; 
         ctx.rotate(tilt * Math.PI/180);
-        ctx.drawImage(iBird, -pSize/2, -pSize/2, pSize, pSize);
+        ctx.drawImage(iBird, -avSize/2, -avSize/2, avSize, avSize);
         ctx.restore();
     } else {
         ctx.fillStyle = '#0ff'; ctx.beginPath(); ctx.arc(GM.mx, GM.my, 20, 0, 7); ctx.fill();
     }
+
     GM.frame++;
 }
 
-function hit(type) {
+function handleHit(type) {
     if(type === 'o') {
-        sfx('boom');
-        GM.hurt = 30;
+        sfx('hit');
+        GM.time -= 5;
+        // Red flash
         let f = document.createElement('div');
-        f.style = "position:absolute;top:0;left:0;width:100%;height:100%;background:red;opacity:0.5;pointer-events:none;z-index:99";
+        f.style="position:absolute;top:0;left:0;width:100%;height:100%;background:red;opacity:0.5;z-index:90";
         document.body.appendChild(f);
         setTimeout(()=>f.remove(), 100);
-        GM.time -= 5;
         document.getElementById('ui-time').innerText = GM.time;
-        if(GM.time<=0) GM.end(false);
+        if(GM.time <= 0) GM.end(false);
     } else {
         sfx('coin');
         if(CFG.qs.length > 0) {
-            GM.pause = true; 
-            quiz();
+            showQuiz();
         } else {
             GM.score++; 
-            document.getElementById('ui-score').innerText = GM.score; 
+            document.getElementById('ui-score').innerText = GM.score;
         }
     }
 }
 
-function quiz() {
-    let idx = Math.floor(Math.random()*CFG.qs.length);
-    let q = CFG.qs[idx];
-
-    let overlay = document.getElementById('quiz-overlay');
-    let body = document.getElementById('q-body');
-    document.getElementById('q-txt').innerText = q.t;
-    body.innerHTML = '';
+function showQuiz() {
+    GM.pause = true;
+    const q = CFG.qs[Math.floor(Math.random()*CFG.qs.length)];
     
-    // Show Overlay
-    overlay.style.display = 'flex';
+    const ov = document.getElementById('quiz-overlay');
+    const txt = document.getElementById('q-txt');
+    const body = document.getElementById('q-body');
+    
+    ov.style.display = 'flex';
+    txt.innerText = q.t;
+    body.innerHTML = '';
 
-    const processAns = (txt) => {
-        overlay.style.display = 'none';
-        if(txt.trim().toLowerCase() === q.c.trim().toLowerCase()) {
+    const check = (ans) => {
+        ov.style.display = 'none';
+        if(ans.trim().toLowerCase() === q.c.trim().toLowerCase()) {
             sfx('win'); GM.score++;
         } else {
-            sfx('lose'); GM.time -= 10;
+            sfx('hit'); GM.time -= 10;
         }
         document.getElementById('ui-score').innerText = GM.score;
         document.getElementById('ui-time').innerText = GM.time;
-        
-        setTimeout(() => { GM.pause = false; }, 200);
+        GM.pause = false;
     };
 
     if(q.type === 'choice') {
-        let arr = [q.c, ...q.w].sort(() => Math.random()-0.5);
-        arr.forEach(t => {
-            let b = document.createElement('button'); 
-            b.className='q-btn'; 
-            b.innerText=t;
-            b.onclick = (e) => { e.stopPropagation(); processAns(t); };
+        let opts = [q.c, ...q.w].sort(()=>Math.random()-0.5);
+        opts.forEach(o => {
+            let b = document.createElement('button');
+            b.className = 'q-btn'; b.innerText = o;
+            b.onclick = () => check(o);
             body.appendChild(b);
         });
     } else {
-        let inp = document.createElement('input'); 
-        inp.className='q-inp';
-        let b = document.createElement('button'); 
-        b.className='q-btn'; 
-        b.innerText='OK';
-        b.onclick = (e) => { e.stopPropagation(); processAns(inp.value); };
+        let inp = document.createElement('input'); inp.className='q-inp';
+        let b = document.createElement('button'); b.className='q-btn'; b.innerText='OK';
+        b.onclick = () => check(inp.value);
         body.appendChild(inp); body.appendChild(b);
         inp.focus();
     }
@@ -755,23 +671,15 @@ function quiz() {
         const txt = document.getElementById('finalCode');
         txt.select();
         document.execCommand('copy');
-        
         const btn = document.getElementById('copyBtn');
-        const span = document.getElementById('copyText');
-        const icon = document.getElementById('copyIcon');
-        
+        const orig = btn.innerText;
         btn.classList.add('success');
-        span.innerText = dict[currentLang].btn_copied;
-        icon.innerText = "✅";
-        
+        btn.innerText = "СКОПИРОВАНО!";
         setTimeout(() => {
             btn.classList.remove('success');
-            span.innerText = dict[currentLang].btn_copy;
-            icon.innerText = "📋";
-        }, 3000);
+            btn.innerText = orig;
+        }, 2000);
     }
-
-    setLang('ru');
 </script>
 </body>
 </html>
