@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Полет Аватара: Мастер v2.0</title>
+    <title>Полет Аватара: Мастер</title>
     <style>
         :root { --primary: #00d2ff; --bg: #1a1a2d; --panel: #252540; --text: #e0e0ff; --accent: #ff00ff; --success: #00ff88; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
@@ -12,88 +12,171 @@
         /* Header */
         header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary); padding-bottom: 20px; margin-bottom: 20px; }
         h1 { margin: 0; color: var(--primary); text-transform: uppercase; text-shadow: 0 0 10px var(--primary); font-size: 24px; }
-        
-        /* Inputs & Grid */
+        .lang-switch button { background: #333; color: #fff; border: 1px solid #555; padding: 5px 10px; cursor: pointer; transition: 0.3s; }
+        .lang-switch button.active { background: var(--primary); color: #000; font-weight: bold; }
+
+        /* Layout */
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .card { background: var(--panel); padding: 20px; border-radius: 10px; border: 1px solid #444; }
+        .card { background: var(--panel); padding: 20px; border-radius: 10px; border: 1px solid #444; position: relative; }
         .full-width { grid-column: 1 / -1; }
+        
         h2 { margin-top: 0; color: var(--primary); border-bottom: 1px solid #555; padding-bottom: 10px; font-size: 18px; }
         
+        /* Inputs */
         label { display: block; margin-top: 10px; font-weight: bold; font-size: 14px; color: #aaa; }
-        input[type="text"], input[type="number"] { width: 100%; padding: 8px; margin-top: 5px; background: #111; border: 1px solid #555; color: #fff; box-sizing: border-box; }
+        input[type="text"], input[type="number"], select {
+            width: 100%; padding: 8px; margin-top: 5px; background: #111; border: 1px solid #555; color: #fff; border-radius: 4px; box-sizing: border-box;
+        }
         input[type="range"] { width: 100%; margin: 10px 0; }
         
-        .file-group { margin-top: 5px; border: 1px dashed #555; padding: 5px; border-radius: 5px; }
+        /* File Input Wrapper */
+        .file-group { margin-top: 5px; }
+        input[type="file"] { font-size: 12px; color: #aaa; }
         .status-badge { display:none; color: var(--success); font-size: 12px; font-weight: bold; margin-left: 10px; }
         .status-badge.visible { display: inline; }
 
-        /* Preview */
-        #previewContainer { width: 100%; height: 250px; border: 2px solid var(--primary); margin-bottom: 15px; position: relative; background: #000; overflow: hidden; }
+        /* Questions Textarea */
+        textarea.bulk-input {
+            width: 100%; height: 200px; background: #111; color: #fff; border: 1px solid #555; 
+            font-family: monospace; padding: 10px; box-sizing: border-box; resize: vertical; margin-top: 5px;
+        }
+        .help-text { font-size: 12px; color: #888; margin-top: 5px; line-height: 1.4; }
+
+        /* PREVIEW CANVAS */
+        #previewContainer {
+            width: 100%; height: 250px; border: 2px solid var(--primary); 
+            margin-bottom: 15px; position: relative; background: #000; overflow: hidden;
+        }
         #previewCanvas { width: 100%; height: 100%; display: block; }
 
-        textarea.bulk-input { width: 100%; height: 150px; background: #111; color: #fff; border: 1px solid #555; padding: 10px; box-sizing: border-box; resize: vertical; margin-top: 5px; }
-
-        .btn-main { background: linear-gradient(45deg, var(--primary), #0088ff); color: #fff; border: none; padding: 15px; width: 100%; font-size: 18px; font-weight: bold; cursor: pointer; border-radius: 5px; margin-top: 10px; text-transform: uppercase; transition: 0.3s; }
+        /* Main Buttons */
+        .btn-main { 
+            background: linear-gradient(45deg, var(--primary), #0088ff); color: #fff; border: none; 
+            padding: 15px; width: 100%; font-size: 18px; font-weight: bold; cursor: pointer; 
+            border-radius: 5px; margin-top: 10px; text-transform: uppercase; transition: 0.3s;
+        }
         .btn-main:hover { transform: scale(1.02); }
 
-        #copySection { display: none; margin-top: 20px; background: #111; padding: 15px; border-radius: 5px; text-align: center; border: 1px solid var(--success); }
-        .btn-copy { background: #444; color: white; border: 2px solid #666; padding: 12px 30px; font-size: 16px; cursor: pointer; border-radius: 50px; }
+        /* Copy Section */
+        #copySection { display: none; margin-top: 20px; background: #111; padding: 15px; border-radius: 5px; text-align: center; }
+        .btn-copy {
+            background: #444; color: white; border: 2px solid #666; padding: 12px 30px; 
+            font-size: 16px; cursor: pointer; border-radius: 50px; display: inline-flex; align-items: center; gap: 10px;
+            transition: all 0.3s ease;
+        }
+        .btn-copy.success { background: var(--success); color: #000; border-color: var(--success); }
         .hidden-code { position: absolute; left: -9999px; }
+
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <h1>Полет Аватара: Конструктор</h1>
+        <h1 data-key="title">Полет Аватара</h1>
+        <div class="lang-switch">
+            <button onclick="setLang('ru')" id="btn-ru" class="active">RU</button>
+            <button onclick="setLang('en')" id="btn-en">EN</button>
+        </div>
     </header>
 
     <div class="grid">
-        <!-- Visuals -->
+        
+        <!-- Preview -->
         <div class="card">
-            <h2>👁️ Визуал</h2>
-            <div id="previewContainer"><canvas id="previewCanvas"></canvas></div>
+            <h2 data-key="sec_visual">👁️ Визуал (Живой просмотр)</h2>
             
-            <label>Фон (Картинка):</label>
-            <div class="file-group"><input type="file" id="fBg" accept="image/*" onchange="loadAsset('bg')"><span id="st-bg" class="status-badge">✔ ОК</span></div>
+            <div id="previewContainer">
+                <canvas id="previewCanvas"></canvas>
+            </div>
             
-            <label>Аватар (Картинка):</label>
-            <div class="file-group"><input type="file" id="fBird" accept="image/*" onchange="loadAsset('bird')"><span id="st-bird" class="status-badge">✔ ОК</span></div>
+            <label data-key="lbl_bg">Фон (Картинка):</label>
+            <div class="file-group">
+                <input type="file" id="fBg" accept="image/*" onchange="loadAsset('bg')">
+                <span id="st-bg" class="status-badge">✔ Загружено</span>
+            </div>
             
-            <label>Размер аватара:</label><input type="range" id="sizeRange" min="0.5" max="2.0" step="0.1" value="1.0">
-            <label>Размер объектов:</label><input type="range" id="objSizeRange" min="0.5" max="2.0" step="0.1" value="1.0">
-            <label>Скорость:</label><input type="range" id="speedRange" min="1" max="15" value="5">
+            <label data-key="lbl_bird">Аватар (Картинка):</label>
+            <div class="file-group">
+                <input type="file" id="fBird" accept="image/*" onchange="loadAsset('bird')">
+                <span id="st-bird" class="status-badge">✔ Загружено</span>
+            </div>
+            
+            <label data-key="lbl_size">Размер аватара:</label>
+            <input type="range" id="sizeRange" min="0.5" max="2.0" step="0.1" value="1.0">
+            
+            <label data-key="lbl_obj_size">Размер препятствий/монет:</label>
+            <input type="range" id="objSizeRange" min="0.5" max="2.0" step="0.1" value="1.0">
+            
+            <label data-key="lbl_speed">Скорость полета:</label>
+            <input type="range" id="speedRange" min="1" max="10" value="3">
         </div>
 
         <!-- Settings -->
         <div class="card">
-            <h2>⚙️ Настройки</h2>
-            <label>Заголовок игры:</label><input type="text" id="txtTitle" value="ПОЛЕТ АВАТАРА">
-            <label>Текст кнопки Старт:</label><input type="text" id="txtStart" value="ИГРАТЬ">
-            <label>Текст победы:</label><input type="text" id="txtWin" value="ПОБЕДА!">
-            <label>Текст поражения:</label><input type="text" id="txtLose" value="ВРЕМЯ ВЫШЛО">
-            <label>Время (сек):</label><input type="number" id="valTime" value="60">
+            <h2 data-key="sec_settings">⚙️ Настройки</h2>
+            
+            <label data-key="lbl_gameTitle">Заголовок:</label>
+            <input type="text" id="txtTitle" value="ПОЛЕТ АВАТАРА">
+            
+            <label data-key="lbl_btnStart">Кнопка Старт:</label>
+            <input type="text" id="txtStart" value="ИГРАТЬ">
+            
+            <label data-key="lbl_win">Текст победы:</label>
+            <input type="text" id="txtWin" value="ТЫ ПОБЕДИЛ!">
+            
+            <label data-key="lbl_lose">Текст поражения:</label>
+            <input type="text" id="txtLose" value="ВРЕМЯ ВЫШЛО">
 
-            <h3 style="margin-top:20px; color:#fff;">Объекты</h3>
-            <label>Препятствие (Враг):</label>
-            <div class="file-group"><input type="file" id="fObs" accept="image/*" onchange="loadAsset('obs')"><span id="st-obs" class="status-badge">✔ ОК</span></div>
-            <label>Монета (Бонус):</label>
-            <div class="file-group"><input type="file" id="fCoin" accept="image/*" onchange="loadAsset('coin')"><span id="st-coin" class="status-badge">✔ ОК</span></div>
+            <div style="display: flex; gap: 10px;">
+                <div style="flex:1">
+                    <label data-key="lbl_time">Время (с):</label>
+                    <input type="number" id="valTime" value="60">
+                </div>
+            </div>
+
+            <h3 style="font-size:14px; margin-top:15px; color:#fff;" data-key="sec_assets">Объекты</h3>
+            <label data-key="lbl_obs">Препятствие:</label>
+            <div class="file-group">
+                <input type="file" id="fObs" accept="image/*" onchange="loadAsset('obs')">
+                <span id="st-obs" class="status-badge">✔ Загружено</span>
+            </div>
+
+            <label data-key="lbl_coin">Монета:</label>
+            <div class="file-group">
+                <input type="file" id="fCoin" accept="image/*" onchange="loadAsset('coin')">
+                <span id="st-coin" class="status-badge">✔ Загружено</span>
+            </div>
+
+            <label data-key="lbl_music">Музыка:</label>
+            <div class="file-group">
+                <input type="file" id="fMusic" accept="audio/*" onchange="loadAsset('music', false)">
+                <span id="st-music" class="status-badge">✔ Загружено</span>
+            </div>
         </div>
 
-        <!-- Questions -->
+        <!-- Questions Bulk -->
         <div class="card full-width">
-            <h2>❓ Вопросы (Если нужны)</h2>
-            <textarea id="bulkQuestions" class="bulk-input" placeholder="Вопрос | Правильный | Неверный1 | Неверный2&#10;Сколько будет 2+2? | 4 | 5 | 6"></textarea>
+            <h2 data-key="sec_questions">❓ Список вопросов</h2>
+            <textarea id="bulkQuestions" class="bulk-input" placeholder=""></textarea>
+            <div class="help-text" data-key="help_q">
+                Вставляйте вопросы списком. Формат:<br>
+                <b>Вопрос | Правильный ответ | Неверный 1 | Неверный 2</b><br>
+                <i>Пример: Сколько будет 2+2? | 4 | 5 | 6</i>
+            </div>
         </div>
 
         <!-- Generate -->
         <div class="card full-width" style="text-align: center;">
-            <button class="btn-main" onclick="generate()">🚀 СОЗДАТЬ КОД ИГРЫ</button>
+            <button class="btn-main" onclick="generate()" data-key="btn_gen">🚀 СОЗДАТЬ ИГРУ</button>
+            
             <div id="copySection">
                 <textarea id="finalCode" class="hidden-code"></textarea>
-                <button class="btn-copy" id="copyBtn" onclick="doCopy()">📋 СКОПИРОВАТЬ В БУФЕР</button>
-                <p style="color:#aaa; font-size:13px; margin-top:10px;">В Genially: Insert -> Others -> Вставьте код -> Insert. Затем растяните рамку на весь слайд.</p>
+                <button class="btn-copy" id="copyBtn" onclick="doCopy()">
+                    <span id="copyIcon">📋</span> 
+                    <span id="copyText" data-key="btn_copy">СКОПИРОВАТЬ КОД</span>
+                </button>
+                <p style="color:#666; font-size:12px; margin-top:10px;" data-key="lbl_copy_hint">Вставьте этот код в Genially (Insert -> Others) и растяните на весь слайд.</p>
             </div>
         </div>
     </div>
@@ -101,57 +184,220 @@
 
 <script>
     const assets = { bg: null, bird: null, obs: null, coin: null, music: null };
+    let currentLang = 'ru';
+
+    // Preview Images holders
     const pImg = { bg: new Image(), bird: new Image(), obs: new Image(), coin: new Image() };
 
-    function loadAsset(key) {
-        const input = document.getElementById(key === 'bg' ? 'fBg' : key === 'bird' ? 'fBird' : key === 'obs' ? 'fObs' : 'fCoin');
-        if (input.files && input.files[0]) {
+    const dict = {
+        ru: {
+            title: "Полет Аватара",
+            sec_visual: "👁️ Визуал (Живой просмотр)",
+            lbl_bg: "Фон:", lbl_bird: "Аватар:", lbl_size: "Размер аватара:", lbl_obj_size: "Размер препятствий/монет:", lbl_speed: "Скорость:",
+            sec_settings: "⚙️ Настройки",
+            lbl_gameTitle: "Название:", lbl_btnStart: "Кнопка Старт:", lbl_win: "Победа:", lbl_lose: "Поражение:",
+            lbl_time: "Время (сек):", sec_assets: "Объекты", lbl_obs: "Препятствие:", lbl_coin: "Монета:", lbl_music: "Музыка:",
+            sec_questions: "❓ Список вопросов",
+            help_q: "Формат: Вопрос | Правильный | Неверный 1 | Неверный 2\nДля ввода текста просто: Вопрос | Ответ",
+            btn_gen: "🚀 СОЗДАТЬ ИГРУ",
+            btn_copy: "СКОПИРОВАТЬ КОД",
+            btn_copied: "СКОПИРОВАНО!",
+            lbl_copy_hint: "Вставьте в Genially (Insert -> Others) и растяните.",
+            ph_bulk: "Сколько будет 2+2? | 4 | 5 | 6\nСтолица Франции? | Париж | Лондон | Берлин\nНапиши слово Привет | Привет",
+            val_title: "ПОЛЕТ АВАТАРА", val_start: "ИГРАТЬ", val_win: "ПОБЕДА!", val_lose: "ВРЕМЯ ВЫШЛО",
+            loaded: "✔ Загружено"
+        },
+        en: {
+            title: "Avatar Flight",
+            sec_visual: "👁️ Visuals (Live Preview)",
+            lbl_bg: "Background:", lbl_bird: "Avatar:", lbl_size: "Avatar Size:", lbl_obj_size: "Objects Size:", lbl_speed: "Speed:",
+            sec_settings: "⚙️ Settings",
+            lbl_gameTitle: "Title:", lbl_btnStart: "Start Button:", lbl_win: "Win Text:", lbl_lose: "Lose Text:",
+            lbl_time: "Time (s):", sec_assets: "Objects", lbl_obs: "Obstacle:", lbl_coin: "Coin:", lbl_music: "Music:",
+            sec_questions: "❓ Questions List",
+            help_q: "Format: Question | Correct | Wrong 1 | Wrong 2\nFor text input: Question | Answer",
+            btn_gen: "🚀 CREATE GAME",
+            btn_copy: "COPY CODE",
+            btn_copied: "COPIED!",
+            lbl_copy_hint: "Paste into Genially (Insert -> Others) and stretch full screen.",
+            ph_bulk: "2+2? | 4 | 5 | 6\nCapital of France? | Paris | London\nType Hello | Hello",
+            val_title: "AVATAR FLIGHT", val_start: "PLAY", val_win: "YOU WON!", val_lose: "GAME OVER",
+            loaded: "✔ Loaded"
+        }
+    };
+
+    function setLang(lang) {
+        currentLang = lang;
+        document.querySelectorAll('[data-key]').forEach(el => {
+            if(dict[lang][el.dataset.key]) el.innerText = dict[lang][el.dataset.key];
+        });
+        document.getElementById('btn-ru').className = lang === 'ru' ? 'active' : '';
+        document.getElementById('btn-en').className = lang === 'en' ? 'active' : '';
+        
+        const d = dict[lang];
+        document.getElementById('txtTitle').value = d.val_title;
+        document.getElementById('txtStart').value = d.val_start;
+        document.getElementById('txtWin').value = d.val_win;
+        document.getElementById('txtLose').value = d.val_lose;
+        document.getElementById('bulkQuestions').placeholder = d.ph_bulk;
+        
+        // Update loaded badges text
+        document.querySelectorAll('.status-badge').forEach(el => el.innerText = d.loaded);
+
+        const btn = document.getElementById('copyBtn');
+        btn.className = 'btn-copy';
+        document.getElementById('copyText').innerText = d.btn_copy;
+    }
+
+    // === ASSETS & PREVIEW ENGINE ===
+    function loadAsset(key, isImg=true) {
+        const input = document.getElementById(key === 'bg' ? 'fBg' : key === 'bird' ? 'fBird' : key === 'obs' ? 'fObs' : key === 'coin' ? 'fCoin' : 'fMusic');
+        const badge = document.getElementById('st-' + key);
+        
+        if(input.files && input.files[0]) {
             const reader = new FileReader();
             reader.onload = function(e) {
                 assets[key] = e.target.result;
-                if(pImg[key]) pImg[key].src = e.target.result;
-                document.getElementById('st-'+key).classList.add('visible');
+                if(isImg) {
+                    if(key === 'bg') pImg.bg.src = e.target.result;
+                    if(key === 'bird') pImg.bird.src = e.target.result;
+                    if(key === 'obs') pImg.obs.src = e.target.result;
+                    if(key === 'coin') pImg.coin.src = e.target.result;
+                }
+                badge.classList.add('visible');
+                badge.innerText = dict[currentLang].loaded;
             }
             reader.readAsDataURL(input.files[0]);
         }
     }
 
-    // --- PREVIEW LOGIC ---
+    // --- PREVIEW GAME LOOP (UPDATED TO MATCH REAL GAMEPLAY) ---
     const pCanvas = document.getElementById('previewCanvas');
     const pCtx = pCanvas.getContext('2d');
-    let pFrame = 0, pBgX = 0;
+    let pObjs = [];
+    let pBgY = 0;
+    let pBgX = 0;
+    let pFrame = 0;
+    let pMx = 0; // Fake mouse X for preview
+    
+    // Auto-move camera in preview
+    let pAutoMoveDir = 1;
 
-    function previewLoop() {
+    function initPreview() {
         if(pCanvas.parentElement) {
             pCanvas.width = pCanvas.parentElement.offsetWidth;
             pCanvas.height = pCanvas.parentElement.offsetHeight;
+            pMx = pCanvas.width / 2;
         }
-        let W = pCanvas.width, H = pCanvas.height;
-        pCtx.clearRect(0,0,W,H);
+        requestAnimationFrame(previewLoop);
+    }
 
-        // BG
-        pBgX -= (parseInt(document.getElementById('speedRange').value) * 0.5);
-        if(pImg.bg.src && pImg.bg.complete) {
+    function previewLoop() {
+        if(pCanvas.width === 0) {
+            pCanvas.width = pCanvas.parentElement.offsetWidth;
+            pCanvas.height = pCanvas.parentElement.offsetHeight;
+        }
+
+        let W = pCanvas.width;
+        let H = pCanvas.height;
+        pCtx.clearRect(0, 0, W, H);
+        
+        const speed = parseInt(document.getElementById('speedRange').value);
+        const scaleUser = parseFloat(document.getElementById('sizeRange').value);
+        const objScale = parseFloat(document.getElementById('objSizeRange').value);
+
+        // Simulate Mouse Movement (Camera)
+        pMx += pAutoMoveDir * 2;
+        if(pMx > W * 0.7) pAutoMoveDir = -1;
+        if(pMx < W * 0.3) pAutoMoveDir = 1;
+
+        // 1. BACKGROUND (Infinite Tiling)
+        // Camera shift calculation
+        let dx = (W/2 - pMx) * 0.1;
+        pBgX += dx;
+        pBgY += speed; // Simple vertical scroll for speed
+
+        if(pImg.bg.src && pImg.bg.complete && pImg.bg.width > 0) {
             let ptrn = pCtx.createPattern(pImg.bg, 'repeat');
-            if(ptrn) { pCtx.fillStyle = ptrn; pCtx.save(); pCtx.translate(pBgX, 0); pCtx.fillRect(-pBgX, 0, W*2, H); pCtx.restore(); }
+            if(ptrn) {
+                pCtx.save();
+                pCtx.translate(pBgX, pBgY);
+                // Draw huge rect to cover rotation/movement gaps
+                pCtx.fillStyle = ptrn;
+                pCtx.fillRect(-W*5, -H*5, W*10, H*10);
+                pCtx.restore();
+            }
         } else {
-            pCtx.fillStyle = '#111'; pCtx.fillRect(0,0,W,H);
+            // No background - just black
+            pCtx.fillStyle = '#000'; pCtx.fillRect(0,0,W,H);
         }
 
-        // Bird
-        let sz = 80 * parseFloat(document.getElementById('sizeRange').value);
-        if(pImg.bird.src && pImg.bird.complete) {
-            pCtx.drawImage(pImg.bird, W/2 - sz/2, H/2 - sz/2, sz, sz);
-        } else {
-            pCtx.fillStyle = '#00d2ff'; pCtx.beginPath(); pCtx.arc(W/2, H/2, 20, 0, 7); pCtx.fill();
+        // 2. Spawner
+        if(pFrame % (60 - speed*2) === 0) {
+            // Spawn in World Coordinates centered around 0
+            let spawnX = (Math.random() - 0.5) * W * 2; 
+            pObjs.push({
+                x: spawnX, // World position
+                y: (Math.random()-0.5) * H * 1.5,
+                z: 2000,
+                t: Math.random() > 0.5 ? 'c' : 'o'
+            });
+        }
+
+        // 3. Objects Logic
+        pObjs.sort((a,b) => b.z - a.z);
+        for(let i=0; i<pObjs.length; i++) {
+            let o = pObjs[i];
+            o.z -= (2 + speed); 
+            if(o.z < 10) { pObjs.splice(i,1); i--; continue; }
+
+            // Perspective Transform
+            // Object stays at o.x in world. Camera is at pMx.
+            // ScreenX = Center + (WorldPos - CameraPos) * ScaleFactor
+            
+            // Adjust camera factor to make it look like we are flying past
+            let camOffset = (pMx - W/2) * 2; 
+
+            let scale = 500 / o.z; 
+            let sx = W/2 + (o.x - camOffset) * scale;
+            let sy = H/2 + o.y * scale;
+            let size = 100 * scale * objScale;
+
+            let img = (o.t === 'c') ? pImg.coin : pImg.obs;
+            
+            // Draw only if image exists (NO SHAPES)
+            if(img.src && img.complete && img.width > 0) {
+                 if (o.t === 'c') {
+                    let spin = Math.abs(Math.sin(pFrame * 0.1 + i));
+                    pCtx.drawImage(img, sx - (size*spin)/2, sy - size/2, size*spin, size);
+                } else {
+                    pCtx.drawImage(img, sx-size/2, sy-size/2, size, size);
+                }
+            } 
+        }
+
+        // 4. Bird
+        let pSize = 120 * scaleUser;
+        if(pImg.bird.src && pImg.bird.complete && pImg.bird.width > 0) {
+            let tilt = (pMx - W/2) * 0.1;
+            pCtx.save();
+            pCtx.translate(pMx, H - 100);
+            pCtx.rotate(tilt * Math.PI/180);
+            pCtx.drawImage(pImg.bird, -pSize/2, -pSize/2, pSize, pSize);
+            pCtx.restore();
         }
 
         pFrame++;
         requestAnimationFrame(previewLoop);
     }
-    previewLoop();
+    
+    initPreview();
+    window.addEventListener('resize', () => {
+         pCanvas.width = pCanvas.parentElement.offsetWidth;
+         pCanvas.height = pCanvas.parentElement.offsetHeight;
+    });
 
-    // --- GENERATOR ---
+    // === GENERATE ===
     function parseQuestions() {
         const raw = document.getElementById('bulkQuestions').value.trim();
         if(!raw) return [];
@@ -164,6 +410,7 @@
     }
 
     function generate() {
+        const questions = parseQuestions();
         const CONFIG = {
             title: document.getElementById('txtTitle').value,
             btn: document.getElementById('txtStart').value,
@@ -173,312 +420,225 @@
             speed: document.getElementById('speedRange').value,
             scale: document.getElementById('sizeRange').value,
             objScale: document.getElementById('objSizeRange').value,
-            qs: parseQuestions(),
+            qs: questions,
             img: assets
         };
 
-        // Генерация кода игры. Используем экранирование слэшей.
         const CODE = `
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-    /* CSS RESET */
-    html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; background-color: transparent; font-family: sans-serif; }
+    html, body { margin:0; padding:0; width:100%; height:100%; min-height:100vh; overflow:hidden; background:#000; }
+    body { font-family:'Segoe UI',sans-serif; user-select:none; -webkit-user-select:none; }
     
-    #game-container {
-        position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-        width: 100%; height: 100%;
-        overflow: hidden;
-    }
-
-    canvas { display: block; width: 100%; height: 100%; }
-
-    /* UI LAYERS */
-    .screen {
-        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
-        background: rgba(0,0,0,0.8); z-index: 100;
-        transition: opacity 0.5s;
-    }
-    .hidden { opacity: 0; pointer-events: none; }
-
-    h1 { color: #00d2ff; text-shadow: 0 0 20px #00d2ff; font-size: clamp(30px, 8vw, 60px); text-align: center; margin-bottom: 30px; }
+    /* Make the game container fill the entire iframe/parent reliably */
+    #game-box { position:fixed; top:0; left:0; width:100%; height:100%; overflow:hidden; touch-action: none; }
+    canvas { position:absolute; top:0; left:0; width:100%; height:100%; display:block; pointer-events:none; } 
     
-    .btn {
-        background: #00d2ff; color: #000; border: none; padding: 15px 40px;
-        font-size: 24px; font-weight: bold; border-radius: 50px; cursor: pointer;
-        box-shadow: 0 0 20px #00d2ff; text-transform: uppercase;
-    }
-    .btn:hover { transform: scale(1.1); background: #fff; }
-
-    .hud { position: absolute; top: 10px; font-weight: bold; font-size: 24px; color: #fff; text-shadow: 2px 2px 0 #000; z-index: 50; }
+    .hud { position:absolute; top:10px; color:#00d2ff; font-size:clamp(20px, 4vw, 30px); font-weight:bold; text-shadow:2px 2px 0 #000; padding:5px 15px; background:rgba(0,0,0,0.6); border-radius:10px; border:1px solid #00d2ff; z-index: 50; }
     
-    /* Quiz Modal */
-    #quiz-wrap {
-        display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.9); z-index: 200; align-items: center; justify-content: center;
+    .screen { 
+        position:absolute; top:0; left:0; width:100%; height:100%; 
+        background:rgba(0,0,0,0.85); display:flex; flex-direction:column; 
+        align-items:center; justify-content:center; 
+        z-index:100; pointer-events:auto; 
     }
-    #quiz-box { background: #223; padding: 20px; border-radius: 10px; border: 2px solid #00d2ff; text-align: center; color: #fff; width: 80%; max-width: 400px; }
-    .q-btn { display: block; width: 100%; padding: 10px; margin: 5px 0; background: #445; color: white; border: 1px solid #666; cursor: pointer; font-size: 18px; }
-    .q-btn:hover { background: #00d2ff; color: #000; }
+    
+    h1 { color:#00d2ff; font-size:clamp(30px, 6vw, 60px); text-transform:uppercase; text-shadow:0 0 20px #00d2ff; margin-bottom:20px; text-align:center; }
+    
+    button.btn-play {
+        background: linear-gradient(180deg, #00d2ff, #0088aa);
+        border: 4px solid #fff; padding: 15px 60px;
+        color: #fff; font-size: clamp(24px, 5vw, 40px); font-weight: bold; text-transform: uppercase;
+        border-radius: 60px; cursor: pointer; box-shadow: 0 0 30px #00d2ff;
+        transition: transform 0.1s; text-shadow: 1px 1px 2px #000;
+        z-index: 200; pointer-events: auto;
+    }
+    button.btn-play:hover { transform: scale(1.05); background: #fff; color: #0088aa; }
+    button.btn-play:active { transform: scale(0.95); }
+
+    /* QUIZ BOX ON TRANSPARENT BG */
+    #quiz-box { 
+        display:none; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); 
+        width:90%; max-width:500px; 
+        background: rgba(30, 41, 59, 0.95); /* Semi-transparent dark */
+        border:3px solid #00d2ff; 
+        padding:20px; border-radius:15px; text-align:center; color:#fff; 
+        z-index:200; 
+        pointer-events: auto !important;
+        box-shadow: 0 0 50px #000;
+        backdrop-filter: blur(5px);
+    }
+    .q-btn { display:block; width:100%; padding:15px; margin:8px 0; background:#334; border:1px solid #556; color:#fff; font-size:18px; cursor:pointer; z-index:201; position:relative; }
+    .q-btn:hover { background:#00d2ff; color:#000; }
+    input.q-inp { width:80%; padding:10px; font-size:20px; text-align:center; margin-bottom:10px; color:#000; }
 
 </style>
 </head>
 <body>
 
-<div id="game-container">
+<div id="game-box">
+    <!-- UI -->
+    <div class="hud" style="left:10px">⏱ <span id="ui-time">0</span></div>
+    <div class="hud" style="right:10px">🏆 <span id="ui-score">0</span></div>
+
+    <!-- CANVAS -->
     <canvas id="cvs"></canvas>
-    
-    <div class="hud" style="left: 10px;">⏱ <span id="ui-time">60</span></div>
-    <div class="hud" style="right: 10px;">⭐ <span id="ui-score">0</span></div>
 
     <!-- START SCREEN -->
     <div id="scr-start" class="screen">
-        <h1 id="txt-title">GAME</h1>
-        <button class="btn" onclick="startGame()">START</button>
+        <h1 id="mt-title">TITLE</h1>
+        <button class="btn-play" id="btn-start">START</button>
     </div>
 
     <!-- END SCREEN -->
-    <div id="scr-end" class="screen hidden">
-        <h1 id="txt-end">END</h1>
-        <p style="color:#fff; font-size:24px;">Score: <span id="end-score">0</span></p>
-        <button class="btn" onclick="location.reload()">↺</button>
+    <div id="scr-end" class="screen" style="display:none">
+        <h1 id="mt-end">END</h1>
+        <p style="color:#fff; font-size:30px">Score: <span id="end-score">0</span></p>
+        <button class="btn-play" onclick="GM.reset()">↺</button>
     </div>
 
-    <!-- QUIZ -->
-    <div id="quiz-wrap">
-        <div id="quiz-box">
-            <h2 id="q-text">Question</h2>
-            <div id="q-opts"></div>
-        </div>
+    <!-- QUIZ MODAL -->
+    <div id="quiz-box">
+        <h2 id="q-txt" style="color:#00d2ff; margin-top:0">Question</h2>
+        <div id="q-body"></div>
     </div>
-    
-    <!-- ERROR LOG -->
-    <div id="err-log" style="position:absolute; bottom:0; left:0; color:red; font-size:12px; background:rgba(0,0,0,0.8); pointer-events:none; z-index:999;"></div>
 </div>
 
 <script>
-// --- ERROR HANDLING FOR GENIALLY ---
-window.onerror = function(msg, url, line) {
-    document.getElementById('err-log').innerHTML += "Err: " + msg + "<br>";
-};
+const CFG = ${JSON.stringify(CONFIG)};
+const IMG = CFG.img;
 
-try {
-    const CFG = ${JSON.stringify(CONFIG)};
+document.getElementById('mt-title').innerText = CFG.title;
+document.getElementById('btn-start').innerText = CFG.btn;
+
+const cvs = document.getElementById('cvs');
+const ctx = cvs.getContext('2d');
+let W, H;
+
+// Use element rect to get accurate size inside iframe/Genially
+function resize() {
+    const rect = document.documentElement.getBoundingClientRect();
+    W = cvs.width = Math.max(1, Math.floor(rect.width));
+    H = cvs.height = Math.max(1, Math.floor(rect.height));
+    if(!GM.run) { GM.mx = W/2; GM.my = H/2; }
+}
+window.addEventListener('resize', resize);
+setTimeout(resize, 50);
+resize();
+
+const AC = new (window.AudioContext || window.webkitAudioContext)();
+function sfx(type) {
+    if(AC.state === 'suspended') AC.resume();
+    const o = AC.createOscillator(); const g = AC.createGain();
+    o.connect(g); g.connect(AC.destination);
+    const t = AC.currentTime;
     
-    // SETUP
-    const cvs = document.getElementById('cvs');
-    const ctx = cvs.getContext('2d');
-    const container = document.getElementById('game-container');
-    
-    document.getElementById('txt-title').innerText = CFG.title;
-    document.querySelector('#scr-start button').innerText = CFG.btn;
-    
-    let W, H;
-    let gameRunning = false;
-    let gamePaused = false;
-    let frame = 0;
-    let score = 0;
-    let time = parseInt(CFG.time);
-    let mx = 0, my = 0;
-    let timerInt = null;
-
-    // IMAGES
-    const img = { bg: new Image(), bird: new Image(), obs: new Image(), coin: new Image() };
-    if(CFG.img.bg) img.bg.src = CFG.img.bg;
-    if(CFG.img.bird) img.bird.src = CFG.img.bird;
-    if(CFG.img.obs) img.obs.src = CFG.img.obs;
-    if(CFG.img.coin) img.coin.src = CFG.img.coin;
-
-    // GAME OBJECTS
-    let objs = [];
-    let bgX = 0;
-
-    // --- RESIZE LOGIC (CRITICAL FOR GENIALLY) ---
-    function resize() {
-        // Use container dimensions, not window
-        W = container.clientWidth;
-        H = container.clientHeight;
-        cvs.width = W;
-        cvs.height = H;
-        if(!gameRunning) { mx = W/2; my = H/2; }
+    if(type==='coin') {
+        o.type = 'sine'; o.frequency.setValueAtTime(1200, t);
+        g.gain.setValueAtTime(0.1, t); g.gain.exponentialRampToValueAtTime(0.01, t+0.5);
+        o.start(t); o.stop(t+0.5);
+    } else if(type==='boom') {
+        o.type = 'sawtooth';
+        o.frequency.setValueAtTime(100, t); o.frequency.exponentialRampToValueAtTime(10, t+0.3);
+        g.gain.setValueAtTime(0.3, t); g.gain.linearRampToValueAtTime(0, t+0.3);
+        o.start(t); o.stop(t+0.3);
+    } else if(type==='win') { 
+        o.type='triangle'; 
+        o.frequency.setValueAtTime(523, t); o.frequency.linearRampToValueAtTime(1000, t+0.3);
+        g.gain.setValueAtTime(0.1, t); g.gain.linearRampToValueAtTime(0, t+0.6);
+        o.start(t); o.stop(t+0.6);
+    } else if (type==='lose') {
+        o.type='triangle';
+        o.frequency.setValueAtTime(300, t); o.frequency.linearRampToValueAtTime(100, t+0.4);
+        g.gain.setValueAtTime(0.2, t); g.gain.linearRampToValueAtTime(0, t+0.4);
+        o.start(t); o.stop(t+0.4);
     }
-    window.addEventListener('resize', resize);
-    // Force check every 500ms because Genially animates iframe size
-    setInterval(resize, 500);
-    resize();
+}
 
-    // --- INPUT ---
-    container.addEventListener('mousemove', e => {
-        const rect = container.getBoundingClientRect();
-        mx = e.clientX - rect.left;
-        my = e.clientY - rect.top;
-    });
-    container.addEventListener('touchmove', e => {
-        e.preventDefault();
-        const rect = container.getBoundingClientRect();
-        mx = e.touches[0].clientX - rect.left;
-        my = e.touches[0].clientY - rect.top;
-    }, {passive: false});
+const iBg = new Image(); if(IMG.bg) iBg.src = IMG.bg;
+const iBird = new Image(); if(IMG.bird) iBird.src = IMG.bird;
+const iObs = new Image(); if(IMG.obs) iObs.src = IMG.obs;
+const iCoin = new Image(); if(IMG.coin) iCoin.src = IMG.coin;
+let music = null; if(IMG.music) { music = new Audio(IMG.music); music.loop=true; music.volume=0.4; }
 
-    // --- GAME LOOP ---
-    function loop() {
-        if(!gameRunning) return;
-        requestAnimationFrame(loop);
-        if(gamePaused) return;
-
-        ctx.clearRect(0,0,W,H);
-        
-        // 1. BG
-        bgX -= parseInt(CFG.speed);
-        if(bgX <= -W) bgX = 0;
-        
-        if(img.bg.src && img.bg.complete) {
-            // Draw 2 images for loop
-            ctx.drawImage(img.bg, bgX, 0, W, H);
-            ctx.drawImage(img.bg, bgX + W, 0, W, H);
-        } else {
-            ctx.fillStyle = '#000'; ctx.fillRect(0,0,W,H);
-        }
-
-        // 2. SPAWN
-        if(frame % (60 - parseInt(CFG.speed)*2) === 0) {
-            let isCoin = (CFG.qs.length > 0 && Math.random() > 0.6) || (CFG.qs.length === 0 && Math.random() > 0.5);
-            objs.push({
-                x: W + 50,
-                y: Math.random() * (H - 100) + 50,
-                type: isCoin ? 'coin' : 'obs',
-                active: true
-            });
-        }
-
-        // 3. MOVE & DRAW OBJECTS
-        let objSize = 60 * parseFloat(CFG.objScale);
-        for(let i=0; i<objs.length; i++) {
-            let o = objs[i];
-            o.x -= (parseInt(CFG.speed) + 3);
-            
-            let sprite = o.type === 'coin' ? img.coin : img.obs;
-            if(sprite.src && sprite.complete) {
-                ctx.drawImage(sprite, o.x - objSize/2, o.y - objSize/2, objSize, objSize);
-            } else {
-                ctx.fillStyle = o.type === 'coin' ? 'yellow' : 'red';
-                ctx.fillRect(o.x - objSize/2, o.y - objSize/2, objSize, objSize);
-            }
-
-            // COLLISION
-            if(o.active && Math.hypot(o.x - mx, o.y - my) < objSize/2 + 30) {
-                o.active = false;
-                if(o.type === 'obs') {
-                    time -= 5;
-                    flashRed();
-                } else {
-                    if(CFG.qs.length > 0) startQuiz();
-                    else { score++; updateUI(); }
-                }
-            }
-            
-            if(o.x < -100) { objs.splice(i,1); i--; }
-        }
-
-        // 4. BIRD
-        let pSize = 80 * parseFloat(CFG.scale);
-        if(img.bird.src && img.bird.complete) {
-            ctx.drawImage(img.bird, mx - pSize/2, my - pSize/2, pSize, pSize);
-        } else {
-            ctx.fillStyle = '#00d2ff'; ctx.beginPath(); ctx.arc(mx, my, 20, 0, 7); ctx.fill();
-        }
-
-        frame++;
-    }
-
-    // --- LOGIC ---
-    window.startGame = function() {
-        document.getElementById('scr-start').classList.add('hidden');
+const GM = {
+    run: false, pause: false, frame: 0,
+    time: parseInt(CFG.time), score: 0,
+    objs: [], 
+    mx: 0, my: 0, 
+    bgX: 0, bgY: 0,
+    hurt: 0,
+    timerInt: null,
+    
+    start: () => {
+        document.getElementById('scr-start').style.display = 'none';
         resize();
-        gameRunning = true;
-        score = 0;
-        time = parseInt(CFG.time);
-        objs = [];
-        updateUI();
+        GM.mx = W/2; GM.my = H/2;
+        if(AC.state === 'suspended') AC.resume();
+        if(music) music.play().catch(e=>{});
+        GM.run = true;
+        GM.objs = [];
+        GM.frame = 0;
+        
         loop();
         
-        timerInt = setInterval(() => {
-            if(!gamePaused && gameRunning) {
-                time--;
-                updateUI();
-                if(time <= 0) endGame(false);
+        GM.timerInt = setInterval(() => {
+            if(GM.run && !GM.pause) {
+                GM.time--;
+                document.getElementById('ui-time').innerText = GM.time;
+                if(GM.time <= 0) GM.end(false);
             }
         }, 1000);
-    };
+        document.getElementById('ui-time').innerText = GM.time;
+    },
 
-    function endGame(win) {
-        gameRunning = false;
-        clearInterval(timerInt);
-        const endScr = document.getElementById('scr-end');
-        endScr.classList.remove('hidden');
-        document.getElementById('txt-end').innerText = win ? CFG.win : CFG.lose;
-        document.getElementById('txt-end').style.color = win ? '#0f0' : '#f00';
-        document.getElementById('end-score').innerText = score;
-    }
-
-    function updateUI() {
-        document.getElementById('ui-time').innerText = time;
-        document.getElementById('ui-score').innerText = score;
-    }
-
-    function flashRed() {
-        cvs.style.opacity = 0.5; cvs.style.background = 'red';
-        setTimeout(() => { cvs.style.opacity = 1; cvs.style.background = 'transparent'; }, 100);
-    }
-
-    // --- QUIZ ---
-    function startQuiz() {
-        gamePaused = true;
-        const qWrap = document.getElementById('quiz-wrap');
-        const qOpts = document.getElementById('q-opts');
-        const qText = document.getElementById('q-text');
+    reset: () => {
+        clearInterval(GM.timerInt);
+        GM.run = false;
+        GM.pause = false;
+        GM.score = 0;
+        GM.time = parseInt(CFG.time);
+        GM.objs = [];
+        GM.frame = 0;
+        document.getElementById('ui-score').innerText = "0";
+        document.getElementById('ui-time').innerText = GM.time;
         
-        let q = CFG.qs[Math.floor(Math.random() * CFG.qs.length)];
-        qText.innerText = q.t;
-        qOpts.innerHTML = '';
-        
-        let answers = [q.c, ...(q.w || [])].sort(() => Math.random() - 0.5);
-        
-        answers.forEach(ans => {
-            let btn = document.createElement('button');
-            btn.className = 'q-btn';
-            btn.innerText = ans;
-            btn.onclick = () => {
-                qWrap.style.display = 'none';
-                if(ans === q.c) { score++; } else { time -= 10; }
-                updateUI();
-                gamePaused = false;
-            };
-            qOpts.appendChild(btn);
-        });
-        
-        qWrap.style.display = 'flex';
+        // HIDE End Screen, SHOW Start Screen
+        document.getElementById('scr-end').style.display = 'none';
+        document.getElementById('scr-start').style.display = 'flex';
+        document.getElementById('quiz-box').style.display = 'none';
+    },
+
+    end: (win) => {
+        GM.run = false;
+        clearInterval(GM.timerInt);
+        document.getElementById('scr-end').style.display = 'flex';
+        document.getElementById('mt-end').innerText = win ? CFG.win : CFG.lose;
+        document.getElementById('mt-end').style.color = win ? '#0f0' : '#f00';
+        document.getElementById('end-score').innerText = GM.score;
+        sfx(win?'win':'lose');
+    }
+};
+
+document.getElementById('btn-start').addEventListener('click', GM.start);
+
+window.addEventListener('mousemove', e => {
+    GM.mx = e.clientX } else {
+        ctx.fillStyle = '#000'; ctx.fillRect(0,0,W,H);
     }
 
-} catch(err) {
-    document.body.innerHTML = '<h2 style="color:red">CRITICAL ERROR: ' + err.message + '</h2>';
-}
-<\/script>
-</body>
-</html>`;
-        
-        document.getElementById('finalCode').value = CODE;
-        document.getElementById('copySection').style.display = 'block';
+    // 2. SPAWN OBJECTS (Fixed in Space)
+    if(GM.frame % (60 - parseInt(CFG.speed)*2) === 0) {
+        let isCoin = (CFG.qs.length > 0 && Math.random() > 0.6);
+        // Spawn world coordinates wide enough
+        let sX = (Math.random()-0.5) * W * 3; 
+        let sY = (Math.random()-0.5) * H * 1.5;
+        GM.objs.push({ x: sX, y: sY, z: 2000, t: isCoin?'c':'o' });
     }
 
-    function doCopy() {
-        document.getElementById('finalCode').select();
-        document.execCommand('copy');
-        document.getElementById('copyBtn').innerText = "✅ СКОПИРОВАНО!";
-    }
-</script>
-</body>
-</html>
+    // 3. DRAW OBJECTS
+    GM.objs.sort((a,b) => b.z - a.z);
+    let objScaleUser =
