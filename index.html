@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Полет Аватара: Редактор PRO</title>
+    <title>Полет Аватара: Редактор (Исправленный)</title>
     <style>
         :root { --primary: #00d2ff; --bg: #1a1a2d; --panel: #252540; --text: #e0e0ff; --accent: #ff00ff; --success: #00ff88; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
@@ -85,7 +85,7 @@
                 <canvas id="previewCanvas"></canvas>
             </div>
             
-            <label data-key="lbl_bg">Фон (Бесшовная текстура лучше всего):</label>
+            <label data-key="lbl_bg">Фон (Картинка):</label>
             <input type="file" id="fBg" accept="image/*" onchange="loadAsset('bg')">
             
             <label data-key="lbl_bird">Аватар (Картинка):</label>
@@ -223,6 +223,7 @@
     }
 
     // === ASSETS & PREVIEW ENGINE ===
+    // This is the stable image loader that works
     function loadAsset(key, isImg=true) {
         const input = document.getElementById(key === 'bg' ? 'fBg' : key === 'bird' ? 'fBird' : key === 'obs' ? 'fObs' : key === 'coin' ? 'fCoin' : 'fMusic');
         if(input.files && input.files[0]) {
@@ -240,21 +241,27 @@
         }
     }
 
-    // --- PREVIEW GAME LOOP ---
+    // --- PREVIEW GAME LOOP (STABLE VERSION) ---
+    // This loop is kept simple so it doesn't break when loading images
     const pCanvas = document.getElementById('previewCanvas');
     const pCtx = pCanvas.getContext('2d');
     let pObjs = [];
-    let pBgX = 0, pBgY = 0;
+    let pBgY = 0;
     let pFrame = 0;
 
     function initPreview() {
+        if(pCanvas.parentElement) {
+            pCanvas.width = pCanvas.parentElement.offsetWidth;
+            pCanvas.height = pCanvas.parentElement.offsetHeight;
+        }
         requestAnimationFrame(previewLoop);
     }
 
     function previewLoop() {
-        if(!pCanvas.parentElement) return;
-        pCanvas.width = pCanvas.parentElement.offsetWidth;
-        pCanvas.height = pCanvas.parentElement.offsetHeight;
+        if(pCanvas.width === 0) {
+            pCanvas.width = pCanvas.parentElement.offsetWidth;
+            pCanvas.height = pCanvas.parentElement.offsetHeight;
+        }
 
         pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
         
@@ -262,43 +269,30 @@
         const scaleUser = parseFloat(document.getElementById('sizeRange').value);
         const objScale = parseFloat(document.getElementById('objSizeRange').value);
 
-        // 1. BG (Parallax)
-        // Simulate mouse being in center (0 offset) or random sway
-        let mouseX = (Math.sin(pFrame*0.02) * 0.3 + 0.5) * pCanvas.width;
-        let mouseY = (Math.cos(pFrame*0.02) * 0.3 + 0.5) * pCanvas.height;
-
-        let moveX = (pCanvas.width/2 - mouseX) * 0.1;
-        let moveY = (pCanvas.height/2 - mouseY) * 0.1;
-
-        pBgX += moveX;
-        pBgY += moveY + (speed);
-
-        if(pImg.bg.src) {
-             const ptrn = pCtx.createPattern(pImg.bg, 'repeat');
-             if(ptrn) {
-                pCtx.save();
-                pCtx.fillStyle = ptrn;
-                // Offset pattern
-                pCtx.translate(pBgX % pImg.bg.width, pBgY % pImg.bg.height);
-                pCtx.fillRect(-pBgX - pImg.bg.width, -pBgY - pImg.bg.height, pCanvas.width + pImg.bg.width*2, pCanvas.height + pImg.bg.height*2);
-                pCtx.restore();
-             }
+        // 1. BG - Stable scrolling logic for Preview
+        if(pImg.bg.src && pImg.bg.width > 0) {
+            pBgY += speed * 0.5;
+            let sc = Math.max(pCanvas.width/pImg.bg.width, pCanvas.height/pImg.bg.height);
+            let bw = pImg.bg.width * sc; let bh = pImg.bg.height * sc;
+            let offY = pBgY % bh;
+            pCtx.drawImage(pImg.bg, (pCanvas.width-bw)/2, offY, bw, bh);
+            pCtx.drawImage(pImg.bg, (pCanvas.width-bw)/2, offY - bh, bw, bh);
         } else {
-            // Stars
+            // Draw Stars if no BG
             pCtx.fillStyle = '#000'; pCtx.fillRect(0,0,pCanvas.width,pCanvas.height);
             pCtx.fillStyle = 'rgba(255,255,255,0.3)';
-            for(let i=0; i<20; i++) {
-                let x = (Math.sin(i*10 + pBgX*0.001) * pCanvas.width + pCanvas.width)%pCanvas.width;
-                let y = (i*50 + pBgY) % pCanvas.height;
+            for(let i=0; i<10; i++) {
+                let x = (Math.sin(pFrame*0.01 + i)*0.5 + 0.5) * pCanvas.width;
+                let y = (pFrame * speed + i * 50) % pCanvas.height;
                 pCtx.fillRect(x, y, 2, 2);
             }
         }
 
-        // 2. Spawner (Narrower)
+        // 2. Spawner
         if(pFrame % (60 - speed*2) === 0) {
             pObjs.push({
-                x: (Math.random()-0.5) * pCanvas.width * 1.5, // Narrower spread
-                y: (Math.random()-0.5) * pCanvas.height * 1.5,
+                x: (Math.random()-0.5) * pCanvas.width * 2,
+                y: (Math.random()-0.5) * pCanvas.height * 2,
                 z: 2000,
                 t: Math.random() > 0.5 ? 'c' : 'o'
             });
@@ -309,10 +303,6 @@
         for(let i=0; i<pObjs.length; i++) {
             let o = pObjs[i];
             o.z -= (2 + speed); 
-            // Simulate 3D shift opposite to camera
-            o.x += moveX * (2000/o.z); 
-            o.y += moveY * (2000/o.z);
-
             if(o.z < 10) { pObjs.splice(i,1); i--; continue; }
 
             let scale = 200 / o.z; 
@@ -321,23 +311,18 @@
             let size = 50 * scale * objScale;
 
             let img = (o.t === 'c') ? pImg.coin : pImg.obs;
-            if(img.src) {
+            if(img.src && img.width > 0) {
                 pCtx.drawImage(img, sx-size/2, sy-size/2, size, size);
             } else {
                  pCtx.fillStyle = (o.t==='c') ? 'gold' : 'red';
-                 pCtx.beginPath(); pCtx.arc(sx, sy, size/2, 0, Math.PI*2); pCtx.fill();
+                 pCtx.beginPath(); pCtx.arc(sx, sy, size/2, 0, 6.28); pCtx.fill();
             }
         }
 
         // 4. Bird
         let pSize = 60 * scaleUser;
-        if(pImg.bird.src) {
-            let tilt = (mouseX - pCanvas.width/2) * 0.05;
-            pCtx.save();
-            pCtx.translate(mouseX, mouseY); // Use simulated mouse
-            pCtx.rotate(tilt * Math.PI/180);
-            pCtx.drawImage(pImg.bird, -pSize/2, -pSize/2, pSize, pSize);
-            pCtx.restore();
+        if(pImg.bird.src && pImg.bird.width > 0) {
+            pCtx.drawImage(pImg.bird, pCanvas.width/2 - pSize/2, pCanvas.height - 100, pSize, pSize);
         }
 
         pFrame++;
@@ -345,7 +330,10 @@
     }
     
     initPreview();
-
+    window.addEventListener('resize', () => {
+         pCanvas.width = pCanvas.parentElement.offsetWidth;
+         pCanvas.height = pCanvas.parentElement.offsetHeight;
+    });
 
     // === GENERATE ===
     function parseQuestions() {
@@ -374,7 +362,7 @@
             img: assets
         };
 
-        // --- THE FIXED GAME CODE TEMPLATE ---
+        // --- HERE IS THE IMPROVED GAME CODE (Background moves all ways, buttons fixed) ---
         const CODE = `
 <!DOCTYPE html>
 <html>
@@ -386,7 +374,6 @@
     
     #game-box { position:absolute; top:0; left:0; width:100%; height:100%; overflow:hidden; touch-action: none; }
     canvas { display:block; width:100%; height:100%; pointer-events:none; } 
-    /* Canvas doesn't block clicks now */
     
     /* UI HUD */
     .hud { position:absolute; top:10px; color:#00d2ff; font-size:clamp(20px, 4vw, 30px); font-weight:bold; text-shadow:2px 2px 0 #000; padding:5px 15px; background:rgba(0,0,0,0.6); border-radius:10px; border:1px solid #00d2ff; z-index: 50; }
@@ -408,6 +395,7 @@
         color: #fff; font-size: clamp(24px, 5vw, 40px); font-weight: bold; text-transform: uppercase;
         border-radius: 60px; cursor: pointer; box-shadow: 0 0 30px #00d2ff;
         transition: transform 0.1s; text-shadow: 1px 1px 2px #000;
+        z-index: 200; pointer-events: auto;
     }
     button.btn-play:hover { transform: scale(1.05); background: #fff; color: #0088aa; }
     button.btn-play:active { transform: scale(0.95); }
@@ -417,7 +405,7 @@
         display:none; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); 
         width:90%; max-width:500px; background:#1e293b; border:3px solid #00d2ff; 
         padding:20px; border-radius:15px; text-align:center; color:#fff; 
-        z-index:200; /* Above everything */
+        z-index:200; /* Above everything to fix clicking */
         pointer-events: auto !important;
         box-shadow: 0 0 50px #000;
     }
@@ -588,14 +576,10 @@ function loop() {
     
     ctx.clearRect(0,0,W,H);
 
-    // If paused, just draw last frame but don't update physics
-    if(GM.pause) {
-        // We still redraw bird to prevent artifacts, but no movement
-        // Actually, let's just return to keep background static
-        return; 
-    }
+    // If paused, keep drawing current frame but no updates
+    if(GM.pause) return; 
 
-    // 1. CALCULATE MOVEMENT (Parallax)
+    // 1. CALCULATE MOVEMENT (Full Direction Parallax)
     // How far is player from center?
     let dx = (W/2 - GM.mx) * 0.1;
     let dy = (H/2 - GM.my) * 0.1;
@@ -604,19 +588,22 @@ function loop() {
     GM.bgX += dx;
     GM.bgY += dy + parseInt(CFG.speed);
 
-    // Draw BG (Tiled)
+    // Draw BG (Tiled Pattern)
     if(iBg.src && iBg.complete) {
         let ptrn = ctx.createPattern(iBg, 'repeat');
-        ctx.save();
-        ctx.fillStyle = ptrn;
-        ctx.translate(GM.bgX % iBg.width, GM.bgY % iBg.height);
-        ctx.fillRect(-W*2, -H*2, W*4, H*4); // Draw large enough to cover
-        ctx.restore();
+        if(ptrn) {
+            ctx.save();
+            ctx.fillStyle = ptrn;
+            ctx.translate(GM.bgX % iBg.width, GM.bgY % iBg.height);
+            // Draw very large to cover screen during tilt
+            ctx.fillRect(-W*2, -H*2, W*4, H*4); 
+            ctx.restore();
+        }
     } else {
         // Starfield fallback
         ctx.fillStyle = '#112'; ctx.fillRect(0,0,W,H);
         ctx.fillStyle = "rgba(255,255,255,0.4)";
-        for(let i=0; i<20; i++) {
+        for(let i=0; i<30; i++) {
             let x = (Math.sin(i*132 + GM.bgX*0.002) * W + W)%W;
             let y = (i*44 + GM.bgY) % H;
             ctx.fillRect(x, y, 3, 3);
@@ -626,7 +613,7 @@ function loop() {
     // 2. SPAWN OBJECTS
     if(GM.frame % (60 - parseInt(CFG.speed)*2) === 0) {
         let isCoin = (CFG.qs.length > 0 && Math.random() > 0.6);
-        // Easier spread:
+        // Easier spread (narrower)
         let sX = (Math.random()-0.5) * W * 1.2; 
         let sY = (Math.random()-0.5) * H * 1.2;
         GM.objs.push({ x: sX, y: sY, z: 2000, t: isCoin?'c':'o' });
@@ -666,7 +653,7 @@ function loop() {
         // HIT DETECTION
         if(o.z < 200 && o.z > 20) {
             let dist = Math.hypot(sx - GM.mx, sy - GM.my);
-            // Increased Hitbox (Easier to catch)
+            // Increased Hitbox
             let hitbox = (size * 0.8) + (60 * parseFloat(CFG.scale));
             
             if(dist < hitbox) {
@@ -710,7 +697,7 @@ function hit(type) {
     } else {
         sfx('coin');
         if(CFG.qs.length > 0) {
-            GM.pause = true; // Stop world, but keep loop variable? No, we stop update.
+            GM.pause = true; 
             quiz();
         } else {
             GM.score++; 
@@ -729,7 +716,6 @@ function quiz() {
     body.innerHTML = '';
     box.style.display = 'block';
 
-    // Helper to process answer
     const processAns = (txt) => {
         box.style.display = 'none';
         if(txt.trim().toLowerCase() === q.c.trim().toLowerCase()) {
@@ -740,7 +726,6 @@ function quiz() {
         document.getElementById('ui-score').innerText = GM.score;
         document.getElementById('ui-time').innerText = GM.time;
         
-        // Slight delay before unpausing so user doesn't accidentally move
         setTimeout(() => { GM.pause = false; }, 200);
     };
 
@@ -750,7 +735,6 @@ function quiz() {
             let b = document.createElement('button'); 
             b.className='q-btn'; 
             b.innerText=t;
-            // Explicit touch/click handling
             b.onclick = (e) => { e.stopPropagation(); processAns(t); };
             body.appendChild(b);
         });
