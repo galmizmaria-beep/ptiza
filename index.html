@@ -88,11 +88,14 @@
         }
 
         .char-previews { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 5px; min-height: 54px; max-height: 150px; overflow-y: auto; }
-        .preview-item { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.05); padding: 5px; border-radius: 4px; }
+        .preview-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: rgba(255,255,255,0.05); padding: 5px; border-radius: 4px; }
+        .preview-item-content { display: flex; align-items: center; gap: 10px; }
         .preview-item img { width: 40px; height: 40px; object-fit: cover; border: 2px solid var(--primary); border-radius: 5px; flex-shrink: 0; }
         .status-text { font-size: 12px; color: #aaa; }
         .status-text.ok { color: var(--success); }
         .status-text.error { color: #ff5555; }
+        .btn-remove { background: #ff5555; color: white; border: none; border-radius: 3px; cursor: pointer; padding: 2px 5px; font-weight: bold; font-size: 10px; }
+        .btn-remove:hover { background: #ff0000; }
 
         textarea.bulk-input { flex-grow: 1; min-height: 350px; resize: vertical; }
         .help-text { font-size: 12px; color: #888; margin-top: 5px; line-height: 1.4; }
@@ -105,7 +108,7 @@
         .btn-main:hover:not(:disabled) { transform: scale(1.02); box-shadow: 0 0 20px var(--shadow-glow-hard); }
         .btn-main:disabled { filter: grayscale(0.7); cursor: wait; }
         
-        #generation-status { color: var(--success); text-align: center; margin-top: 15px; font-weight: bold; display: none; }
+        #generation-status { color: var(--success); text-align: center; margin-top: 15px; font-weight: bold; display: none; font-size: 18px;}
 
         #copySection { display: none; margin-top: 20px; background: #111; padding: 15px; border-radius: 5px; text-align: center; }
         .btn-copy { background: #444; color: white; border: 2px solid #666; padding: 12px 30px; font-size: 16px; cursor: pointer; border-radius: 50px; display: inline-flex; align-items: center; gap: 10px; transition: all 0.3s ease; }
@@ -182,15 +185,15 @@
              <p class="help-text" data-key="help_compress">Все загружаемые картинки будут автоматически сжаты.</p>
         </div>
 
-        <!-- СТРОКА 2: Вопросы (теперь занимает всю ширину) -->
+        <!-- СТРОКА 2: Вопросы -->
         <div class="card grid-col-span-2" style="display:flex; flex-direction:column;">
             <h2 data-key="sec_questions">❓ Список вопросов</h2>
             <textarea id="bulkQuestions" class="bulk-input" placeholder="..."></textarea>
-            <div class="help-text" data-key="help_q">Формат: Вопрос | Правильный | Неверный 1...</div>
+            <div class="help-text" data-key="help_q">Формат для выбора: Вопрос | Правильный | Неверный 1 | Неверный 2<br>Формат для ввода: Вопрос | Правильный ответ</div>
         </div>
         
         <!-- СТРОКА 3: Кнопка генерации -->
-        <div class="grid-col-span-2">
+        <div class="grid-col-span-2" style="margin-bottom: 50px;">
              <button id="generateBtn" class="btn-main" onclick="generate()" data-key="btn_gen">🚀 СОЗДАТЬ ИГРУ</button>
              <div id="generation-status" data-key="gen_status_ok">✅ Игра успешно создана!</div>
              <div id="copySection">
@@ -208,7 +211,8 @@
     const assets = { bg: null, obs: null, coin: null, music: null, avatars: [], creatures: [] };
     let currentLang = 'ru';
     let isProcessing = false;
-    let frameImgBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAADwCAYAAAA+VLovAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAjLSURBVHhe7d2/bxzHdeDx/zVj46zVWrJWgGjRIVcHiRwgK1AlURxKFCgSpGjhpUuQKB4KDlS4FygQBAUqLhzSFSmSIlGgiJIhRQLFTdEigYwF6iBJkiqJtffYnt/P/jS/mR2ZWWfnY+/tY+3b/SSPM/t5b2Z/ZnY+vN40TUMURVGUwnm+w/y6Pzz5wQ+P3t/3n+9fRVEUxTAzRVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVEURVE_Hasync_await_for_the_win = true;
+    let frameImgUrl = 'https://github.com/galmizmaria-beep/ptiza/blob/main/1.png?raw=true';
+
     const pImg = { 
         bg: new Image(), 
         obs: new Image(), 
@@ -225,15 +229,15 @@
             lbl_win: "Текст победы:", lbl_lose: "Текст поражения:", lbl_time: "Время (с):",
             lbl_obs: "Препятствие:", lbl_coin: "Монета (для вопросов):", lbl_music: "Музыка:",
             sec_questions: "❓ Список вопросов", lbl_avatars: "Аватары (до 6 шт.):", lbl_creatures: "Существа (до 6 шт.):",
-            help_q: "Формат: (1) Вопрос | Правильный | Неверный... ИЛИ (2) Вопрос | Ответ для ввода",
+            help_q: "Формат для выбора: Вопрос | Правильный | Неверный 1 | Неверный 2<br>Формат для ввода: Вопрос | Правильный ответ",
             btn_gen: "🚀 СОЗДАТЬ ИГРУ", btn_copy: "СКОПИРОВАТЬ КОД", btn_copied: "СКОПИРОВАНО!",
             lbl_copy_hint: "Вставьте этот код в Genially (Insert -> Others) и растяните на весь слайд.",
-            ph_bulk: "Сколько будет 2+2? | 4 | 5 | 6\nСтолица Франции? | Париж\nКто написал 'Войну и мир'? | Лев Толстой",
+            ph_bulk: "Сколько будет 2+2? | 4 | 5 | 6\nСтолица Франции? | Париж\nЦвет неба? | Синий | Зеленый",
             val_title: "ПОЛЕТ АВАТАРА", val_start: "ИГРАТЬ", val_win: "ПОБЕДА!", val_lose: "ВРЕМЯ ВЫШЛО",
             game_avatar: "АВАТАР", game_creature: "СУЩЕСТВО",
             status_avatar_loaded: "Аватар", status_creature_loaded: "Существо",
             status_loaded: "загружен", status_compressing: "Сжатие...", status_error: "Ошибка!",
-            gen_status_ok: "✅ Игра успешно создана!", err_max_files: "Можно загрузить не более 6 файлов.",
+            gen_status_ok: "✅ Игра успешно создана! Код ниже.", err_max_files: "Можно загрузить не более 6 файлов.",
             sec_compress: "🖼️ Оптимизация Изображений", lbl_max_dim: "Макс. размер (px):",
             lbl_quality: "Качество JPEG (0.1-1.0):", help_compress: "Все загружаемые картинки будут автоматически сжаты.",
             lbl_level_style: "Стиль уровня:", opt_balanced: "Сбалансированный",
@@ -246,15 +250,15 @@
             lbl_win: "Win Text:", lbl_lose: "Lose Text:", lbl_time: "Time (s):",
             lbl_obs: "Obstacle:", lbl_coin: "Coin (for questions):", lbl_music: "Music:",
             sec_questions: "❓ Questions List", lbl_avatars: "Avatars (up to 6):", lbl_creatures: "Creatures (up to 6):",
-            help_q: "Format: (1) Question | Correct | Wrong... (for choices) OR (2) Question | Answer (for input)",
+            help_q: "Format for choice: Question | Correct | Wrong 1 | Wrong 2<br>Format for input: Question | Correct answer",
             btn_gen: "🚀 CREATE GAME", btn_copy: "COPY CODE", btn_copied: "COPIED!",
             lbl_copy_hint: "Paste into Genially (Insert -> Others) and stretch full screen.",
-            ph_bulk: "2+2? | 4 | 5 | 6\nCapital of France? | Paris\nWho wrote 'War and Peace'? | Leo Tolstoy",
+            ph_bulk: "2+2? | 4 | 5 | 6\nCapital of France? | Paris\nSky color? | Blue | Green",
             val_title: "AVATAR FLIGHT", val_start: "PLAY", val_win: "YOU WON!", val_lose: "GAME OVER",
             game_avatar: "AVATAR", game_creature: "CREATURE",
             status_avatar_loaded: "Avatar", status_creature_loaded: "Creature",
             status_loaded: "loaded", status_compressing: "Compressing...", status_error: "Error!",
-            gen_status_ok: "✅ Game created successfully!", err_max_files: "You can upload a maximum of 6 files.",
+            gen_status_ok: "✅ Game created successfully! Code is below.", err_max_files: "You can upload a maximum of 6 files.",
             sec_compress: "🖼️ Image Optimization", lbl_max_dim: "Max Dimension (px):",
             lbl_quality: "JPEG Quality (0.1-1.0):", help_compress: "All uploaded images will be compressed automatically.",
             lbl_level_style: "Level Style:", opt_balanced: "Balanced",
@@ -270,7 +274,7 @@
                  if (el.tagName === 'OPTION') {
                     el.textContent = dict[lang][key];
                 } else {
-                    el.innerText = dict[lang][key];
+                    el.innerHTML = dict[lang][key];
                 }
             }
         });
@@ -352,15 +356,55 @@
         }
         toggleGenerateButton(true);
     }
+
+    function removeAsset(key, id) {
+        assets[key][id] = null;
+        pImg[key][id] = null;
+        renderAssetPreviews(key);
+    }
+
+    function renderAssetPreviews(key) {
+        const previewContainer = document.getElementById(key === 'avatars' ? 'avatar-previews' : 'creature-previews');
+        previewContainer.innerHTML = '';
+        
+        assets[key].forEach((assetData, index) => {
+            if (!assetData) return;
+            const itemDiv = document.createElement('div'); 
+            itemDiv.className = 'preview-item';
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'preview-item-content';
+            
+            const img = document.createElement('img');
+            img.src = assetData;
+            
+            const statusSpan = document.createElement('span'); 
+            statusSpan.className = 'status-text ok';
+            const typeText = key === 'avatars' ? dict[currentLang].status_avatar_loaded : dict[currentLang].status_creature_loaded;
+            statusSpan.innerText = `✅ ${typeText} ${index + 1} ${dict[currentLang].status_loaded}`;
+            
+            contentDiv.append(img, statusSpan);
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'btn-remove';
+            removeBtn.innerText = '❌';
+            removeBtn.onclick = () => removeAsset(key, index);
+            
+            itemDiv.append(contentDiv, removeBtn);
+            previewContainer.appendChild(itemDiv);
+        });
+    }
     
     async function loadMultipleAssets(key, previewId) {
         const input = document.getElementById('f' + key.charAt(0).toUpperCase() + key.slice(1));
-        const previewContainer = document.getElementById(previewId);
         const MAX_FILES = 6;
+        
+        // Count valid existing
+        let currentCount = assets[key].filter(a => a !== null).length;
 
-        if (assets[key].length >= MAX_FILES) { alert(dict[currentLang].err_max_files); return; }
+        if (currentCount >= MAX_FILES) { alert(dict[currentLang].err_max_files); return; }
 
-        const filesToLoad = Array.from(input.files).slice(0, MAX_FILES - assets[key].length);
+        const filesToLoad = Array.from(input.files).slice(0, MAX_FILES - currentCount);
         if(filesToLoad.length === 0) return;
         
         toggleGenerateButton(false);
@@ -370,55 +414,30 @@
         };
 
         for (const file of filesToLoad) {
-            const currentAssetIndex = assets[key].length;
-            assets[key].push(null); pImg[key].push(null);
-
-            const itemDiv = document.createElement('div'); itemDiv.className = 'preview-item';
-            const img = document.createElement('img');
-            const statusSpan = document.createElement('span'); statusSpan.className = 'status-text';
-            const deleteBtn = document.createElement('button');
-            deleteBtn.innerText = '✖';
-            deleteBtn.style.cssText = `background:#ff5555;border:none;color:white;cursor:pointer;font-size:12px;width:20px;height:20px;border-radius:50%;margin-left:auto;padding:0;line-height:20px;`;
-            
-            deleteBtn.onclick = (e) => {
-                e.stopPropagation();
-                const parentDiv = e.target.parentElement;
-                const container = parentDiv.parentElement;
-                const itemIndex = Array.from(container.children).indexOf(parentDiv);
-                if (itemIndex > -1) {
-                    assets[key].splice(itemIndex, 1);
-                    pImg[key].splice(itemIndex, 1);
-                    container.removeChild(parentDiv);
-                    const typeTextBase = key === 'avatars' ? dict[currentLang].status_avatar_loaded : dict[currentLang].status_creature_loaded;
-                    Array.from(container.children).forEach((child, idx) => {
-                        const childStatusSpan = child.querySelector('.status-text.ok');
-                        if (childStatusSpan) {
-                            childStatusSpan.innerText = `✅ ${typeTextBase} ${idx + 1} ${dict[currentLang].status_loaded}`;
-                        }
-                    });
-                }
-            };
-            
-            itemDiv.append(img, statusSpan, deleteBtn);
-            previewContainer.appendChild(itemDiv);
-            statusSpan.innerText = dict[currentLang].status_compressing;
-            
             try {
                 const compressedDataUrl = await compressImage(file, settings);
-                assets[key][currentAssetIndex] = compressedDataUrl;
+                
+                // Find empty slot or push
+                let insertIdx = assets[key].indexOf(null);
+                if (insertIdx === -1) {
+                    insertIdx = assets[key].length;
+                    assets[key].push(null);
+                    pImg[key].push(null);
+                }
+
+                assets[key][insertIdx] = compressedDataUrl;
                 const pImage = new Image();
                 pImage.src = compressedDataUrl;
-                pImg[key][currentAssetIndex] = pImage;
-                img.src = compressedDataUrl;
-                const typeText = key === 'avatars' ? dict[currentLang].status_avatar_loaded : dict[currentLang].status_creature_loaded;
-                statusSpan.innerText = `✅ ${typeText} ${currentAssetIndex + 1} ${dict[currentLang].status_loaded}`;
-                statusSpan.classList.add('ok');
+                pImg[key][insertIdx] = pImage;
+                
             } catch (error) {
                 console.error("Error processing file:", error);
-                statusSpan.innerText = `❌ ${dict[currentLang].status_error}`;
-                statusSpan.classList.add('error');
             }
         }
+        
+        renderAssetPreviews(key);
+        // Reset input so same file can be selected again if needed
+        input.value = "";
         toggleGenerateButton(true);
     }
     
@@ -432,7 +451,27 @@
         pCanvas.height = pCanvas.parentElement.offsetHeight;
         pMx = pCanvas.width / 2;
         pMy = pCanvas.height * 0.8;
-        if (pFrame 'c' : 'o'});
+        if (pFrame === 0) previewLoop();
+    }
+
+    function previewLoop() {
+        if(!pCanvas.parentElement) { pFrame = 0; return; }
+        requestAnimationFrame(previewLoop);
+
+        let W = pCanvas.width, H = pCanvas.height;
+        pCtx.clearRect(0, 0, W, H);
+        const speed = parseInt(document.getElementById('speedRange').value);
+        const scaleUser = parseFloat(document.getElementById('sizeRange').value);
+        const objScale = parseFloat(document.getElementById('objSizeRange').value);
+        const forwardSpeed = (speed) * (1.5 - (pMy / H));
+        
+        pBgY += forwardSpeed * 0.5;
+        if(pImg.bg.src && pImg.bg.complete) {
+            let ptrn = pCtx.createPattern(pImg.bg, 'repeat');
+            if(ptrn) { pCtx.save(); pCtx.translate(0, pBgY % pImg.bg.height); pCtx.fillStyle = ptrn; pCtx.fillRect(0, -pImg.bg.height, W, H + pImg.bg.height*2); pCtx.restore(); }
+        } else { pCtx.fillStyle = '#040a18'; pCtx.fillRect(0,0,W,H); }
+
+        if(pFrame % Math.max(10, (90 - speed*4)) === 0) pObjs.push({x: (Math.random()-0.5)*W*1.5, y: (Math.random()-0.5)*H*1.5, z: 2000, t: Math.random() > 0.5 ? 'c' : 'o'});
         
         pObjs.sort((a,b)=>b.z-a.z);
         let pX = (W/2 - pMx) * 0.3;
@@ -453,12 +492,16 @@
 
         let depthScale = 0.7 + (pMy / H) * 0.6;
         let pSize = 80 * scaleUser * depthScale;
-        let creatureImg = pImg.creatures.length > 0 ? pImg.creatures[0] : null;
-        let avatarImg = pImg.avatars.length > 0 ? pImg.avatars[0] : null;
+        
+        let validCreatures = pImg.creatures.filter(i => i && i.complete);
+        let validAvatars = pImg.avatars.filter(i => i && i.complete);
+        
+        let creatureImg = validCreatures.length > 0 ? validCreatures[0] : null;
+        let avatarImg = validAvatars.length > 0 ? validAvatars[0] : null;
 
         pCtx.save(); pCtx.translate(pMx, pMy);
-        if(creatureImg && creatureImg.complete) pCtx.drawImage(creatureImg, -pSize/2, -pSize/2, pSize, pSize);
-        if(avatarImg && avatarImg.complete) {
+        if(creatureImg) pCtx.drawImage(creatureImg, -pSize/2, -pSize/2, pSize, pSize);
+        if(avatarImg) {
              const avatarSize = pSize * 0.5;
              pCtx.drawImage(avatarImg, -avatarSize/2, -pSize*0.4, avatarSize, avatarSize);
         }
@@ -472,26 +515,34 @@
     function parseQuestions() {
         return document.getElementById('bulkQuestions').value.trim().split('\n').filter(l => l.trim() !== '').map((l, i) => {
             const p = l.split('|').map(s => s.trim());
-            return p.length > 2 ? {t:p[0],type:'choice',c:p[1],w:p.slice(2),id:i} : {t:p[0],type:'input',c:p[1] || '',id:i};
+            return p.length > 2 ? {t:p[0],type:'choice',c:p[1],w:p.slice(2),id:i} : {t:p[0],type:'input',c:p[1],id:i};
         });
     }
 
     function generate() {
         const questions = parseQuestions();
         const langData = { lang: currentLang, dict: dict[currentLang] };
+        
+        // Clean up empty slots in arrays
+        const cleanAssets = {
+            ...assets,
+            avatars: assets.avatars.filter(a => a !== null),
+            creatures: assets.creatures.filter(a => a !== null)
+        };
+        
         const CONFIG = {
             title: document.getElementById('txtTitle').value, btn: document.getElementById('txtStart').value,
             win: document.getElementById('txtWin').value, lose: document.getElementById('txtLose').value,
             time: document.getElementById('valTime').value, speed: document.getElementById('speedRange').value,
             scale: document.getElementById('sizeRange').value, objScale: document.getElementById('objSizeRange').value,
             levelStyle: document.getElementById('levelStyle').value,
-            frame_img: frameImgBase64,
-            qs: questions, img: assets, lang: langData
+            frame_img: frameImgUrl,
+            qs: questions, img: cleanAssets, lang: langData
         };
 
         const configJson = JSON.stringify(CONFIG);
 
-        const CODE = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>@keyframes pulse-title{0%,100%{transform:scale(1);text-shadow:0 0 5px #fff,0 0 10px #fff,0 0 20px #00d2ff,0 0 35px #00d2ff}50%{transform:scale(1.05);text-shadow:0 0 8px #fff,0 0 18px #fff,0 0 35px #00d2ff,0 0 60px #00d2ff}}html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#040a18;color:#e0e0ff;font-family:'Segoe UI',sans-serif;user-select:none}#game-box{position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;touch-action:none;background:url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Cdefs%3E%3CradialGradient id="grad" cx="50%25" cy="50%25" r="50%25"%3E%3Cstop offset="0%25" stop-color="%23fff" stop-opacity="0.1" /%3E%3Cstop offset="100%25" stop-color="%23fff" stop-opacity="0" /%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx="20" cy="30" r="1.5" fill="url(%23grad)"/%3E%3Ccircle cx="80" cy="70" r="1" fill="url(%23grad)"/%3E%3Ccircle cx="50" cy="90" r="0.5" fill="url(%23grad)"/%3E%3Ccircle cx="90" cy="10" r="1.2" fill="url(%23grad)"/%3E%3C/svg%3E')}canvas{display:block;width:100%;height:100%;pointer-events:none;position:absolute;top:0;left:0;z-index:1}.hud{position:absolute;top:10px;color:#00d2ff;font-size:clamp(20px,4vw,30px);font-weight:700;text-shadow:0 0 5px #00d2ff, 2px 2px 0 #000;padding:5px 15px;background:rgba(0,0,0,.6);border-radius:10px;border:1px solid #00d2ff;z-index:50}.screen{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(4,10,24,.7);backdrop-filter:blur(5px);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;pointer-events:auto;transition:opacity .5s}.screen.hidden{opacity:0;pointer-events:none}#mt-title{color:#fff;font-size:clamp(30px,6vw,60px);text-transform:uppercase;text-shadow:0 0 5px #fff,0 0 10px #fff,0 0 20px #00d2ff,0 0 35px #00d2ff;margin:20px;text-align:center;transition:all .3s ease;position:relative;animation:pulse-title 4s infinite ease-in-out}button.btn-play{background:linear-gradient(180deg,#00d2ff,#0088aa);border:4px solid #fff;padding:15px 60px;color:#fff;font-size:clamp(24px,5vw,40px);font-weight:700;text-transform:uppercase;border-radius:60px;cursor:pointer;box-shadow:0 0 15px #00d2ff,0 0 30px #00d2ff;transition:all .2s;text-shadow:1px 1px 2px #000;z-index:200}button.btn-play:hover:not(:disabled){transform:scale(1.05);box-shadow:0 0 25px #00d2ff,0 0 50px #00d2ff}button.btn-play:active:not(:disabled){transform:scale(.95)}button.btn-play:disabled{cursor:not-allowed;filter:grayscale(.8);opacity:.5}#quiz-box{display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:90%;max-width:500px;background:rgba(4,10,24,.95);border:2px solid #00d2ff;padding:20px;border-radius:15px;text-align:center;z-index:200;pointer-events:auto;box-shadow:0 0 20px #000;backdrop-filter:blur(5px)}.q-btn{display:block;width:100%;padding:15px;margin:8px 0;background:#1a1a2d;border:1px solid #00a2ff80;color:#fff;font-size:18px;cursor:pointer;transition:all .2s}.q-btn:hover{background:#00d2ff;color:#000;box-shadow:0 0 10px #00d2ff}input.q-inp{width:80%;padding:10px;font-size:20px;text-align:center;margin-bottom:10px;color:#000}#char-select-screen{justify-content:center;padding-bottom:0}#char-select-screen h1{margin-bottom:50px}.selection-container{display:flex;justify-content:center;gap:5vw;width:100%;align-items:flex-start;margin-bottom:50px}.selection-group{display:flex;flex-direction:column;align-items:center;gap:15px;perspective:1000px}.selection-box{width:clamp(120px,25vw,250px);height:clamp(120px,25vw,250px);border:none;background-image:url('${CONFIG.frame_img}');background-size:contain;background-position:center;background-repeat:no-repeat;display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer}.selection-box::before{content:attr(data-label);position:absolute;top:-40px;color:#fff;text-transform:uppercase;font-weight:700;font-size:clamp(16px,3vw,24px);text-shadow:0 0 5px #fff,0 0 10px #00d2ff}.selection-box img{max-width:70%;max-height:70%;object-fit:contain;transition:transform .5s cubic-bezier(.25,1,.5,1);animation:breath 4s infinite ease-in-out;transform-style:preserve-3d}.selection-box img.animate-3d{transform:scale(1.2) rotateY(360deg)!important}@keyframes breath{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}.choice-row{display:flex;gap:10px;justify-content:center;max-width:clamp(120px,25vw,250px);padding:5px;box-sizing:border-box;overflow-x:auto;background:rgba(0,0,0,.5);border-radius:10px;min-height:66px}.choice-thumb{width:50px;height:50px;object-fit:cover;border:3px solid #555;border-radius:5px;cursor:pointer;transition:all .2s;flex-shrink:0}.choice-thumb:hover{transform:scale(1.1);border-color:#fff}.choice-thumb.active{border-color:#00d2ff;box-shadow:0 0 10px #00d2ff}</style></head><body><div id="game-box"><div class="hud" style="left:10px;display:none;z-index:50">⏱ <span id="ui-time">0</span></div><div class="hud" style="right:10px;display:none;z-index:50">🏆 <span id="ui-score">0</span></div><canvas id="cvs"></canvas><div id="char-select-screen" class="screen"><h1 id="mt-title"></h1><div class="selection-container"><div class="selection-group"><div class="selection-box" id="avatar-box"><img id="avatar-display"></div><div id="avatar-choices" class="choice-row"></div></div><div class="selection-group"><div class="selection-box" id="creature-box"><img id="creature-display"></div><div id="creature-choices" class="choice-row"></div></div></div><button id="btn-play-game" class="btn-play" disabled></button></div><div id="scr-end" class="screen hidden"><h1 id="mt-end"></h1><p style="font-size:30px">Score: <span id="end-score">0</span></p><button id="btn-restart" class="btn-play">↺</button></div><div id="quiz-box"><h2 id="q-txt"></h2><div id="q-body"></div></div></div><script>
+        const CODE = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>@keyframes pulse-title{0%,100%{transform:scale(1);text-shadow:0 0 5px #fff,0 0 10px #fff,0 0 20px #00d2ff,0 0 35px #00d2ff}50%{transform:scale(1.05);text-shadow:0 0 8px #fff,0 0 18px #fff,0 0 35px #00d2ff,0 0 60px #00d2ff}}html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#040a18;color:#e0e0ff;font-family:'Segoe UI',sans-serif;user-select:none}#game-box{position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;touch-action:none;background:url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Cdefs%3E%3CradialGradient id="grad" cx="50%25" cy="50%25" r="50%25"%3E%3Cstop offset="0%25" stop-color="%23fff" stop-opacity="0.1" /%3E%3Cstop offset="100%25" stop-color="%23fff" stop-opacity="0" /%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx="20" cy="30" r="1.5" fill="url(%23grad)"/%3E%3Ccircle cx="80" cy="70" r="1" fill="url(%23grad)"/%3E%3Ccircle cx="50" cy="90" r="0.5" fill="url(%23grad)"/%3E%3Ccircle cx="90" cy="10" r="1.2" fill="url(%23grad)"/%3E%3C/svg%3E')}canvas{display:block;width:100%;height:100%;pointer-events:none;position:absolute;top:0;left:0;z-index:1}.hud{position:absolute;top:10px;color:#00d2ff;font-size:clamp(20px,4vw,30px);font-weight:700;text-shadow:0 0 5px #00d2ff, 2px 2px 0 #000;padding:5px 15px;background:rgba(0,0,0,.6);border-radius:10px;border:1px solid #00d2ff;z-index:50}.screen{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(4,10,24,.7);backdrop-filter:blur(5px);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;pointer-events:auto;transition:opacity .5s}.screen.hidden{opacity:0;pointer-events:none}#mt-title{color:#fff;font-size:clamp(30px,6vw,60px);text-transform:uppercase;text-shadow:0 0 5px #fff,0 0 10px #fff,0 0 20px #00d2ff,0 0 35px #00d2ff;margin:20px;text-align:center;transition:all .3s ease;position:relative;animation:pulse-title 4s infinite ease-in-out}button.btn-play{background:linear-gradient(180deg,#00d2ff,#0088aa);border:4px solid #fff;padding:15px 60px;color:#fff;font-size:clamp(24px,5vw,40px);font-weight:700;text-transform:uppercase;border-radius:60px;cursor:pointer;box-shadow:0 0 15px #00d2ff,0 0 30px #00d2ff;transition:all .2s;text-shadow:1px 1px 2px #000;z-index:200}button.btn-play:hover:not(:disabled){transform:scale(1.05);box-shadow:0 0 25px #00d2ff,0 0 50px #00d2ff}button.btn-play:active:not(:disabled){transform:scale(.95)}button.btn-play:disabled{cursor:not-allowed;filter:grayscale(.8);opacity:.5}#quiz-box{display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:90%;max-width:500px;background:rgba(4,10,24,.95);border:2px solid #00d2ff;padding:20px;border-radius:15px;text-align:center;z-index:200;pointer-events:auto;box-shadow:0 0 20px #000;backdrop-filter:blur(5px)}.q-btn{display:block;width:100%;padding:15px;margin:8px 0;background:#1a1a2d;border:1px solid #00a2ff80;color:#fff;font-size:18px;cursor:pointer;transition:all .2s}.q-btn:hover{background:#00d2ff;color:#000;box-shadow:0 0 10px #00d2ff}input.q-inp{width:80%;padding:10px;font-size:20px;text-align:center;margin-bottom:10px;color:#000}#char-select-screen{justify-content:center;padding-bottom:0}#char-select-screen h1{margin-bottom:50px}.selection-container{display:flex;justify-content:center;gap:5vw;width:100%;align-items:flex-start;margin-bottom:50px}.selection-group{display:flex;flex-direction:column;align-items:center;gap:15px;perspective:1000px}.selection-box{width:clamp(120px,25vw,250px);height:clamp(120px,25vw,250px);border:none;background-image:url('${CONFIG.frame_img}');background-size:100% 100%;background-position:center;background-repeat:no-repeat;display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer}.selection-box::before{content:attr(data-label);position:absolute;top:-40px;color:#fff;text-transform:uppercase;font-weight:700;font-size:clamp(16px,3vw,24px);text-shadow:0 0 5px #fff,0 0 10px #00d2ff}.selection-box img{max-width:70%;max-height:70%;object-fit:contain;transition:transform .5s cubic-bezier(.25,1,.5,1);animation:breath 4s infinite ease-in-out;transform-style:preserve-3d}.selection-box img.animate-3d{transform:scale(1.2) rotateY(360deg)!important}@keyframes breath{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}.choice-row{display:flex;gap:10px;justify-content:center;max-width:clamp(120px,25vw,250px);padding:5px;box-sizing:border-box;overflow-x:auto;background:rgba(0,0,0,.5);border-radius:10px;min-height:66px}.choice-thumb{width:50px;height:50px;object-fit:cover;border:3px solid #555;border-radius:5px;cursor:pointer;transition:all .2s;flex-shrink:0}.choice-thumb:hover{transform:scale(1.1);border-color:#fff}.choice-thumb.active{border-color:#00d2ff;box-shadow:0 0 10px #00d2ff}</style></head><body><div id="game-box"><div class="hud" style="left:10px;display:none;z-index:50">⏱ <span id="ui-time">0</span></div><div class="hud" style="right:10px;display:none;z-index:50">🏆 <span id="ui-score">0</span></div><canvas id="cvs"></canvas><div id="char-select-screen" class="screen"><h1 id="mt-title"></h1><div class="selection-container"><div class="selection-group"><div class="selection-box" id="avatar-box"><img id="avatar-display"></div><div id="avatar-choices" class="choice-row"></div></div><div class="selection-group"><div class="selection-box" id="creature-box"><img id="creature-display"></div><div id="creature-choices" class="choice-row"></div></div></div><button id="btn-play-game" class="btn-play" disabled></button></div><div id="scr-end" class="screen hidden"><h1 id="mt-end"></h1><p style="font-size:30px">Score: <span id="end-score">0</span></p><button id="btn-restart" class="btn-play">↺</button></div><div id="quiz-box"><h2 id="q-txt"></h2><div id="q-body"></div></div></div><script>
 const CFG=${configJson};
 const IMG=CFG.img,LANG=CFG.lang.dict;document.getElementById('mt-title').innerText=CFG.title;document.getElementById('btn-play-game').innerText=CFG.btn;document.getElementById('avatar-box').dataset.label=LANG.game_avatar;document.getElementById('creature-box').dataset.label=LANG.game_creature;const cvs=document.getElementById('cvs'),ctx=cvs.getContext('2d');let W,H;function resize(){W=cvs.width=window.innerWidth;H=cvs.height=window.innerHeight;if(!GM.run)GM.mx=W/2,GM.my=H*.8}
 window.addEventListener('resize',resize);setTimeout(resize,100);const AC=new(window.AudioContext||window.webkitAudioContext);function sfx(type){if(!AC||AC.state==='suspended')AC.resume();const t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();o.connect(g),g.connect(AC.destination);if(type==='coin'){o.type='sine';o.frequency.setValueAtTime(1200,t);g.gain.setValueAtTime(.1,t);g.gain.exponentialRampToValueAtTime(.001,t+.5)}else if(type==='boom'){o.type='sawtooth';o.frequency.setValueAtTime(120,t);o.frequency.exponentialRampToValueAtTime(20,t+.4);g.gain.setValueAtTime(.2,t);g.gain.linearRampToValueAtTime(0,t+.4)}else if(type==='win'){o.type='triangle';const notes=[659,783,987];notes.forEach((n,i)=>{o.frequency.setValueAtTime(n,t+i*.1)});g.gain.setValueAtTime(.1,t);g.gain.linearRampToValueAtTime(0,t+.4)}else if(type==='lose'){o.type='square';o.frequency.setValueAtTime(200,t);o.frequency.exponentialRampToValueAtTime(50,t+.4);g.gain.setValueAtTime(.15,t);g.gain.linearRampToValueAtTime(0,t+.4)}o.start(t),o.stop(t+.6)}
@@ -499,14 +550,14 @@ const iBg=new Image(),iObs=new Image(),iCoin=new Image(),iAvatar=new Image(),iCr
 let selectedAvatar=null,selectedCreature=null;function setupChoices(){const avChoices=document.getElementById('avatar-choices'),crChoices=document.getElementById('creature-choices'),playBtn=document.getElementById('btn-play-game');function checkSelection(){if(selectedAvatar&&selectedCreature)playBtn.disabled=false}
 IMG.avatars.forEach(src=>{const i=new Image();i.src=src,i.className='choice-thumb',i.onclick=()=>{selectedAvatar=src;document.getElementById('avatar-display').src=src;avChoices.querySelectorAll('img').forEach(c=>c.classList.remove('active'));i.classList.add('active');checkSelection()},avChoices.appendChild(i)});IMG.creatures.forEach(src=>{const i=new Image();i.src=src,i.className='choice-thumb',i.onclick=()=>{selectedCreature=src;document.getElementById('creature-display').src=src;crChoices.querySelectorAll('img').forEach(c=>c.classList.remove('active'));i.classList.add('active');checkSelection()},crChoices.appendChild(i)})}
 ['avatar-box','creature-box'].forEach(id=>{document.getElementById(id).onclick=e=>{const t=e.currentTarget.querySelector('img');if(t.src&&!t.classList.contains("animate-3d")){t.classList.add("animate-3d");setTimeout(()=>t.classList.remove("animate-3d"),1e3)}}});setupChoices();
-const waveManager={timer:0,config:{},qIndex:0,wavePool:[],init:function(){const style=CFG.levelStyle;if(style==='sparse'){this.config={minTime:180,maxTime:300};this.wavePool=['single','double']}else if(style==='dense'){this.config={minTime:70,maxTime:120};this.wavePool=['wall','corridor','slalom','double']}else{this.config={minTime:120,maxTime:200};this.wavePool=['single','double','corridor','wall']}
-this.timer=60;this.qIndex=0},setNextWaveTimer:function(){this.timer=this.config.minTime+Math.random()*(this.config.maxTime-this.config.minTime)},update:function(){if(GM.pause)return;this.timer--;if(this.timer<=0){const waveType=this.wavePool[Math.floor(Math.random()*this.wavePool.length)];this.spawnWave(waveType);this.setNextWaveTimer()}},spawnWave:function(type){const z=4500,y=(Math.random()-.5)*H*.8,placeCoin=this.qIndex<CFG.qs.length;const addObj=(t,x,y,z,qid=null)=>{const obj={t,x,y,z};if(qid!==null)obj.qid=qid;GM.objs.push(obj)};if(type==='single'){addObj('o',(Math.random()-.5)*W*1.5,y,z)}else if(type==='double'){const x1=(Math.random()-.5)*W*1.5;addObj('o',x1,y,z);addObj('o',x1+(Math.random()>.5?W*.5:-W*.5),(Math.random()-.5)*H,z+500)}else if(type==='wall'){const gapIndex=Math.floor(Math.random()*5);for(let i=0;i<5;i++){const x=(i-2)*W*.4;if(i===gapIndex){if(placeCoin){addObj('c',x,y,z,this.qIndex);this.qIndex++}}else{addObj('o',x,y,z)}}}else if(type==='corridor'){const pathX=(Math.random()-.5)*W*.5;const width=W*(.4+Math.random()*.3);for(let i=0;i<6;i++){addObj('o',pathX-width,y+i*H/5-H/2,z+i*200);addObj('o',pathX+width,y+i*H/5-H/2,z+i*200)}
+const waveManager={timer:0,config:{},qIndex:0,wavePool:[],init:function(){const style=CFG.levelStyle;if(style==='sparse'){this.config={minTime:60,maxTime:100};this.wavePool=['single','double']}else if(style==='dense'){this.config={minTime:20,maxTime:40};this.wavePool=['wall','corridor','slalom','double']}else{this.config={minTime:40,maxTime:80};this.wavePool=['single','double','corridor','wall']}
+this.timer=10;this.qIndex=0},setNextWaveTimer:function(){this.timer=this.config.minTime+Math.random()*(this.config.maxTime-this.config.minTime)},update:function(){if(GM.pause)return;this.timer--;if(this.timer<=0){const waveType=this.wavePool[Math.floor(Math.random()*this.wavePool.length)];this.spawnWave(waveType);this.setNextWaveTimer()}},spawnWave:function(type){const z=8e3,y=(Math.random()-.5)*H*.8,placeCoin=this.qIndex<CFG.qs.length;const addObj=(t,x,y,z,qid=null)=>{const obj={t,x,y,z};if(qid!==null)obj.qid=qid;GM.objs.push(obj)};if(type==='single'){addObj('o',(Math.random()-.5)*W*1.5,y,z)}else if(type==='double'){const x1=(Math.random()-.5)*W*1.5;addObj('o',x1,y,z);addObj('o',x1+(Math.random()>.5?W*.5:-W*.5),(Math.random()-.5)*H,z+500)}else if(type==='wall'){const gapIndex=Math.floor(Math.random()*5);for(let i=0;i<5;i++){const x=(i-2)*W*.4;if(i===gapIndex){if(placeCoin){addObj('c',x,y,z,this.qIndex);this.qIndex++}}else{addObj('o',x,y,z)}}}else if(type==='corridor'){const pathX=(Math.random()-.5)*W*.5;const width=W*(.4+Math.random()*.3);for(let i=0;i<6;i++){addObj('o',pathX-width,y+i*H/5-H/2,z+i*200);addObj('o',pathX+width,y+i*H/5-H/2,z+i*200)}
 if(placeCoin){addObj('c',pathX,y,z-200,this.qIndex);this.qIndex++}}else if(type==='slalom'){const startX=(Math.random()-.5)*W;for(let i=0;i<4;i++){addObj('o',startX+W*.5*(i%2===0?1:-1),y,z+i*800)}
 if(placeCoin){addObj('c',startX,y,z+1200,this.qIndex);this.qIndex++}}}};
 const GM={run:false,pause:false,frame:0,time:0,score:0,objs:[],mx:0,my:0,bgY:0,hurt:0,timerInt:null,start:()=>{if(!selectedAvatar||!selectedCreature)return;iAvatar.src=selectedAvatar;iCreature.src=selectedCreature;document.getElementById('char-select-screen').classList.add('hidden');document.querySelectorAll('.hud').forEach(h=>h.style.display='block');resize();if(AC.state==='suspended')AC.resume();if(music)music.play().catch(e=>{});waveManager.init();GM.run=true;mainLoop();GM.timerInt=setInterval(()=>{if(GM.run&&!GM.pause){GM.time--;document.getElementById('ui-time').innerText=GM.time;if(GM.time<=0)GM.end(false)}},1e3);document.getElementById('ui-time').innerText=GM.time},end:win=>{if(!GM.run)return;GM.run=false;clearInterval(GM.timerInt);const scr=document.getElementById('scr-end');scr.classList.remove('hidden');document.getElementById('mt-end').innerText=win?CFG.win:CFG.lose;document.getElementById('end-score').innerText=GM.score;if(music)music.pause();sfx(win?'win':'lose')},reset:()=>{const scr=document.getElementById('scr-end');scr.classList.add('hidden');document.getElementById('char-select-screen').classList.remove('hidden');document.querySelectorAll('.hud').forEach(h=>h.style.display='none');GM.time=parseInt(CFG.time);GM.score=0;document.getElementById('ui-time').innerText=GM.time;document.getElementById('ui-score').innerText=GM.score;GM.objs=[];GM.hurt=0;GM.run=false;if(music)music.currentTime=0;preGameLoop()}};
 document.getElementById('btn-play-game').addEventListener('click',GM.start);document.getElementById('btn-restart').addEventListener('click',GM.reset);window.addEventListener('mousemove',e=>{if(!GM.pause){GM.mx=e.clientX;GM.my=e.clientY}});window.addEventListener('touchmove',e=>{if(!GM.pause){e.preventDefault();GM.mx=e.touches[0].clientX;GM.my=e.touches[0].clientY}},{passive:false});
-function drawBg(){if(iBg.src&&iBg.complete){let ptrn=ctx.createPattern(iBg,'repeat');if(ptrn){ctx.save();ctx.translate(0,GM.bgY%iBg.height);ctx.fillStyle=ptrn;ctx.fillRect(0,-iBg.height,W,H+iBg.height*2);ctx.restore()}}else{ctx.fillStyle='#040a18';ctx.fillRect(0,0,W,H)}}
-function mainLoop(){if(!GM.run)return;requestAnimationFrame(mainLoop);ctx.clearRect(0,0,W,H);if(!GM.pause){let speed=parseInt(CFG.speed);let forwardSpeed=speed*(1.5-GM.my/H);GM.frame++;waveManager.update();GM.bgY+=forwardSpeed*.5;let pX=(W/2-GM.mx)*.3,pY=(H*.75-GM.my)*.3;for(let i=GM.objs.length-1;i>=0;i--){let o=GM.objs[i];o.z-=forwardSpeed;if(o.z<10){GM.objs.splice(i,1);continue}if(o.z<300&&o.z>20){let depthScale=.7+GM.my/H*.6,pSize=120*parseFloat(CFG.scale)*depthScale,scale=500/o.z,sx=W/2+(o.x+pX)*scale,sy=H/2+(o.y+pY)*scale,size=100*scale*parseFloat(CFG.objScale||1),dist=Math.hypot(sx-GM.mx,sy-GM.my),hitbox=size*.5+pSize*.4;if(dist<hitbox){let hitObject=GM.objs.splice(i,1)[0];hit(hitObject)}}}if(GM.hurt>0)GM.hurt--}
+function drawBg(){if(iBg.src&&iBg.complete){let ptrn=ctx.createPattern(iBg,'repeat');if(ptrn){let ch=iBg.height||H;ctx.save();ctx.translate(0,GM.bgY%ch);ctx.fillStyle=ptrn;ctx.fillRect(0,-ch,W,H+ch*2);ctx.restore()}}else{ctx.fillStyle='#040a18';ctx.fillRect(0,0,W,H)}}
+function mainLoop(){if(!GM.run)return;requestAnimationFrame(mainLoop);ctx.clearRect(0,0,W,H);if(!GM.pause){let speed=parseInt(CFG.speed);let forwardSpeed=(speed*4)*(1.5-GM.my/H);GM.frame++;waveManager.update();GM.bgY+=forwardSpeed*.1;let pX=(W/2-GM.mx)*.3,pY=(H*.75-GM.my)*.3;for(let i=GM.objs.length-1;i>=0;i--){let o=GM.objs[i];o.z-=forwardSpeed;if(o.z<10){GM.objs.splice(i,1);continue}if(o.z<200&&o.z>20){let depthScale=.7+GM.my/H*.6,pSize=120*parseFloat(CFG.scale)*depthScale,scale=500/o.z,sx=W/2+(o.x+pX)*scale,sy=H/2+(o.y+pY)*scale,size=100*scale*parseFloat(CFG.objScale||1),dist=Math.hypot(sx-GM.mx,sy-GM.my),hitbox=size*.5+pSize*.4;if(dist<hitbox){let hitObject=GM.objs.splice(i,1)[0];hit(hitObject)}}}if(GM.hurt>0)GM.hurt--}
 drawBg();GM.objs.sort((a,b)=>b.z-a.z);let objScaleUser=parseFloat(CFG.objScale||1);let pX=(W/2-GM.mx)*.3,pY=(H*.75-GM.my)*.3;for(let o of GM.objs){let scale=500/o.z,sx=W/2+(o.x+pX)*scale,sy=H/2+(o.y+pY)*scale,size=100*scale*objScaleUser;let img=o.t==='c'?iCoin:iObs;if(img.src&&img.complete)ctx.drawImage(img,sx-size/2,sy-size/2,size,size)}
 if(!(GM.hurt>0&&Math.floor(GM.hurt/4)%2===0)){let depthScale=.7+GM.my/H*.6,pSize=120*parseFloat(CFG.scale)*depthScale,tilt=(GM.mx-W/2)*.05,avatarSize=pSize*.5;ctx.save();ctx.translate(GM.mx,GM.my);ctx.rotate(tilt*Math.PI/180);if(iCreature.src&&iCreature.complete)ctx.drawImage(iCreature,-pSize/2,-pSize/2,pSize,pSize);if(iAvatar.src&&iAvatar.complete)ctx.drawImage(iAvatar,-avatarSize/2,-pSize*.4,avatarSize,avatarSize);ctx.restore()}}
 function preGameLoop(){if(GM.run)return;requestAnimationFrame(preGameLoop);GM.bgY+=.5;ctx.clearRect(0,0,W,H);drawBg()}
@@ -517,10 +568,14 @@ GM.reset();
         
         const statusDiv = document.getElementById('generation-status');
         statusDiv.style.display = 'block';
-        setTimeout(() => { statusDiv.style.display = 'none'; }, 4000);
         
         document.getElementById('finalCode').value = CODE;
         document.getElementById('copySection').style.display = 'block';
+        
+        // Scroll to bottom
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        
+        setTimeout(() => { statusDiv.style.display = 'none'; }, 5000);
     }
 
     function doCopy() {
