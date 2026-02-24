@@ -2,270 +2,307 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Конструктор образовательной игры ULTRA</title>
+<title>Конструктор игры</title>
+
 <style>
-body{margin:0;font-family:Arial;background:#f4f6f9}
-.container{display:flex;height:100vh}
-.editor{width:40%;padding:15px;overflow:auto;background:#fff;border-right:2px solid #ddd}
-.preview{flex:1;background:#000}
-h2{margin:10px 0}
-input,button{margin:5px 0;padding:6px;width:100%;box-sizing:border-box}
-button{cursor:pointer}
-.grid5{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
-.thumb{position:relative;border:2px solid #ccc;border-radius:6px;overflow:hidden}
-.thumb img{width:100%;height:70px;object-fit:cover}
-.thumb span{position:absolute;top:0;right:0;background:red;color:#fff;font-size:12px;padding:2px 5px;cursor:pointer}
-iframe{width:100%;height:100%;border:0}
+body{
+    margin:0;
+    font-family:Arial, sans-serif;
+    background:#0f172a;
+    color:#fff;
+}
+
+#editor{
+    width:400px;
+    height:100vh;
+    overflow:auto;
+    padding:20px;
+    box-sizing:border-box;
+    background:#111827;
+    float:left;
+}
+
+#preview{
+    margin-left:400px;
+    height:100vh;
+    background:#000;
+    position:relative;
+}
+
+canvas{
+    display:block;
+}
+
+input,textarea,select,button{
+    width:100%;
+    margin-bottom:10px;
+    padding:6px;
+    box-sizing:border-box;
+}
+
+button{
+    background:#2563eb;
+    border:none;
+    color:#fff;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#1d4ed8;
+}
+
+#quiz-box{
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    background:rgba(0,0,0,0.55);
+    backdrop-filter:blur(8px);
+    padding:20px;
+    display:none;
+}
 </style>
 </head>
+
 <body>
 
-<div class="container">
-<div class="editor">
+<div id="editor">
+<h2>Редактор</h2>
 
-<h2>Фон</h2>
-<input type="file" id="bgUpload">
+<label>Фон</label>
+<input type="file" id="bgInput">
 
-<h2>Задания</h2>
-<div id="tasks"></div>
-<button onclick="addTask()">Добавить задание</button>
+<label>Монета</label>
+<input type="file" id="coinInput">
 
-<h2>АВАТАРЫ (до 5)</h2>
-<input type="file" id="avatarUpload">
-<div id="avatarList" class="grid5"></div>
+<label>Препятствие</label>
+<input type="file" id="obsInput">
 
-<h2>СУЩЕСТВА (до 5)</h2>
-<input type="file" id="creatureUpload">
-<div id="creatureList" class="grid5"></div>
+<label>Скорость</label>
+<input type="range" id="speed" min="1" max="10" value="3">
 
-<button onclick="exportGame()">Экспортировать игру</button>
+<label>Размер объектов</label>
+<input type="range" id="objScale" min="0.5" max="2" step="0.1" value="1">
 
+<label>Задания (вопрос|ответ)</label>
+<textarea id="questions" rows="6"></textarea>
+
+<button onclick="generate()">Сгенерировать</button>
 </div>
 
-<div class="preview">
-<iframe id="gameFrame"></iframe>
-</div>
+<div id="preview">
+<canvas id="pCanvas"></canvas>
+<div id="quiz-box"></div>
 </div>
 
 <script>
-const STATE={background:null,tasks:[],avatars:[],creatures:[]}
-const frame=document.getElementById("gameFrame")
+const pCanvas = document.getElementById("pCanvas");
+const pCtx = pCanvas.getContext("2d");
 
-function updatePreview(){frame.contentWindow.postMessage({type:"update",state:STATE},"*")}
-let t;function autoUpdate(){clearTimeout(t);t=setTimeout(updatePreview,300)}
+let W,H;
 
-function addTask(){STATE.tasks.push({q:"",a:""});renderTasks();autoUpdate()}
-function renderTasks(){
-const box=document.getElementById("tasks");box.innerHTML=""
-STATE.tasks.forEach((t,i)=>{
-let q=document.createElement("input")
-q.placeholder="Вопрос";q.value=t.q
-q.oninput=e=>{STATE.tasks[i].q=e.target.value;autoUpdate()}
-let a=document.createElement("input")
-a.placeholder="Ответ";a.value=t.a
-a.oninput=e=>{STATE.tasks[i].a=e.target.value;autoUpdate()}
-box.appendChild(q);box.appendChild(a)
-})
+function resize(){
+    W = pCanvas.width = window.innerWidth - 400;
+    H = pCanvas.height = window.innerHeight;
 }
-function renderImages(list,container,key){
-container.innerHTML=""
-list.forEach((src,i)=>{
-let div=document.createElement("div")
-div.className="thumb"
-div.innerHTML='<img src="'+src+'"><span>x</span>'
-div.querySelector("span").onclick=()=>{
-STATE[key].splice(i,1)
-renderImages(STATE[key],container,key)
-autoUpdate()
-}
-container.appendChild(div)
-})
-}
-bgUpload.onchange=e=>{
-let r=new FileReader()
-r.onload=()=>{STATE.background=r.result;autoUpdate()}
-r.readAsDataURL(e.target.files[0])
-}
-avatarUpload.onchange=e=>{
-if(STATE.avatars.length>=5)return
-let r=new FileReader()
-r.onload=()=>{STATE.avatars.push(r.result);renderImages(STATE.avatars,avatarList,"avatars");autoUpdate()}
-r.readAsDataURL(e.target.files[0])
-}
-creatureUpload.onchange=e=>{
-if(STATE.creatures.length>=5)return
-let r=new FileReader()
-r.onload=()=>{STATE.creatures.push(r.result);renderImages(STATE.creatures,creatureList,"creatures");autoUpdate()}
-r.readAsDataURL(e.target.files[0])
-}
+window.onresize = resize;
+resize();
 
-function exportGame(){
-const blob=new Blob([frame.srcdoc],{type:"text/html"})
-const a=document.createElement("a")
-a.href=URL.createObjectURL(blob)
-a.download="game.html"
-a.click()
+let pImg = {
+    bg:new Image(),
+    coin:new Image(),
+    obs:new Image()
+};
+
+bgInput.onchange = e=>{
+    pImg.bg.src = URL.createObjectURL(e.target.files[0]);
+};
+coinInput.onchange = e=>{
+    pImg.coin.src = URL.createObjectURL(e.target.files[0]);
+};
+obsInput.onchange = e=>{
+    pImg.obs.src = URL.createObjectURL(e.target.files[0]);
+};
+
+let pBgX=0,pBgY=0;
+let pFrame=0;
+
+function previewLoop(){
+    requestAnimationFrame(previewLoop);
+    pFrame++;    pCtx.clearRect(0,0,W,H);
+
+    // бесконечный фон в preview
+    if(pImg.bg.src && pImg.bg.complete && pImg.bg.width>0){
+        let bw=pImg.bg.width;
+        let bh=pImg.bg.height;
+
+        let offsetX=pBgX % bw;
+        let offsetY=pBgY % bh;
+
+        for(let x=-bw;x<W+bw;x+=bw){
+            for(let y=-bh;y<H+bh;y+=bh){
+                pCtx.drawImage(pImg.bg,x+offsetX,y+offsetY,bw,bh);
+            }
+        }
+    }else{
+        pCtx.fillStyle="#000";
+        pCtx.fillRect(0,0,W,H);
+    }
+
+    pBgX-=0.5;
+    pBgY-=0.2;
+
+    // простые демонстрационные объекты
+    if(pImg.coin.complete){
+        pCtx.drawImage(pImg.coin,W/2-40,H/2-40,80,80);
+    }
+
+    if(pImg.obs.complete){
+        pCtx.drawImage(pImg.obs,W/2+120,H/2-40,80,80);
+    }
+
 }
+previewLoop();
 
-/* ---------------- GAME ENGINE ULTRA ---------------- */
+function parseQuestions(){
+    let raw=document.getElementById("questions").value.trim();
+    if(!raw)return [];
+    return raw.split("\n").map(l=>{
+        let parts=l.split("|");
+        return {q:parts[0],a:parts[1]};
+    }).filter(x=>x.q && x.a);
+}function generate(){
 
-frame.srcdoc=\`
-<!DOCTYPE html>
-<html>
-<head>
-<style>
-body{margin:0;overflow:hidden;background:#000;color:#fff;font-family:Arial}
-#bg1,#bg2{position:absolute;width:200%;height:100%;background-size:cover;background-repeat:repeat-x}
-#bg1{animation:bg1 30s linear infinite;opacity:0.6}
-#bg2{animation:bg2 15s linear infinite}
-@keyframes bg1{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-@keyframes bg2{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-.entity{position:absolute;width:100px;height:100px}
-.coin{position:absolute;width:40px;height:40px;animation:spin 1s linear infinite}
-@keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
-.obstacle{position:absolute;width:60px;height:200px;background:red}
-#ui{position:absolute;top:10px;left:10px}
-.overlay{position:absolute;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.7)}
-button{padding:10px 20px}
-.taskBox{position:absolute;top:30%;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.8);padding:20px;border-radius:15px}
-</style>
-</head>
-<body>
-<div id="bg1"></div>
-<div id="bg2"></div>
-<div id="ui"></div>
-<div id="game"></div>
-<div id="overlay" class="overlay"></div>
+const CFG={
+    speed:parseInt(document.getElementById("speed").value),
+    objScale:parseFloat(document.getElementById("objScale").value),
+    qs:parseQuestions()
+};
 
-<script>
-let DATA=null
-let y=200,velocity=0,gravity=0.6,jump=-10
-let timer=0,coinsCollected=0
-let recordList=JSON.parse(localStorage.getItem("records")||"[]")
-let speed=2
-let interval
+const ctx=pCtx;
 
-window.onmessage=e=>{
-if(e.data.type==="update"){DATA=e.data.state;init()}
-}
+let GM={
+    mx:0,
+    my:0,
+    bgX:0,
+    bgY:0,
+    objs:[],
+    frame:0,
+    score:0,
+    activeQuestion:null
+};
 
-function init(){
-if(!DATA)return
-bg1.style.backgroundImage="url("+DATA.background+")"
-bg2.style.backgroundImage="url("+DATA.background+")"
-overlay.innerHTML='<button onclick="start()">СТАРТ</button>'
+// создаем монеты = количеству вопросов
+for(let i=0;i<CFG.qs.length;i++){
+    GM.objs.push({
+        x:(Math.random()-0.5)*W*2,
+        y:(Math.random()-0.5)*H*2,
+        t:'c'
+    });
 }
 
-function start(){
-overlay.style.display="none"
-game.innerHTML=""
-timer=0;coinsCollected=0;speed=2
-
-let entity=document.createElement("div")
-entity.className="entity"
-entity.id="player"
-entity.innerHTML='<img src="'+DATA.creatures[0]+'" style="width:100%"><img src="'+DATA.avatars[0]+'" style="position:absolute;width:60%;top:20%;left:20%">'
-game.appendChild(entity)
-
-spawnLevel()
-document.onkeydown=e=>{if(e.code==="Space")velocity=jump}
-interval=setInterval(update,20)
+// добавляем препятствия
+for(let i=0;i<6;i++){
+    GM.objs.push({
+        x:(Math.random()-0.5)*W*2,
+        y:(Math.random()-0.5)*H*2,
+        t:'o'
+    });
 }
 
-function spawnLevel(){
-DATA.tasks.forEach((t,i)=>{
-let coin=document.createElement("img")
-coin.src="https://cdn-icons-png.flaticon.com/512/138/138292.png"
-coin.className="coin"
-coin.style.left=(500+i*300)+"px"
-coin.style.top=(Math.random()*400)+"px"
-coin.dataset.index=i
-game.appendChild(coin)
-})
-for(let i=0;i<5;i++){
-let obs=document.createElement("div")
-obs.className="obstacle"
-obs.style.left=(600+i*400)+"px"
-obs.style.top=(Math.random()>0.5?0:300)+"px"
-game.appendChild(obs)
-}
-}
+window.onmousemove=e=>{
+    GM.mx=e.clientX-400-W/2;
+    GM.my=e.clientY-H/2;
+};
 
-function update(){
-velocity+=gravity
-y+=velocity
-let player=document.getElementById("player")
-player.style.top=y+"px"
-player.style.left="150px"
+function loop(){
+    requestAnimationFrame(loop);
+    GM.frame++;
 
-timer+=0.02
-speed+=0.0005
+    ctx.clearRect(0,0,W,H);
 
-ui.innerHTML="Время: "+timer.toFixed(1)+" | Монеты: "+coinsCollected+"/"+DATA.tasks.length
+    // бесконечный фон
+    if(pImg.bg.src && pImg.bg.complete && pImg.bg.width>0){
+        let bw=pImg.bg.width;
+        let bh=pImg.bg.height;
 
-document.querySelectorAll(".coin,.obstacle").forEach(el=>{
-el.style.left=(parseFloat(el.style.left)-speed)+"px"
-})
+        let offsetX=GM.bgX % bw;
+        let offsetY=GM.bgY % bh;
 
-checkCollisions(player)
+        for(let x=-bw;x<W+bw;x+=bw){
+            for(let y=-bh;y<H+bh;y+=bh){
+                ctx.drawImage(pImg.bg,x+offsetX,y+offsetY,bw,bh);
+            }
+        }
+    }else{
+        ctx.fillStyle="#000";
+        ctx.fillRect(0,0,W,H);
+    }
 
-if(y>window.innerHeight-100||y<0)gameOver()
-}
+    GM.bgX-=CFG.speed*0.5;
+    GM.bgY-=CFG.speed*0.2;
 
-function checkCollisions(player){
-document.querySelectorAll(".coin").forEach(c=>{
-if(hit(player,c)){
-showTask(DATA.tasks[c.dataset.index])
-c.remove()
-}
-})
-document.querySelectorAll(".obstacle").forEach(o=>{
-if(hit(player,o))gameOver()
-})
-}
+    // объекты
+    GM.objs.forEach(o=>{
 
-function hit(a,b){
-let r1=a.getBoundingClientRect(),r2=b.getBoundingClientRect()
-return!(r2.left>r1.right||r2.right<r1.left||r2.top>r1.bottom||r2.bottom<r1.top)
-}
+        let sx=o.x-GM.mx+W/2;
+        let sy=o.y-GM.my+H/2;
+        let size=80*CFG.objScale;
 
-function showTask(task){
-clearInterval(interval)
-let box=document.createElement("div")
-box.className="taskBox"
-box.innerHTML='<div>'+task.q+'</div><input id="ans"><button onclick="checkAnswer(\\''+task.a+'\\')">OK</button>'
-game.appendChild(box)
-}
+        if(o.t==='c' && pImg.coin.complete){
+            ctx.drawImage(pImg.coin,sx-size/2,sy-size/2,size,size);
+        }
 
-function checkAnswer(a){
-if(document.getElementById("ans").value==a){
-coinsCollected++
-document.querySelector(".taskBox").remove()
-if(coinsCollected==DATA.tasks.length)win()
-else interval=setInterval(update,20)
-}else alert("Неверно")
+        if(o.t==='o' && pImg.obs.complete){
+            ctx.drawImage(pImg.obs,sx-size/2,sy-size/2,size,size);
+        }
+
+        let dist=Math.hypot(o.x-GM.mx,o.y-GM.my);
+
+        if(dist<60 && !GM.activeQuestion){
+
+            if(o.t==='c' && CFG.qs.length>0){
+                GM.activeQuestion=CFG.qs.shift();
+                showQuestion(GM.activeQuestion);
+                o.remove=true;
+            }
+
+            if(o.t==='o'){
+                GM.score=Math.max(0,GM.score-1);
+                o.remove=true;
+            }
+        }
+
+    });
+
+    GM.objs=GM.objs.filter(o=>!o.remove);
+
+    ctx.fillStyle="#fff";
+    ctx.fillText("Счет: "+GM.score,20,30);
 }
 
-function win(){
-clearInterval(interval)
-recordList.push(timer)
-recordList.sort((a,b)=>a-b)
-recordList=recordList.slice(0,5)
-localStorage.setItem("records",JSON.stringify(recordList))
-overlay.style.display="flex"
-overlay.innerHTML="<h1>ПОБЕДА!</h1><div>ТОП-5:<br>"+recordList.map(r=>r.toFixed(1)).join("<br>")+"</div><button onclick='start()'>Снова</button>"
+function showQuestion(q){
+    const box=document.getElementById("quiz-box");
+    box.innerHTML=`
+        <div>${q.q}</div>
+        <input id="ans">
+        <button onclick="checkAnswer('${q.a}')">Ответить</button>
+    `;
+    box.style.display="block";
 }
 
-function gameOver(){
-clearInterval(interval)
-overlay.style.display="flex"
-overlay.innerHTML="<h1>ПОРАЖЕНИЕ</h1><button onclick='start()'>Попробовать снова</button>"
+window.checkAnswer=function(a){
+    const val=document.getElementById("ans").value.trim();
+    if(val===a){
+        GM.score++;
+    }
+    document.getElementById("quiz-box").style.display="none";
+    GM.activeQuestion=null;
+};
+
+loop();
 }
-<\/script>
-</body>
-</html>
-\`
+
 </script>
 </body>
 </html>
