@@ -130,16 +130,14 @@
 </div>
 
 <script>
-    // Asset and language management logic (mostly unchanged)
     const assets = { bg: null, obs: null, coin: null, music: null, avatars: [], creatures: [] };
     let currentLang = 'ru';
     const pImg = { bg: new Image(), obs: new Image(), coin: new Image(), avatars: [], creatures: [] };
     const dict = { ru: { title: "Полет Аватара: Мастер", sec_visual: "👁️ Визуал", lbl_size: "Размер аватара/существа:", lbl_obj_size: "Размер препятствий/монет:", lbl_speed: "Скорость аватара:", sec_settings: "⚙️ Настройки и Ресурсы", lbl_gameTitle: "Заголовок:", lbl_btnStart: "Кнопка Старт:", lbl_win: "Текст победы:", lbl_lose: "Текст поражения:", lbl_time: "Время (с):", lbl_bg: "Фон (бесшовный):", lbl_obs: "Препятствие:", lbl_coin: "Монета:", lbl_music: "Музыка:", sec_questions: "❓ Список вопросов", lbl_avatars: "Аватары (до 6 шт.):", lbl_creatures: "Существа (до 6 шт.):", help_q: "Формат: Вопрос | Правильный | Неверный 1 | Неверный 2", btn_gen: "🚀 СОЗДАТЬ ИГРУ", btn_copy: "СКОПИРОВАТЬ КОД", btn_copied: "СКОПИРОВАНО!", lbl_copy_hint: "Вставьте этот код в Genially (Insert -> Others) и растяните на весь слайд.", warn_size: "💡 Совет: Сжимайте изображения (tinypng.com) и используйте бесшовные текстуры для фона!", val_title: "ПОДВОДНЫЙ МИР", val_start: "ИГРАТЬ", val_win: "ПОБЕДА!", val_lose: "ПОПРОБУЙ ЕЩЕ", game_avatar: "АВАТАР", game_creature: "СУЩЕСТВО", status_avatar_loaded: "Аватар", status_creature_loaded: "Существо", status_loaded: "загружен", err_max_files: "Можно загрузить не более 6 файлов." }, en: { title: "Avatar Flight: Master", sec_visual: "👁️ Visuals", lbl_size: "Avatar/Creature Size:", lbl_obj_size: "Objects Size:", lbl_speed: "Avatar Speed:", sec_settings: "⚙️ Settings & Resources", lbl_gameTitle: "Title:", lbl_btnStart: "Start Button:", lbl_win: "Win Text:", lbl_lose: "Lose Text:", lbl_time: "Time (s):", lbl_bg: "Background (seamless):", lbl_obs: "Obstacle:", lbl_coin: "Coin:", lbl_music: "Music:", sec_questions: "❓ Questions List", lbl_avatars: "Avatars (up to 6):", lbl_creatures: "Creatures (up to 6):", help_q: "Format: Question | Correct | Wrong 1 | Wrong 2", btn_gen: "🚀 CREATE GAME", btn_copy: "COPY CODE", btn_copied: "COPIED!", lbl_copy_hint: "Paste into Genially (Insert -> Others) and stretch full screen.", warn_size: "💡 Tip: Compress images (tinypng.com) and use seamless textures for backgrounds!", val_title: "DEEP SEA", val_start: "PLAY", val_win: "VICTORY!", val_lose: "TRY AGAIN", game_avatar: "AVATAR", game_creature: "CREATURE", status_avatar_loaded: "Avatar", status_creature_loaded: "Creature", status_loaded: "loaded", err_max_files: "You can upload a maximum of 6 files." } };
-    function setLang(lang) { currentLang = lang; document.querySelectorAll('[data-key]').forEach(el => { const key = el.dataset.key; if (dict[lang][key]) el.innerText = dict[lang][key]; }); document.getElementById('btn-ru').className = lang === 'ru' ? 'active' : ''; document.getElementById('btn-en').className = lang === 'en' ? 'active' : ''; const d = dict[lang]; document.getElementById('txtTitle').value = d.val_title; document.getElementById('txtStart').value = d.val_start; document.getElementById('txtWin').value = d.val_win; document.getElementById('txtLose').value = d.val_lose; document.getElementById('bulkQuestions').placeholder = d.ph_bulk; document.getElementById('copyBtn').className = 'btn-copy'; document.getElementById('copyText').innerText = d.btn_copy; }
+    function setLang(lang) { currentLang = lang; document.querySelectorAll('[data-key]').forEach(el => { const key = el.dataset.key; if (dict[lang][key]) el.innerText = dict[lang][key]; }); document.getElementById('btn-ru').className = lang === 'ru' ? 'active' : ''; document.getElementById('btn-en').className = lang === 'en' ? 'active' : ''; const d = dict[lang]; document.getElementById('txtTitle').value = d.val_title; document.getElementById('txtStart').value = d.val_start; document.getElementById('txtWin').value = d.val_win; document.getElementById('txtLose').value = d.val_lose; document.getElementById('bulkQuestions').placeholder = d.ph_bulk; const copyBtn = document.getElementById('copyBtn'); copyBtn.classList.remove('success'); document.getElementById('copyText').innerText = d.btn_copy; document.getElementById('copyIcon').innerText = '📋'; }
     function loadSingleAsset(key, isImg = true) { const input = document.getElementById('f' + key.charAt(0).toUpperCase() + key.slice(1)); if (input.files && input.files[0]) { const reader = new FileReader(); reader.onload = e => { assets[key] = e.target.result; if(isImg) { pImg[key].src = e.target.result; } }; reader.readAsDataURL(input.files[0]); } }
     function loadMultipleAssets(key, previewId) { const input = document.getElementById('f' + key.charAt(0).toUpperCase() + key.slice(1)); const previewContainer = document.getElementById(previewId); const MAX_FILES = 6; if (assets[key].length >= MAX_FILES) { alert(dict[currentLang].err_max_files); return; } const filesToLoad = Array.from(input.files).slice(0, MAX_FILES - assets[key].length); filesToLoad.forEach(file => { const reader = new FileReader(); const currentAssetIndex = assets[key].length; const itemDiv = document.createElement('div'); itemDiv.className = 'preview-item'; const img = document.createElement('img'); const statusSpan = document.createElement('span'); statusSpan.className = 'status-text'; itemDiv.appendChild(img); itemDiv.appendChild(statusSpan); previewContainer.appendChild(itemDiv); assets[key].push(null); pImg[key].push(null); reader.onload = e => { const dataUrl = e.target.result; assets[key][currentAssetIndex] = dataUrl; const pImage = new Image(); pImage.src = dataUrl; pImg[key][currentAssetIndex] = pImage; img.src = dataUrl; const typeText = key === 'avatars' ? dict[currentLang].status_avatar_loaded : dict[currentLang].status_creature_loaded; statusSpan.innerText = `✅ ${typeText} ${currentAssetIndex + 1} ${dict[currentLang].status_loaded}`; }; reader.readAsDataURL(file); }); }
     
-    // New Preview Canvas Logic
     const pCanvas = document.getElementById('previewCanvas');
     const pCtx = pCanvas.getContext('2d');
     let pObjs = [], pPlayer = {x:0, y:0, tx: 0, ty: 0}, pCam = {x:0, y:0}, pFrame = 0;
@@ -148,14 +146,9 @@
         if(!pCanvas.parentElement) return;
         let W = pCanvas.width = pCanvas.parentElement.offsetWidth;
         let H = pCanvas.height = pCanvas.parentElement.offsetHeight;
-        pPlayer.x = pPlayer.tx = W / 2;
-        pPlayer.y = pPlayer.ty = H / 2;
+        pPlayer.x = pPlayer.tx = W / 2; pPlayer.y = pPlayer.ty = H / 2;
         pCam.x = pPlayer.x; pCam.y = pPlayer.y;
-        pObjs = Array(20).fill().map(() => ({
-            x: (Math.random() - 0.5) * W * 2,
-            y: (Math.random() - 0.5) * H * 2,
-            t: Math.random() > 0.5 ? 'c' : 'o'
-        }));
+        pObjs = Array(20).fill().map(() => ({ x: (Math.random() - 0.5) * W * 2, y: (Math.random() - 0.5) * H * 2, t: Math.random() > 0.5 ? 'c' : 'o' }));
         if (pFrame === 0) previewLoop();
     }
 
@@ -165,31 +158,21 @@
         let W = pCanvas.width, H = pCanvas.height;
         pCtx.clearRect(0,0,W,H);
         
-        const speed = parseFloat(document.getElementById('speedRange').value) * 0.5;
-        pPlayer.x += (pPlayer.tx - pPlayer.x) * 0.1;
-        pPlayer.y += (pPlayer.ty - pPlayer.y) * 0.1;
-        pCam.x += (pPlayer.x - pCam.x) * 0.1;
-        pCam.y += (pPlayer.y - pCam.y) * 0.1;
+        pPlayer.x += (pPlayer.tx - pPlayer.x) * 0.1; pPlayer.y += (pPlayer.ty - pPlayer.y) * 0.1;
+        pCam.x += (pPlayer.x - pCam.x) * 0.1; pCam.y += (pPlayer.y - pCam.y) * 0.1;
 
-        if (pFrame % 100 === 0) {
-            pPlayer.tx = Math.random() * W;
-            pPlayer.ty = Math.random() * H;
-        }
+        if (pFrame % 100 === 0) { pPlayer.tx = Math.random() * W; pPlayer.ty = Math.random() * H; }
 
         pCtx.save();
         pCtx.translate(W/2 - pCam.x, H/2 - pCam.y);
 
         if(pImg.bg.src && pImg.bg.complete) {
-            let bgW = pImg.bg.width, bgH = pImg.bg.height;
             let ptrn = pCtx.createPattern(pImg.bg, 'repeat');
             if(ptrn) { pCtx.fillStyle = ptrn; pCtx.fillRect(pCam.x-W, pCam.y-H, W*2, H*2); }
         } else { pCtx.fillStyle= '#030c1f'; pCtx.fillRect(pCam.x-W, pCam.y-H, W*2, H*2); }
 
         const objScale = parseFloat(document.getElementById('objSizeRange').value);
-        pObjs.forEach(o => {
-            let img = (o.t === 'c') ? pImg.coin : pImg.obs;
-            if (img && img.complete) pCtx.drawImage(img, o.x - 25 * objScale, o.y - 25 * objScale, 50 * objScale, 50 * objScale);
-        });
+        pObjs.forEach(o => { let img = (o.t === 'c') ? pImg.coin : pImg.obs; if (img && img.complete) pCtx.drawImage(img, o.x - 25 * objScale, o.y - 25 * objScale, 50 * objScale, 50 * objScale); });
 
         const pSize = 60 * parseFloat(document.getElementById('sizeRange').value);
         const creatureImg = pImg.creatures.length > 0 ? pImg.creatures[0] : null;
@@ -204,11 +187,9 @@
         pCtx.restore();
         pFrame++;
     }
-
-    initPreview();
-    new ResizeObserver(() => initPreview()).observe(pCanvas.parentElement);
     
     function parseQuestions() { return document.getElementById('bulkQuestions').value.trim().split('\n').filter(l => l.trim() !== '').map((l, i) => { const p = l.split('|').map(s => s.trim()); return p.length > 2 ? {t:p[0],type:'choice',c:p[1],w:p.slice(2),id:i} : {t:p[0],type:'input',c:p[1],id:i}; }); }
+    
     function generate() {
         const configJson = JSON.stringify({ title: document.getElementById('txtTitle').value, btn: document.getElementById('txtStart').value, win: document.getElementById('txtWin').value, lose: document.getElementById('txtLose').value, time: document.getElementById('valTime').value, speed: document.getElementById('speedRange').value, scale: document.getElementById('sizeRange').value, objScale: document.getElementById('objSizeRange').value, qs: parseQuestions(), img: assets, lang: {lang: currentLang, dict: dict[currentLang]}});
         const CODE = `<!DOCTYPE html><html><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet"><style>html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#030c1f;color:#cdefff;font-family:'Segoe UI',sans-serif;user-select:none}#game-box{position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;touch-action:none}canvas{display:block;width:100%;height:100%;pointer-events:none}.hud{position:absolute;top:15px;font-family:'Orbitron',sans-serif;color:#00e5ff;font-size:clamp(20px,4vw,30px);font-weight:700;text-shadow:0 0 5px #00e5ff,0 0 10px rgba(0,229,255,0.7);padding:5px 15px;background:rgba(10,25,58,0.8);border-radius:10px;border:1px solid rgba(0,229,255,0.3);z-index:50}.screen{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(3,12,31,0.9);backdrop-filter:blur(5px);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;pointer-events:auto;transition:opacity .5s}.screen.hidden{opacity:0;pointer-events:none}h1{font-family:'Orbitron',sans-serif;color:#00e5ff;font-size:clamp(35px,7vw,70px);text-transform:uppercase;text-shadow:0 0 8px #00e5ff,0 0 20px rgba(0,229,255,0.8),0 0 35px rgba(0,229,255,0.6);margin:20px;text-align:center;position:relative}#char-select-screen h1{cursor:pointer;transition:all .5s}#char-select-screen h1:hover{transform:scale(1.05);filter:blur(1px)}#char-select-screen h1::after{content:'';position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:0;height:2px;background:#00e5ff;transition:width .5s}#char-select-screen h1:hover::after{width:100%}@keyframes bubbles{0%{transform:translateY(0) scale(0);opacity:0}50%{opacity:0.8}100%{transform:translateY(-100px) scale(1.5);opacity:0}}.bubble{position:absolute;background:rgba(0,229,255,0.3);border-radius:50%;width:10px;height:10px;animation:bubbles 3s ease-in-out infinite}button.btn-play{font-family:'Orbitron',sans-serif;background:linear-gradient(180deg,#00e5ff,#00a2ff);border:3px solid #fff;padding:15px 60px;color:#fff;font-size:clamp(24px,5vw,40px);font-weight:700;text-transform:uppercase;border-radius:60px;cursor:pointer;box-shadow:0 0 20px rgba(0,229,255,0.7),inset 0 0 10px rgba(255,255,255,0.5);transition:all .2s;text-shadow:1px 1px 2px #000;z-index:200}button.btn-play:hover:not(:disabled){transform:scale(1.05);box-shadow:0 0 35px rgba(0,229,255,1)}button.btn-play:disabled{filter:grayscale(.8) brightness(.7);cursor:not-allowed}#quiz-box{display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:90%;max-width:500px;background:rgba(10,25,58,0.95);border:2px solid #00e5ff;padding:20px;border-radius:15px;text-align:center;z-index:200;box-shadow:0 0 30px rgba(0,229,255,0.5);backdrop-filter:blur(5px)}.selection-container{display:flex;justify-content:center;gap:8vw;width:100%;align-items:flex-start;margin-bottom:50px}.selection-group{display:flex;flex-direction:column;align-items:center;gap:15px}.selection-box{width:clamp(120px,20vw,200px);height:clamp(120px,20vw,200px);border:3px solid #00e5ff;border-radius:20px;box-shadow:0 0 15px #00e5ff,inset 0 0 10px #00e5ff;display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;background:radial-gradient(ellipse at center,rgba(0,229,255,0.15) 0%,rgba(0,0,0,0) 70%)}.selection-box::before{content:attr(data-label);position:absolute;top:-45px;color:#fff;text-transform:uppercase;font-weight:700;font-size:clamp(18px,3vw,26px);text-shadow:0 0 5px #00e5ff,0 0 10px rgba(0,229,255,0.7)}.selection-box img{max-width:80%;max-height:80%;object-fit:contain;transition:transform .3s}.selection-box:hover img{transform:scale(1.1)}.choice-row{display:flex;gap:10px;justify-content:center;max-width:clamp(120px,25vw,250px);padding:5px;box-sizing:border-box;overflow-x:auto;background:rgba(0,0,0,.5);border-radius:10px;min-height:66px}.choice-thumb{width:50px;height:50px;object-fit:cover;border:3px solid rgba(0,229,255,0.3);border-radius:5px;cursor:pointer;transition:all .2s;flex-shrink:0}.choice-thumb:hover{transform:scale(1.1);border-color:#fff}.choice-thumb.active{border-color:#00e5ff;box-shadow:0 0 10px #00e5ff}</style></head><body><div id="game-box"><div class="hud" style="left:15px;display:none">⏱ <span id="ui-time">0</span></div><div class="hud" style="right:15px;display:none">💎 <span id="ui-score">0</span></div><canvas id="cvs"></canvas><div id="char-select-screen" class="screen"><h1 id="mt-title"></h1><div class="selection-container"><div class="selection-group"><div class="selection-box" id="avatar-box"><img id="avatar-display"></div><div id="avatar-choices" class="choice-row"></div></div><div class="selection-group"><div class="selection-box" id="creature-box"><img id="creature-display"></div><div id="creature-choices" class="choice-row"></div></div></div><button id="btn-play-game" class="btn-play" disabled></button></div><div id="scr-end" class="screen hidden"><h1 id="mt-end"></h1><p style="font-size:clamp(20px,4vw,30px);font-family:'Orbitron',sans-serif">РЕЗУЛЬТАТ: <span id="end-score">0</span></p><button id="btn-restart" class="btn-play">↺</button></div><div id="quiz-box"></div></div><script>
@@ -233,6 +214,28 @@ GM.reset();
         document.getElementById('finalCode').value = CODE;
         document.getElementById('copySection').style.display = 'block';
     }
+
+    function doCopy() {
+        const codeElem = document.getElementById('finalCode');
+        codeElem.select();
+        codeElem.setSelectionRange(0, 99999); // For mobile devices
+        try {
+            document.execCommand('copy');
+            const btn = document.getElementById('copyBtn'), span = document.getElementById('copyText'), icon = document.getElementById('copyIcon');
+            btn.classList.add('success'); 
+            span.innerText = dict[currentLang].btn_copied; 
+            icon.innerText = "✅";
+            setTimeout(() => { 
+                btn.classList.remove('success'); 
+                span.innerText = dict[currentLang].btn_copy; 
+                icon.innerText = "📋"; 
+            }, 2000);
+        } catch (err) {
+            console.error('Fallback: Oops, unable to copy', err);
+        }
+    }
+    
+    initPreview();
     setLang('ru');
 </script>
 </body>
