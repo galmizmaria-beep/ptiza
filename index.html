@@ -16,198 +16,189 @@
             --shadow-glow-soft: #00d2ff30;
             --shadow-glow-hard: #00d2ff;
         }
+        html {
+            font-size: 16px; /* Base font size */
+        }
         body { 
             font-family: 'Segoe UI', Tahoma, sans-serif; 
-            background: var(--bg) url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Cdefs%3E%3CradialGradient id="grad" cx="50%25" cy="50%25" r="50%25"%3E%3Cstop offset="0%25" stop-color="%23fff" stop-opacity="0.2" /%3E%3Cstop offset="100%25" stop-color="%23fff" stop-opacity="0" /%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx="20" cy="30" r="1.5" fill="url(%23grad)"/%3E%3Ccircle cx="80" cy="70" r="1" fill="url(%23grad)"/%3E%3Ccircle cx="50" cy="90" r="0.5" fill="url(%23grad)"/%3E%3Ccircle cx="90" cy="10" r="1.2" fill="url(%23grad)"/%3E%3C/svg%3E');
             color: var(--text); 
             margin: 0; 
-            padding: 20px; 
-            font-size: 14px; 
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #000; /* Letterbox color */
         }
-        .container { max-width: 1600px; margin: 0 auto; }
+        .editor-wrapper {
+            width: 100vw;
+            height: calc(100vw * 9 / 16);
+            max-height: 100vh;
+            max-width: calc(100vh * 16 / 9);
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            background: var(--bg) url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Cdefs%3E%3CradialGradient id="grad" cx="50%25" cy="50%25" r="50%25"%3E%3Cstop offset="0%25" stop-color="%23fff" stop-opacity="0.2" /%3E%3Cstop offset="100%25" stop-color="%23fff" stop-opacity="0" /%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx="20" cy="30" r="1.5" fill="url(%23grad)"/%3E%3Ccircle cx="80" cy="70" r="1" fill="url(%23grad)"/%3E%3Ccircle cx="50" cy="90" r="0.5" fill="url(%23grad)"/%3E%3Ccircle cx="90" cy="10" r="1.2" fill="url(%23grad)"/%3E%3C/svg%3E');
+        }
+        .container { 
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 2vmin;
+            box-sizing: border-box;
+            font-size: 1.5vmin;
+        }
         
         header { 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
             border-bottom: 2px solid var(--border-glow); 
-            padding-bottom: 15px; 
-            margin-bottom: 20px; 
+            padding-bottom: 1.5vmin; 
+            margin-bottom: 1.5vmin; 
             text-shadow: 0 0 10px var(--shadow-glow-hard);
+            flex-shrink: 0;
         }
-        h1 { margin: 0; color: var(--primary); text-transform: uppercase; font-size: 22px; }
-        .lang-switch button { background: #333; color: #fff; border: 1px solid #555; padding: 5px 10px; cursor: pointer; transition: 0.3s; }
+        h1 { margin: 0; color: var(--primary); text-transform: uppercase; font-size: 2.2vmin; }
+        .lang-switch button { background: #333; color: #fff; border: 1px solid #555; padding: 0.5vmin 1vmin; cursor: pointer; transition: 0.3s; font-size: 1.4vmin; }
         .lang-switch button.active { background: var(--primary); color: #000; font-weight: bold; box-shadow: 0 0 10px var(--shadow-glow-hard); }
 
         .main-grid { 
             display: grid; 
-            grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); 
-            grid-template-rows: auto 1fr; 
-            gap: 20px; 
-            height: calc(100vh - 120px); 
+            grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); 
+            grid-template-rows: minmax(0, 1fr) auto auto; 
+            gap: 1.5vmin; 
+            flex-grow: 1;
+            overflow: hidden;
         }
         .card { 
             background: var(--panel); 
-            padding: 20px; 
+            padding: 1.5vmin; 
             border-radius: 10px; 
             border: 1px solid var(--border-glow);
             box-shadow: 0 0 15px var(--shadow-glow-soft), inset 0 0 10px var(--shadow-glow-soft);
             backdrop-filter: blur(5px);
             overflow-y: auto; 
-            transition: all 0.3s ease;
-        }
-        .card:hover {
-            border-color: var(--primary);
-            box-shadow: 0 0 25px var(--shadow-glow-soft), inset 0 0 15px var(--shadow-glow-soft);
+            display: flex;
+            flex-direction: column;
         }
         
         .grid-col-span-2 { grid-column: 1 / -1; }
-        .grid-row-span-2 { grid-row: 1 / -1; }
 
-        h2 { margin-top: 0; color: var(--primary); border-bottom: 1px solid var(--border-glow); padding-bottom: 10px; font-size: 18px; text-shadow: 0 0 5px var(--primary); }
-        h3 { font-size:16px; margin-top:15px; margin-bottom: 10px; color:#fff; border-top: 1px solid var(--border-glow); padding-top: 15px; }
+        h2 { margin-top: 0; color: var(--primary); border-bottom: 1px solid var(--border-glow); padding-bottom: 1vmin; font-size: 1.8vmin; text-shadow: 0 0 5px var(--primary); flex-shrink: 0;}
+        h3 { font-size: 1.6vmin; margin-top: 1.5vmin; margin-bottom: 1vmin; color:#fff; border-top: 1px solid var(--border-glow); padding-top: 1.5vmin; }
 
-        label { display: block; margin-top: 15px; font-weight: bold; color: #aaa; }
-        input[type="text"], input[type="number"], textarea.bulk-input { 
+        label { display: block; margin-top: 1.5vmin; font-weight: bold; color: #aaa; font-size: 1.3vmin; }
+        input[type="text"], input[type="number"] { 
             width: 100%; 
-            padding: 8px; 
-            margin-top: 5px; 
+            padding: 0.8vmin; 
+            margin-top: 0.5vmin; 
             background: #0a0a1a; 
             border: 1px solid #555; 
             color: #fff; 
             border-radius: 4px; 
             box-sizing: border-box; 
-            transition: all 0.3s ease;
         }
-        input:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 10px var(--shadow-glow-hard);
-        }
-        input[type="range"] {
-            width: 100%;
-            margin-top: 8px;
-            margin-bottom: 12px;
-        }
+        input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 10px var(--shadow-glow-hard); }
+        input[type="range"] { width: 100%; margin-top: 0.8vmin; }
 
-        .char-previews { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 5px; min-height: 54px; max-height: 150px; overflow-y: auto; }
+        .char-previews { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 5px; min-height: 54px; overflow-y: auto; }
         .preview-item { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.05); padding: 5px; border-radius: 4px; }
         .preview-item img { width: 40px; height: 40px; object-fit: cover; border: 2px solid var(--primary); border-radius: 5px; flex-shrink: 0; }
         .status-text { font-size: 12px; color: #aaa; }
         .status-text.ok { color: var(--success); }
-        .status-text.error { color: #ff5555; }
 
-        textarea.bulk-input { height: 100%; min-height: 250px; resize: vertical; }
-        .help-text { font-size: 12px; color: #888; margin-top: 5px; line-height: 1.4; }
-        .warn-text { color: #ffab00; font-weight: bold; }
+        #questions-card { grid-row: 2 / 3; }
+        textarea.bulk-input { flex-grow: 1; resize: none; width: 100%; box-sizing: border-box; background: #0a0a1a; border: 1px solid #555; color: #fff; border-radius: 4px; padding: 1vmin; }
+        .help-text { font-size: 1.2vmin; color: #888; margin-top: 5px; line-height: 1.4; }
 
-        #previewContainer { width: 100%; aspect-ratio: 16/9; border: 2px solid var(--primary); position: relative; background: #000; overflow: hidden; margin-bottom: 15px; box-shadow: 0 0 20px var(--shadow-glow-hard); border-radius: 5px;}
+        #previewContainer { width: 100%; flex-grow: 1; aspect-ratio: 16/9; border: 2px solid var(--primary); position: relative; background: #000; overflow: hidden; margin-bottom: 1vmin; box-shadow: 0 0 20px var(--shadow-glow-hard); border-radius: 5px;}
         #previewCanvas { width: 100%; height: 100%; display: block; }
-
-        .btn-main { background: linear-gradient(45deg, var(--primary), #0088ff); color: #fff; border: none; padding: 15px; width: 100%; font-size: 18px; font-weight: bold; cursor: pointer; border-radius: 5px; margin-top: 10px; text-transform: uppercase; transition: 0.3s; text-shadow: 0 0 5px #fff;}
+        
+        #footer-area { grid-row: 3 / 4; }
+        .btn-main { background: linear-gradient(45deg, var(--primary), #0088ff); color: #fff; border: none; padding: 1.5vmin; width: 100%; font-size: 1.8vmin; font-weight: bold; cursor: pointer; border-radius: 5px; text-transform: uppercase; transition: 0.3s; text-shadow: 0 0 5px #fff;}
         .btn-main:hover:not(:disabled) { transform: scale(1.02); box-shadow: 0 0 20px var(--shadow-glow-hard); }
         .btn-main:disabled { filter: grayscale(0.7); cursor: wait; }
         
-        #generation-status { color: var(--success); text-align: center; margin-top: 15px; font-weight: bold; display: none; }
-
-        #copySection { display: none; margin-top: 20px; background: #111; padding: 15px; border-radius: 5px; text-align: center; }
-        .btn-copy { background: #444; color: white; border: 2px solid #666; padding: 12px 30px; font-size: 16px; cursor: pointer; border-radius: 50px; display: inline-flex; align-items: center; gap: 10px; transition: all 0.3s ease; }
-        .btn-copy:hover { box-shadow: 0 0 15px var(--primary);}
-        .btn-copy.success { background: var(--success); color: #000; border-color: var(--success); box-shadow: 0 0 15px var(--success);}
+        #copySection { display: none; margin-top: 1.5vmin; background: #111; padding: 1.5vmin; border-radius: 5px; text-align: center; }
+        .btn-copy { background: #444; color: white; border: 2px solid #666; padding: 1.2vmin 3vmin; font-size: 1.6vmin; cursor: pointer; border-radius: 50px; }
+        .btn-copy.success { background: var(--success); color: #000; border-color: var(--success); }
         .hidden-code { position: absolute; left: -9999px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <header>
-        <h1 data-key="title">Полет Аватара</h1>
-        <div class="lang-switch">
-            <button onclick="setLang('ru')" id="btn-ru" class="active">RU</button>
-            <button onclick="setLang('en')" id="btn-en">EN</button>
-        </div>
-    </header>
+<div class="editor-wrapper">
+    <div class="container">
+        <header>
+            <h1 data-key="title">Полет Аватара</h1>
+            <div class="lang-switch">
+                <button onclick="setLang('ru')" id="btn-ru" class="active">RU</button>
+                <button onclick="setLang('en')" id="btn-en">EN</button>
+            </div>
+        </header>
 
-    <div class="main-grid">
-        <div class="card grid-row-span-2">
-            <h2 data-key="sec_visual">👁️ Визуал</h2>
-            <div id="previewContainer"><canvas id="previewCanvas"></canvas></div>
-            <label data-key="lbl_size">Размер аватара/существа:</label>
-            <input type="range" id="sizeRange" min="0.5" max="2.0" step="0.1" value="1.0">
-            <label data-key="lbl_obj_size">Размер объектов:</label>
-            <input type="range" id="objSizeRange" min="0.5" max="2.0" step="0.1" value="1.0">
-            <label data-key="lbl_speed">Скорость полета:</label>
-            <input type="range" id="speedRange" min="1" max="10" value="3">
+        <div class="main-grid">
+            <div class="card">
+                <h2 data-key="sec_visual">👁️ Визуал</h2>
+                <div id="previewContainer"><canvas id="previewCanvas"></canvas></div>
+                <label data-key="lbl_size">Размер аватара/существа:</label>
+                <input type="range" id="sizeRange" min="0.5" max="2.0" step="0.1" value="1.0">
+                <label data-key="lbl_obj_size">Размер объектов:</label>
+                <input type="range" id="objSizeRange" min="0.5" max="2.0" step="0.1" value="1.0">
+                <label data-key="lbl_speed">Скорость полета:</label>
+                <input type="range" id="speedRange" min="1" max="10" value="3">
+            </div>
+
+            <div class="card">
+                 <h2 data-key="sec_settings">⚙️ Настройки и Ресурсы</h2>
+                 <label data-key="lbl_gameTitle">Заголовок:</label>
+                 <input type="text" id="txtTitle" value="ПОЛЕТ АВАТАРА">
+                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div><label data-key="lbl_btnStart">Кнопка Старт:</label><input type="text" id="txtStart" value="ИГРАТЬ"></div>
+                    <div><label data-key="lbl_time">Время (с):</label><input type="number" id="valTime" value="60"></div>
+                    <div><label data-key="lbl_win">Текст победы:</label><input type="text" id="txtWin" value="ТЫ ПОБЕДИЛ!"></div>
+                    <div><label data-key="lbl_lose">Текст поражения:</label><input type="text" id="txtLose" value="ВРЕМЯ ВЫШЛО"></div>
+                 </div>
+                 <label data-key="lbl_bg">Фон:</label> <input type="file" id="fBg" accept="image/*" onchange="loadSingleAsset('bg')">
+                 <label data-key="lbl_obs">Препятствие:</label> <input type="file" id="fObs" accept="image/*" onchange="loadSingleAsset('obs')">
+                 <label data-key="lbl_coin">Монета (для вопросов):</label> <input type="file" id="fCoin" accept="image/*" onchange="loadSingleAsset('coin')">
+                 <label data-key="lbl_music">Музыка:</label> <input type="file" id="fMusic" accept="audio/*" onchange="loadSingleAsset('music', false)">
+                 <h3>Аватары и Существа</h3>
+                 <label data-key="lbl_avatars">Аватары (до 6 шт.):</label> <input type="file" id="fAvatars" accept="image/*" multiple onchange="loadMultipleAssets('avatars', 'avatar-previews')">
+                 <div id="avatar-previews" class="char-previews"></div>
+                 <label data-key="lbl_creatures">Существа (до 6 шт.):</label> <input type="file" id="fCreatures" accept="image/*" multiple onchange="loadMultipleAssets('creatures', 'creature-previews')">
+                 <div id="creature-previews" class="char-previews"></div>
+            </div>
             
-            <h3>Аватары и Существа</h3>
-            <label data-key="lbl_avatars">Аватары (до 6 шт.):</label>
-            <input type="file" id="fAvatars" accept="image/*" multiple onchange="loadMultipleAssets('avatars', 'avatar-previews')">
-            <div id="avatar-previews" class="char-previews"></div>
-            
-            <label data-key="lbl_creatures">Существа (до 6 шт.):</label>
-            <input type="file" id="fCreatures" accept="image/*" multiple onchange="loadMultipleAssets('creatures', 'creature-previews')">
-            <div id="creature-previews" class="char-previews"></div>
-        </div>
+            <div class="card grid-col-span-2" id="questions-card">
+                <h2 data-key="sec_questions">❓ Список вопросов</h2>
+                <textarea id="bulkQuestions" class="bulk-input" placeholder="..."></textarea>
+                <div class="help-text" data-key="help_q">Формат: Вопрос | Правильный | Неверный 1...</div>
+            </div>
 
-        <div class="card">
-             <h2 data-key="sec_settings">⚙️ Настройки и Ресурсы</h2>
-             <label data-key="lbl_gameTitle">Заголовок:</label>
-             <input type="text" id="txtTitle" value="ПОЛЕТ АВАТАРА">
-             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                <div><label data-key="lbl_btnStart">Кнопка Старт:</label><input type="text" id="txtStart" value="ИГРАТЬ"></div>
-                <div><label data-key="lbl_time">Время (с):</label><input type="number" id="valTime" value="60"></div>
-                <div><label data-key="lbl_win">Текст победы:</label><input type="text" id="txtWin" value="ТЫ ПОБЕДИЛ!"></div>
-                <div><label data-key="lbl_lose">Текст поражения:</label><input type="text" id="txtLose" value="ВРЕМЯ ВЫШЛО"></div>
-             </div>
-             <label data-key="lbl_bg">Фон:</label>
-             <input type="file" id="fBg" accept="image/*" onchange="loadSingleAsset('bg')">
-             <label data-key="lbl_obs">Препятствие:</label>
-             <input type="file" id="fObs" accept="image/*" onchange="loadSingleAsset('obs')">
-             <label data-key="lbl_coin">Монета (для вопросов):</label>
-             <input type="file" id="fCoin" accept="image/*" onchange="loadSingleAsset('coin')">
-             <label data-key="lbl_music">Музыка:</label>
-             <input type="file" id="fMusic" accept="audio/*" onchange="loadSingleAsset('music', false)">
-             
-             <h3 data-key="sec_compress">🖼️ Оптимизация Изображений</h3>
-             <label data-key="lbl_max_dim">Макс. размер (px):</label>
-             <input type="number" id="maxDim" value="1024">
-             <label data-key="lbl_quality">Качество JPEG (0.1-1.0):</label>
-             <input type="range" id="jpegQuality" min="0.1" max="1.0" step="0.1" value="0.7">
-             <p class="help-text" data-key="help_compress">Все загружаемые картинки будут автоматически сжаты.</p>
-        </div>
-
-        <div class="card" style="display:flex; flex-direction:column;">
-            <h2 data-key="sec_questions">❓ Список вопросов</h2>
-            <textarea id="bulkQuestions" class="bulk-input" placeholder="..."></textarea>
-            <div class="help-text" data-key="help_q">Формат: Вопрос | Правильный | Неверный 1...</div>
-        </div>
-
-        <div class="grid-col-span-2">
-             <button id="generateBtn" class="btn-main" onclick="generate()" data-key="btn_gen">🚀 СОЗДАТЬ ИГРУ</button>
-             <div id="generation-status" data-key="gen_status_ok">✅ Игра успешно создана!</div>
-             <div id="copySection">
-                <textarea id="finalCode" class="hidden-code"></textarea>
-                <button class="btn-copy" id="copyBtn" onclick="doCopy()">
-                    <span id="copyIcon">📋</span> <span id="copyText" data-key="btn_copy">СКОПИРОВАТЬ КОД</span>
-                </button>
-                <p class="help-text" data-key="lbl_copy_hint">Вставьте этот код в Genially (Insert -> Others).</p>
+            <div class="grid-col-span-2" id="footer-area">
+                 <button id="generateBtn" class="btn-main" onclick="generate()" data-key="btn_gen">🚀 СОЗДАТЬ ИГРУ</button>
+                 <div id="copySection">
+                    <textarea id="finalCode" class="hidden-code"></textarea>
+                    <button class="btn-copy" id="copyBtn" onclick="doCopy()">
+                        <span id="copyIcon">📋</span> <span id="copyText" data-key="btn_copy">СКОПИРОВАТЬ КОД</span>
+                    </button>
+                    <p class="help-text" data-key="lbl_copy_hint">Вставьте этот код в Genially (Insert -> Others).</p>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
+    // NOTE: The JavaScript logic remains largely the same, but the generated game code (`const CODE`) is updated.
     const assets = { bg: null, obs: null, coin: null, music: null, avatars: [], creatures: [] };
     let currentLang = 'ru';
-    let isProcessing = false;
-    const pImg = { 
-        bg: new Image(), 
-        obs: new Image(), 
-        coin: new Image(),
-        avatars: [],
-        creatures: [] 
-    };
-
+    const pImg = { bg: new Image(), obs: new Image(), coin: new Image(), avatars: [], creatures: [] };
     const dict = {
         ru: {
             title: "Полет Аватара: Мастер", sec_visual: "👁️ Визуал",
@@ -223,10 +214,7 @@
             val_title: "ПОЛЕТ АВАТАРА", val_start: "ИГРАТЬ", val_win: "ПОБЕДА!", val_lose: "ВРЕМЯ ВЫШЛО",
             game_avatar: "АВАТАР", game_creature: "СУЩЕСТВО",
             status_avatar_loaded: "Аватар", status_creature_loaded: "Существо",
-            status_loaded: "загружен", status_compressing: "Сжатие...", status_error: "Ошибка!",
-            gen_status_ok: "✅ Игра успешно создана!", err_max_files: "Можно загрузить не более 6 файлов.",
-            sec_compress: "🖼️ Оптимизация Изображений", lbl_max_dim: "Макс. размер (px):",
-            lbl_quality: "Качество JPEG (0.1-1.0):", help_compress: "Все загружаемые картинки будут автоматически сжаты."
+            status_loaded: "загружен", status_compressing: "Сжатие...", status_error: "Ошибка!"
         },
         en: {
             title: "Avatar Flight: Master", sec_visual: "👁️ Visuals",
@@ -242,240 +230,30 @@
             val_title: "AVATAR FLIGHT", val_start: "PLAY", val_win: "YOU WON!", val_lose: "GAME OVER",
             game_avatar: "AVATAR", game_creature: "CREATURE",
             status_avatar_loaded: "Avatar", status_creature_loaded: "Creature",
-            status_loaded: "loaded", status_compressing: "Compressing...", status_error: "Error!",
-            gen_status_ok: "✅ Game created successfully!", err_max_files: "You can upload a maximum of 6 files.",
-            sec_compress: "🖼️ Image Optimization", lbl_max_dim: "Max Dimension (px):",
-            lbl_quality: "JPEG Quality (0.1-1.0):", help_compress: "All uploaded images will be compressed automatically."
+            status_loaded: "loaded", status_compressing: "Compressing...", status_error: "Error!"
         }
     };
-
-    function setLang(lang) {
-        currentLang = lang;
-        document.querySelectorAll('[data-key]').forEach(el => {
-            const key = el.dataset.key;
-            if (dict[lang][key]) el.innerText = dict[lang][key];
-        });
-        document.getElementById('btn-ru').className = lang === 'ru' ? 'active' : '';
-        document.getElementById('btn-en').className = lang === 'en' ? 'active' : '';
-        const d = dict[lang];
-        document.getElementById('txtTitle').value = d.val_title;
-        document.getElementById('txtStart').value = d.val_start;
-        document.getElementById('txtWin').value = d.val_win;
-        document.getElementById('txtLose').value = d.val_lose;
-        document.getElementById('bulkQuestions').placeholder = d.ph_bulk;
-        const btn = document.getElementById('copyBtn');
-        btn.className = 'btn-copy';
-        document.getElementById('copyText').innerText = d.btn_copy;
-    }
-
-    function toggleGenerateButton(enabled) {
-        const btn = document.getElementById('generateBtn');
-        isProcessing = !enabled;
-        btn.disabled = isProcessing;
-        btn.style.cursor = isProcessing ? 'wait' : 'pointer';
-    }
-
-    function compressImage(file, settings) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = event => {
-                const img = new Image();
-                img.src = event.target.result;
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    let { width, height } = img;
-                    const { maxDim, quality } = settings;
-                    if (width > height) {
-                        if (width > maxDim) { height *= maxDim / width; width = maxDim; }
-                    } else {
-                        if (height > maxDim) { width *= maxDim / height; height = maxDim; }
-                    }
-                    canvas.width = width;
-                    canvas.height = height;
-                    ctx.drawImage(img, 0, 0, width, height);
-                    const dataUrl = file.type === 'image/jpeg' ? canvas.toDataURL('image/jpeg', quality) : canvas.toDataURL('image/png');
-                    resolve(dataUrl);
-                };
-                img.onerror = reject;
-            };
-            reader.onerror = reject;
-        });
-    }
-
-    async function loadSingleAsset(key, isImg = true) {
-        const input = document.getElementById('f' + key.charAt(0).toUpperCase() + key.slice(1));
-        if (!input.files || !input.files[0]) return;
-        
-        toggleGenerateButton(false);
-        try {
-            if (isImg) {
-                const file = input.files[0];
-                const settings = {
-                    maxDim: parseInt(document.getElementById('maxDim').value) || 1024,
-                    quality: parseFloat(document.getElementById('jpegQuality').value) || 0.7
-                };
-                const compressedDataUrl = await compressImage(file, settings);
-                assets[key] = compressedDataUrl;
-                pImg[key].src = compressedDataUrl;
-            } else {
-                await new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = e => { assets[key] = e.target.result; resolve(); };
-                    reader.onerror = reject;
-                    reader.readAsDataURL(input.files[0]);
-                });
-            }
-        } catch (error) {
-            console.error("Error processing file:", error);
-            alert("Ошибка при обработке файла.");
-        }
-        toggleGenerateButton(true);
-    }
-    
-    async function loadMultipleAssets(key, previewId) {
-        const input = document.getElementById('f' + key.charAt(0).toUpperCase() + key.slice(1));
-        const previewContainer = document.getElementById(previewId);
-        const MAX_FILES = 6;
-
-        if (assets[key].length >= MAX_FILES) { alert(dict[currentLang].err_max_files); return; }
-
-        const filesToLoad = Array.from(input.files).slice(0, MAX_FILES - assets[key].length);
-        if(filesToLoad.length === 0) return;
-        
-        toggleGenerateButton(false);
-        const settings = {
-            maxDim: parseInt(document.getElementById('maxDim').value) || 1024,
-            quality: parseFloat(document.getElementById('jpegQuality').value) || 0.7
-        };
-
-        for (const file of filesToLoad) {
-            const currentAssetIndex = assets[key].length;
-            assets[key].push(null); pImg[key].push(null);
-
-            const itemDiv = document.createElement('div'); itemDiv.className = 'preview-item';
-            const img = document.createElement('img');
-            const statusSpan = document.createElement('span'); statusSpan.className = 'status-text';
-            statusSpan.innerText = dict[currentLang].status_compressing;
-            itemDiv.append(img, statusSpan);
-            previewContainer.appendChild(itemDiv);
-            
-            try {
-                const compressedDataUrl = await compressImage(file, settings);
-                assets[key][currentAssetIndex] = compressedDataUrl;
-                const pImage = new Image();
-                pImage.src = compressedDataUrl;
-                pImg[key][currentAssetIndex] = pImage;
-                img.src = compressedDataUrl;
-                const typeText = key === 'avatars' ? dict[currentLang].status_avatar_loaded : dict[currentLang].status_creature_loaded;
-                statusSpan.innerText = `✅ ${typeText} ${currentAssetIndex + 1} ${dict[currentLang].status_loaded}`;
-                statusSpan.classList.add('ok');
-            } catch (error) {
-                console.error("Error processing file:", error);
-                statusSpan.innerText = `❌ ${dict[currentLang].status_error}`;
-                statusSpan.classList.add('error');
-            }
-        }
-        toggleGenerateButton(true);
-    }
-    
-    const pCanvas = document.getElementById('previewCanvas');
-    const pCtx = pCanvas.getContext('2d');
-    let pObjs = [], pBgY = 0, pFrame = 0, pMx = 0, pMy = 0, pAutoMoveDir = 1;
-
-    function initPreview() {
-        if(!pCanvas.parentElement) return;
-        pCanvas.width = pCanvas.parentElement.offsetWidth;
-        pCanvas.height = pCanvas.parentElement.offsetHeight;
-        pMx = pCanvas.width / 2;
-        pMy = pCanvas.height * 0.8;
-        if (pFrame === 0) previewLoop();
-    }
-
-    function previewLoop() {
-        if(!pCanvas.parentElement) { pFrame = 0; return; }
-        requestAnimationFrame(previewLoop);
-
-        let W = pCanvas.width, H = pCanvas.height;
-        pCtx.clearRect(0, 0, W, H);
-        const speed = parseInt(document.getElementById('speedRange').value);
-        const scaleUser = parseFloat(document.getElementById('sizeRange').value);
-        const objScale = parseFloat(document.getElementById('objSizeRange').value);
-        const forwardSpeed = (speed) * (1.5 - (pMy / H));
-        
-        pBgY += forwardSpeed * 0.5;
-        if(pImg.bg.src && pImg.bg.complete) {
-            let ptrn = pCtx.createPattern(pImg.bg, 'repeat');
-            if(ptrn) { pCtx.save(); pCtx.translate(0, pBgY % pImg.bg.height); pCtx.fillStyle = ptrn; pCtx.fillRect(0, -pImg.bg.height, W, H + pImg.bg.height*2); pCtx.restore(); }
-        } else { pCtx.fillStyle = '#040a18'; pCtx.fillRect(0,0,W,H); }
-
-        if(pFrame % Math.max(10, (90 - speed*4)) === 0) pObjs.push({x: (Math.random()-0.5)*W, y: (Math.random()-0.5)*H, z: 2000, t: Math.random() > 0.5 ? 'c' : 'o'});
-        
-        pObjs.sort((a,b)=>b.z-a.z);
-        for(let i=pObjs.length-1; i>=0; i--) {
-            let o = pObjs[i]; o.z -= forwardSpeed;
-            if(o.z < 10) { pObjs.splice(i,1); continue; }
-            let scale = 300 / o.z; 
-            let sx = W/2 + o.x * scale;
-            let sy = H/2 + o.y * scale;
-            let size = 80 * scale * objScale, img = (o.t==='c')?pImg.coin:pImg.obs;
-            if(img.src && img.complete) pCtx.drawImage(img, sx-size/2, sy-size/2, size, size);
-        }
-        
-        pMx += pAutoMoveDir * 1.5;
-        if(pMx > W * 0.9 || pMx < W * 0.1) pAutoMoveDir *= -1;
-
-        let depthScale = 0.7 + (pMy / H) * 0.6;
-        let pSize = 80 * scaleUser * depthScale;
-        let creatureImg = pImg.creatures.length > 0 ? pImg.creatures[0] : null;
-        let avatarImg = pImg.avatars.length > 0 ? pImg.avatars[0] : null;
-
-        pCtx.save(); pCtx.translate(pMx, pMy);
-        if(creatureImg && creatureImg.complete) pCtx.drawImage(creatureImg, -pSize/2, -pSize/2, pSize, pSize);
-        if(avatarImg && avatarImg.complete) {
-             const avatarSize = pSize * 0.5;
-             pCtx.drawImage(avatarImg, -avatarSize/2, -pSize*0.4, avatarSize, avatarSize);
-        }
-        pCtx.restore();
-        pFrame++; 
-    }
-    
-    initPreview();
-    new ResizeObserver(() => initPreview()).observe(pCanvas.parentElement);
-    
-    function parseQuestions() {
-        return document.getElementById('bulkQuestions').value.trim().split('\n').filter(l => l.trim() !== '').map((l, i) => {
-            const p = l.split('|').map(s => s.trim());
-            return p.length > 2 ? {t:p[0],type:'choice',c:p[1],w:p.slice(2),id:i} : {t:p[0],type:'input',c:p[1],id:i};
-        });
-    }
-
-    function generate() {
-        const questions = parseQuestions();
-        const langData = { lang: currentLang, dict: dict[currentLang] };
-        const CONFIG = {
-            title: document.getElementById('txtTitle').value, btn: document.getElementById('txtStart').value,
-            win: document.getElementById('txtWin').value, lose: document.getElementById('txtLose').value,
-            time: document.getElementById('valTime').value, speed: document.getElementById('speedRange').value,
-            scale: document.getElementById('sizeRange').value, objScale: document.getElementById('objSizeRange').value,
-            qs: questions, img: assets, lang: langData
-        };
-
-        const configJson = JSON.stringify(CONFIG);
-
-        const CODE = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>@keyframes pulse-title{0%,100%{transform:scale(1);text-shadow:0 0 5px #fff,0 0 10px #fff,0 0 20px #00d2ff,0 0 35px #00d2ff}50%{transform:scale(1.05);text-shadow:0 0 8px #fff,0 0 18px #fff,0 0 35px #00d2ff,0 0 60px #00d2ff}}html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#040a18;color:#e0e0ff;font-family:'Segoe UI',sans-serif;user-select:none}#game-box{position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;touch-action:none;background:url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Cdefs%3E%3CradialGradient id="grad" cx="50%25" cy="50%25" r="50%25"%3E%3Cstop offset="0%25" stop-color="%23fff" stop-opacity="0.1" /%3E%3Cstop offset="100%25" stop-color="%23fff" stop-opacity="0" /%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx="20" cy="30" r="1.5" fill="url(%23grad)"/%3E%3Ccircle cx="80" cy="70" r="1" fill="url(%23grad)"/%3E%3Ccircle cx="50" cy="90" r="0.5" fill="url(%23grad)"/%3E%3Ccircle cx="90" cy="10" r="1.2" fill="url(%23grad)"/%3E%3C/svg%3E')}canvas{display:block;width:100%;height:100%;pointer-events:none;position:absolute;top:0;left:0;z-index:1}.hud{position:absolute;top:10px;color:#00d2ff;font-size:clamp(20px,4vw,30px);font-weight:700;text-shadow:0 0 5px #00d2ff, 2px 2px 0 #000;padding:5px 15px;background:rgba(0,0,0,.6);border-radius:10px;border:1px solid #00d2ff;z-index:50}.screen{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(4,10,24,.7);backdrop-filter:blur(5px);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;pointer-events:auto;transition:opacity .5s}.screen.hidden{opacity:0;pointer-events:none}#mt-title{color:#fff;font-size:clamp(30px,6vw,60px);text-transform:uppercase;text-shadow:0 0 5px #fff,0 0 10px #fff,0 0 20px #00d2ff,0 0 35px #00d2ff;margin:20px;text-align:center;transition:all .3s ease;position:relative;animation:pulse-title 4s infinite ease-in-out}button.btn-play{background:linear-gradient(180deg,#00d2ff,#0088aa);border:4px solid #fff;padding:15px 60px;color:#fff;font-size:clamp(24px,5vw,40px);font-weight:700;text-transform:uppercase;border-radius:60px;cursor:pointer;box-shadow:0 0 15px #00d2ff,0 0 30px #00d2ff;transition:all .2s;text-shadow:1px 1px 2px #000;z-index:200}button.btn-play:hover:not(:disabled){transform:scale(1.05);box-shadow:0 0 25px #00d2ff,0 0 50px #00d2ff}button.btn-play:active:not(:disabled){transform:scale(.95)}button.btn-play:disabled{cursor:not-allowed;filter:grayscale(.8);opacity:.5}#quiz-box{display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:90%;max-width:500px;background:rgba(4,10,24,.95);border:2px solid #00d2ff;padding:20px;border-radius:15px;text-align:center;z-index:200;pointer-events:auto;box-shadow:0 0 20px #000;backdrop-filter:blur(5px)}.q-btn{display:block;width:100%;padding:15px;margin:8px 0;background:#1a1a2d;border:1px solid #00a2ff80;color:#fff;font-size:18px;cursor:pointer;transition:all .2s}.q-btn:hover{background:#00d2ff;color:#000;box-shadow:0 0 10px #00d2ff}input.q-inp{width:80%;padding:10px;font-size:20px;text-align:center;margin-bottom:10px;color:#000}#char-select-screen{justify-content:center;padding-bottom:0}#char-select-screen h1{margin-bottom:50px}.selection-container{display:flex;justify-content:center;gap:5vw;width:100%;align-items:flex-start;margin-bottom:50px}.selection-group{display:flex;flex-direction:column;align-items:center;gap:15px;perspective:1000px}.selection-box{width:clamp(120px,25vw,250px);height:clamp(120px,25vw,250px);border:5px solid #00d2ff;border-radius:20px;box-shadow:0 0 15px #00d2ff,0 0 30px #00d2ff,inset 0 0 10px #00d2ff;display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;background:radial-gradient(ellipse at center,rgba(0,210,255,0.2) 0%,rgba(0,0,0,0) 70%)}.selection-box::before{content:attr(data-label);position:absolute;top:-40px;color:#fff;text-transform:uppercase;font-weight:700;font-size:clamp(16px,3vw,24px);text-shadow:0 0 5px #fff,0 0 10px #00d2ff}.selection-box img{max-width:80%;max-height:80%;object-fit:contain;transition:transform .5s cubic-bezier(.25,1,.5,1);animation:breath 4s infinite ease-in-out;transform-style:preserve-3d}.selection-box img.animate-3d{transform:scale(1.2) rotateY(360deg)!important}@keyframes breath{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}.choice-row{display:flex;gap:10px;justify-content:center;max-width:clamp(120px,25vw,250px);padding:5px;box-sizing:border-box;overflow-x:auto;background:rgba(0,0,0,.5);border-radius:10px;min-height:66px}.choice-thumb{width:50px;height:50px;object-fit:cover;border:3px solid #555;border-radius:5px;cursor:pointer;transition:all .2s;flex-shrink:0}.choice-thumb:hover{transform:scale(1.1);border-color:#fff}.choice-thumb.active{border-color:#00d2ff;box-shadow:0 0 10px #00d2ff}</style></head><body><div id="game-box"><div class="hud" style="left:10px;display:none;z-index:50">⏱ <span id="ui-time">0</span></div><div class="hud" style="right:10px;display:none;z-index:50">🏆 <span id="ui-score">0</span></div><canvas id="cvs"></canvas><div id="char-select-screen" class="screen"><h1 id="mt-title"></h1><div class="selection-container"><div class="selection-group"><div class="selection-box" id="avatar-box"><img id="avatar-display"></div><div id="avatar-choices" class="choice-row"></div></div><div class="selection-group"><div class="selection-box" id="creature-box"><img id="creature-display"></div><div id="creature-choices" class="choice-row"></div></div></div><button id="btn-play-game" class="btn-play" disabled></button></div><div id="scr-end" class="screen hidden"><h1 id="mt-end"></h1><p style="font-size:30px">Score: <span id="end-score">0</span></p><button id="btn-restart" class="btn-play">↺</button></div><div id="quiz-box"><h2 id="q-txt"></h2><div id="q-body"></div></div></div><script>
+    function setLang(lang){currentLang=lang;document.querySelectorAll("[data-key]").forEach(el=>{const key=el.dataset.key;if(dict[lang][key])el.innerText=dict[lang][key]});document.getElementById("btn-ru").className=lang==="ru"?"active":"";document.getElementById("btn-en").className=lang==="en"?"active":"";const d=dict[lang];document.getElementById("txtTitle").value=d.val_title;document.getElementById("txtStart").value=d.val_start;document.getElementById("txtWin").value=d.val_win;document.getElementById("txtLose").value=d.val_lose;document.getElementById("bulkQuestions").placeholder=d.ph_bulk;const btn=document.getElementById("copyBtn");btn.className="btn-copy";document.getElementById("copyText").innerText=d.btn_copy}
+    function compressImage(file){return new Promise((resolve,reject)=>{const reader=new FileReader;reader.readAsDataURL(file);reader.onload=event=>{const img=new Image;img.src=event.target.result;img.onload=()=>{const canvas=document.createElement("canvas"),ctx=canvas.getContext("2d");let{width:width,height:height}=img,maxDim=1024,quality=.7;width>height?width>maxDim&&(height*=maxDim/width,width=maxDim):height>maxDim&&(width*=maxDim/height,height=maxDim);canvas.width=width;canvas.height=height;ctx.drawImage(img,0,0,width,height);const dataUrl="image/jpeg"===file.type?canvas.toDataURL("image/jpeg",quality):canvas.toDataURL("image/png");resolve(dataUrl)};img.onerror=reject};reader.onerror=reject})}
+    async function loadSingleAsset(key,isImg=!0){const input=document.getElementById("f"+key.charAt(0).toUpperCase()+key.slice(1));if(input.files&&input.files[0]){if(isImg){const file=input.files[0],compressedDataUrl=await compressImage(file);assets[key]=compressedDataUrl;pImg[key].src=compressedDataUrl}else await new Promise((resolve,reject)=>{const reader=new FileReader;reader.onload=e=>{assets[key]=e.target.result;resolve()};reader.onerror=reject;reader.readAsDataURL(input.files[0])})}}
+    async function loadMultipleAssets(key,previewId){const input=document.getElementById("f"+key.charAt(0).toUpperCase()+key.slice(1)),previewContainer=document.getElementById(previewId),MAX_FILES=6;if(assets[key].length>=MAX_FILES)return void alert("Max 6 files");const filesToLoad=Array.from(input.files).slice(0,MAX_FILES-assets[key].length);if(0!==filesToLoad.length)for(const file of filesToLoad){const currentAssetIndex=assets[key].length;assets[key].push(null);pImg[key].push(null);const itemDiv=document.createElement("div");itemDiv.className="preview-item";const img=document.createElement("img"),statusSpan=document.createElement("span");statusSpan.className="status-text";statusSpan.innerText=dict[currentLang].status_compressing;itemDiv.append(img,statusSpan);previewContainer.appendChild(itemDiv);try{const compressedDataUrl=await compressImage(file);assets[key][currentAssetIndex]=compressedDataUrl;const pImage=new Image;pImage.src=compressedDataUrl;pImg[key][currentAssetIndex]=pImage;img.src=compressedDataUrl;const typeText="avatars"===key?dict[currentLang].status_avatar_loaded:dict[currentLang].status_creature_loaded;statusSpan.innerText=`✅ ${typeText} ${currentAssetIndex+1} ${dict[currentLang].status_loaded}`;statusSpan.classList.add("ok")}catch(error){statusSpan.innerText=`❌ ${dict[currentLang].status_error}`}}}
+    const pCanvas=document.getElementById("previewCanvas"),pCtx=pCanvas.getContext("2d");let pObjs=[],pBgY=0,pFrame=0,pMx=0,pMy=0,pAutoMoveDir=1;
+    function initPreview(){pCanvas.parentElement&&(pCanvas.width=pCanvas.parentElement.offsetWidth,pCanvas.height=pCanvas.parentElement.offsetHeight,pMx=pCanvas.width/2,pMy=.8*pCanvas.height,0===pFrame&&previewLoop())}
+    function previewLoop(){if(!pCanvas.parentElement)return void(pFrame=0);requestAnimationFrame(previewLoop);let W=pCanvas.width,H=pCanvas.height;pCtx.clearRect(0,0,W,H);const speed=parseInt(document.getElementById("speedRange").value),scaleUser=parseFloat(document.getElementById("sizeRange").value),objScale=parseFloat(document.getElementById("objSizeRange").value),forwardSpeed=speed*(1.5-pMy/H);if(pBgY+=.5*forwardSpeed,pImg.bg.src&&pImg.bg.complete){let ptrn=pCtx.createPattern(pImg.bg,"repeat");ptrn&&(pCtx.save(),pCtx.translate(0,pBgY%pImg.bg.height),pCtx.fillStyle=ptrn,pCtx.fillRect(0,-pImg.bg.height,W,H+2*pImg.bg.height),pCtx.restore())}else pCtx.fillStyle="#040a18",pCtx.fillRect(0,0,W,H);pFrame%Math.max(10,90-4*speed)==0&&pObjs.push({x:(Math.random()-.5)*W,y:(Math.random()-.5)*H,z:2e3,t:Math.random()>.5?"c":"o"});pObjs.sort((a,b)=>b.z-a.z);for(let i=pObjs.length-1;i>=0;i--){let o=pObjs[i];if(o.z-=forwardSpeed,o.z<10){pObjs.splice(i,1);continue}let scale=300/o.z,sx=W/2+o.x*scale,sy=H/2+o.y*scale,size=80*scale*objScale,img="c"===o.t?pImg.coin:pImg.obs;img.src&&img.complete&&pCtx.drawImage(img,sx-size/2,sy-size/2,size,size)}pMx+=1.5*pAutoMoveDir;(pMx> .9*W||pMx< .1*W)&&(pAutoMoveDir*=-1);let depthScale=.7+pMy/H*.6,pSize=80*scaleUser*depthScale,creatureImg=pImg.creatures.length>0?pImg.creatures[0]:null,avatarImg=pImg.avatars.length>0?pImg.avatars[0]:null;pCtx.save();pCtx.translate(pMx,pMy);creatureImg&&creatureImg.complete&&pCtx.drawImage(creatureImg,-pSize/2,-pSize/2,pSize,pSize);if(avatarImg&&avatarImg.complete){const avatarSize=.5*pSize;pCtx.drawImage(avatarImg,-avatarSize/2,-.4*pSize,avatarSize,avatarSize)}pCtx.restore();pFrame++}
+    initPreview();new ResizeObserver(()=>initPreview()).observe(pCanvas.parentElement);
+    function parseQuestions(){return document.getElementById("bulkQuestions").value.trim().split("\n").filter(l=>""!==l.trim()).map((l,i)=>{const p=l.split("|").map(s=>s.trim());return p.length>2?{t:p[0],type:"choice",c:p[1],w:p.slice(2),id:i}:{t:p[0],type:"input",c:p[1],id:i}})}
+    function generate(){const questions=parseQuestions(),langData={lang:currentLang,dict:dict[currentLang]},CONFIG={title:document.getElementById("txtTitle").value,btn:document.getElementById("txtStart").value,win:document.getElementById("txtWin").value,lose:document.getElementById("txtLose").value,time:document.getElementById("valTime").value,speed:document.getElementById("speedRange").value,scale:document.getElementById("sizeRange").value,objScale:document.getElementById("objSizeRange").value,qs:questions,img:assets,lang:langData},configJson=JSON.stringify(CONFIG),CODE=`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>@keyframes pulse-title{0%,100%{transform:scale(1);text-shadow:0 0 5px #fff,0 0 10px #fff,0 0 20px #00d2ff,0 0 35px #00d2ff}50%{transform:scale(1.05);text-shadow:0 0 8px #fff,0 0 18px #fff,0 0 35px #00d2ff,0 0 60px #00d2ff}}html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#040a18;color:#e0e0ff;font-family:'Segoe UI',sans-serif;user-select:none}#game-box{position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;touch-action:none;background:url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Cdefs%3E%3CradialGradient id="grad" cx="50%25" cy="50%25" r="50%25"%3E%3Cstop offset="0%25" stop-color="%23fff" stop-opacity="0.1" /%3E%3Cstop offset="100%25" stop-color="%23fff" stop-opacity="0" /%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx="20" cy="30" r="1.5" fill="url(%23grad)"/%3E%3Ccircle cx="80" cy="70" r="1" fill="url(%23grad)"/%3E%3Ccircle cx="50" cy="90" r="0.5" fill="url(%23grad)"/%3E%3Ccircle cx="90" cy="10" r="1.2" fill="url(%23grad)"/%3E%3C/svg%3E')}canvas{display:block;width:100%;height:100%;pointer-events:none;position:absolute;top:0;left:0;z-index:1}.hud{position:absolute;top:10px;color:#00d2ff;font-size:clamp(20px,4vw,30px);font-weight:700;text-shadow:0 0 5px #00d2ff, 2px 2px 0 #000;padding:5px 15px;background:rgba(0,0,0,.6);border-radius:10px;border:1px solid #00d2ff;z-index:50}.screen{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(4,10,24,.7);backdrop-filter:blur(5px);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;pointer-events:auto;transition:opacity .5s}.screen.hidden{opacity:0;pointer-events:none}#mt-title{color:#fff;font-size:clamp(30px,6vw,60px);text-transform:uppercase;text-shadow:0 0 5px #fff,0 0 10px #fff,0 0 20px #00d2ff,0 0 35px #00d2ff;margin:20px;text-align:center;transition:all .3s ease;position:relative;animation:pulse-title 4s infinite ease-in-out}button.btn-play{background:linear-gradient(180deg,#00d2ff,#0088aa);border:4px solid #fff;padding:15px 60px;color:#fff;font-size:clamp(24px,5vw,40px);font-weight:700;text-transform:uppercase;border-radius:60px;cursor:pointer;box-shadow:0 0 15px #00d2ff,0 0 30px #00d2ff;transition:all .2s;text-shadow:1px 1px 2px #000;z-index:200}button.btn-play:hover:not(:disabled){transform:scale(1.05);box-shadow:0 0 25px #00d2ff,0 0 50px #00d2ff}button.btn-play:active:not(:disabled){transform:scale(.95)}button.btn-play:disabled{cursor:not-allowed;filter:grayscale(.8);opacity:.5}#quiz-box{display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:90%;max-width:500px;background:rgba(4,10,24,.95);border:2px solid #00d2ff;padding:20px;border-radius:15px;text-align:center;z-index:200;pointer-events:auto;box-shadow:0 0 20px #000;backdrop-filter:blur(5px)}.q-btn{display:block;width:100%;padding:15px;margin:8px 0;background:#1a1a2d;border:1px solid #00a2ff80;color:#fff;font-size:18px;cursor:pointer;transition:all .2s}.q-btn:hover{background:#00d2ff;color:#000;box-shadow:0 0 10px #00d2ff}input.q-inp{width:80%;padding:10px;font-size:20px;text-align:center;margin-bottom:10px;color:#000}#char-select-screen{justify-content:center;padding-bottom:0}#char-select-screen h1{margin-bottom:50px}.selection-container{display:flex;justify-content:center;gap:5vw;width:100%;align-items:flex-start;margin-bottom:50px}.selection-group{display:flex;flex-direction:column;align-items:center;gap:15px;perspective:1000px}.selection-box{width:clamp(120px,25vw,250px);height:clamp(120px,25vw,250px);border:5px solid #00d2ff;border-radius:20px;box-shadow:0 0 15px #00d2ff,0 0 30px #00d2ff,inset 0 0 10px #00d2ff;display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;background:radial-gradient(ellipse at center,rgba(0,210,255,0.2) 0%,rgba(0,0,0,0) 70%)}.selection-box::before{content:attr(data-label);position:absolute;top:-40px;color:#fff;text-transform:uppercase;font-weight:700;font-size:clamp(16px,3vw,24px);text-shadow:0 0 5px #fff,0 0 10px #00d2ff}.selection-box img{max-width:80%;max-height:80%;object-fit:contain;transition:transform .5s cubic-bezier(.25,1,.5,1);animation:breath 4s infinite ease-in-out;transform-style:preserve-3d}.selection-box img.animate-3d{transform:scale(1.2) rotateY(360deg)!important}@keyframes breath{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}.choice-row{display:flex;gap:10px;justify-content:center;max-width:clamp(120px,25vw,250px);padding:5px;box-sizing:border-box;overflow-x:auto;background:rgba(0,0,0,.5);border-radius:10px;min-height:66px}.choice-thumb{width:50px;height:50px;object-fit:cover;border:3px solid #555;border-radius:5px;cursor:pointer;transition:all .2s;flex-shrink:0}.choice-thumb:hover{transform:scale(1.1);border-color:#fff}.choice-thumb.active{border-color:#00d2ff;box-shadow:0 0 10px #00d2ff}</style></head><body><div id="game-box"><div class="hud" style="left:10px;display:none;z-index:50">⏱ <span id="ui-time">0</span></div><div class="hud" style="right:10px;display:none;z-index:50">🏆 <span id="ui-score">0</span></div><canvas id="cvs"></canvas><div id="char-select-screen" class="screen"><h1 id="mt-title"></h1><div class="selection-container"><div class="selection-group"><div class="selection-box" id="avatar-box"><img id="avatar-display"></div><div id="avatar-choices" class="choice-row"></div></div><div class="selection-group"><div class="selection-box" id="creature-box"><img id="creature-display"></div><div id="creature-choices" class="choice-row"></div></div></div><button id="btn-play-game" class="btn-play" disabled></button></div><div id="scr-end" class="screen hidden"><h1 id="mt-end"></h1><p style="font-size:30px">Score: <span id="end-score">0</span></p><button id="btn-restart" class="btn-play">↺</button></div><div id="quiz-box"><h2 id="q-txt"></h2><div id="q-body"></div></div></div><script>
 const CFG=${configJson};
 const IMG=CFG.img,LANG=CFG.lang.dict;document.getElementById('mt-title').innerText=CFG.title;document.getElementById('btn-play-game').innerText=CFG.btn;document.getElementById('avatar-box').dataset.label=LANG.game_avatar;document.getElementById('creature-box').dataset.label=LANG.game_creature;const cvs=document.getElementById('cvs'),ctx=cvs.getContext('2d');let W,H;function resize(){W=cvs.width=window.innerWidth;H=cvs.height=window.innerHeight;if(!GM.run)GM.mx=W/2,GM.my=H*.8}
 window.addEventListener('resize',resize);setTimeout(resize,100);const AC=new(window.AudioContext||window.webkitAudioContext);function sfx(type){if(!AC||AC.state==='suspended')AC.resume();const t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();o.connect(g),g.connect(AC.destination);if(type==='coin'){o.type='sine';o.frequency.setValueAtTime(1200,t);g.gain.setValueAtTime(.1,t);g.gain.exponentialRampToValueAtTime(.001,t+.5)}else if(type==='boom'){o.type='sawtooth';o.frequency.setValueAtTime(120,t);o.frequency.exponentialRampToValueAtTime(20,t+.4);g.gain.setValueAtTime(.2,t);g.gain.linearRampToValueAtTime(0,t+.4)}else if(type==='win'){o.type='triangle';const notes=[659,783,987];notes.forEach((n,i)=>{o.frequency.setValueAtTime(n,t+i*.1)});g.gain.setValueAtTime(.1,t);g.gain.linearRampToValueAtTime(0,t+.4)}else if(type==='lose'){o.type='square';o.frequency.setValueAtTime(200,t);o.frequency.exponentialRampToValueAtTime(50,t+.4);g.gain.setValueAtTime(.15,t);g.gain.linearRampToValueAtTime(0,t+.4)}o.start(t),o.stop(t+.6)}
 const iBg=new Image(),iObs=new Image(),iCoin=new Image(),iAvatar=new Image(),iCreature=new Image();if(IMG.bg)iBg.src=IMG.bg;if(IMG.obs)iObs.src=IMG.obs;if(IMG.coin)iCoin.src=IMG.coin;let music=null;if(IMG.music){music=new Audio(IMG.music);music.loop=true;music.volume=.4}
 let selectedAvatar=null,selectedCreature=null;function setupChoices(){const avChoices=document.getElementById('avatar-choices'),crChoices=document.getElementById('creature-choices'),playBtn=document.getElementById('btn-play-game');function checkSelection(){if(selectedAvatar&&selectedCreature)playBtn.disabled=false}
 IMG.avatars.forEach(src=>{const i=new Image();i.src=src,i.className='choice-thumb',i.onclick=()=>{selectedAvatar=src;document.getElementById('avatar-display').src=src;avChoices.querySelectorAll('img').forEach(c=>c.classList.remove('active'));i.classList.add('active');checkSelection()},avChoices.appendChild(i)});IMG.creatures.forEach(src=>{const i=new Image();i.src=src,i.className='choice-thumb',i.onclick=()=>{selectedCreature=src;document.getElementById('creature-display').src=src;crChoices.querySelectorAll('img').forEach(c=>c.classList.remove('active'));i.classList.add('active');checkSelection()},crChoices.appendChild(i)})}
-['avatar-box','creature-box'].forEach(id=>{document.getElementById(id).onclick=e=>{const t=e.currentTarget.querySelector('img');if(t.src&&!t.classList.contains("animate-3d")){t.classList.add("animate-3d");setTimeout(()=>t.classList.remove("animate-3d"),1e3)}}});setupChoices();const GM={run:false,pause:false,frame:0,time:0,score:0,objs:[],mx:0,my:0,bgY:0,hurt:0,timerInt:null,start:()=>{if(!selectedAvatar||!selectedCreature)return;iAvatar.src=selectedAvatar;iCreature.src=selectedCreature;document.getElementById('char-select-screen').classList.add('hidden');document.querySelectorAll('.hud').forEach(h=>h.style.display='block');resize();if(AC.state==='suspended')AC.resume();if(music)music.play().catch(e=>{});GM.run=true;const numQ=CFG.qs.length;if(numQ>0){for(let i=0;i<numQ;i++){GM.objs.push({x:(Math.random()-.5)*W*2.5,y:(Math.random()-.5)*H*2.5,z:1e3+Math.random()*numQ*500,t:'c',qid:i})}}const numObs=Math.max(numQ,10)*2;for(let i=0;i<numObs;i++){GM.objs.push({x:(Math.random()-.5)*W*3,y:(Math.random()-.5)*H*3,z:500+Math.random()*5e3,t:'o'})}
+['avatar-box','creature-box'].forEach(id=>{document.getElementById(id).onclick=e=>{const t=e.currentTarget.querySelector('img');if(t.src&&!t.classList.contains("animate-3d")){t.classList.add("animate-3d");setTimeout(()=>t.classList.remove("animate-3d"),1e3)}}});setupChoices();const GM={run:false,pause:false,frame:0,time:0,score:0,objs:[],mx:0,my:0,bgY:0,hurt:0,timerInt:null,start:()=>{if(!selectedAvatar||!selectedCreature)return;iAvatar.src=selectedAvatar;iCreature.src=selectedCreature;document.getElementById('char-select-screen').classList.add('hidden');document.querySelectorAll('.hud').forEach(h=>h.style.display='block');resize();if(AC.state==='suspended')AC.resume();if(music)music.play().catch(e=>{});GM.run=true;const numQ=CFG.qs.length;if(numQ>0){for(let i=0;i<numQ;i++){GM.objs.push({x:(Math.random()-.5)*W*2.5,y:(Math.random()-.5)*H*2.5,z:1e3+Math.random()*numQ*500,t:'c',qid:i})}}const numObs=Math.max(numQ,10)*2;for(let i=0;i<numObs;i++){GM.objs.push({x:(Math.random()-.5)*W*3,y:(Math.random()-.5)*H*3,z:500+Math.random()*5e3,t:'o',vx:(Math.random()-.5)*0.8,vy:(Math.random()-.5)*0.8})}
 mainLoop();GM.timerInt=setInterval(()=>{if(GM.run&&!GM.pause){GM.time--;document.getElementById('ui-time').innerText=GM.time;if(GM.time<=0)GM.end(false)}},1e3);document.getElementById('ui-time').innerText=GM.time},end:win=>{if(!GM.run)return;GM.run=false;clearInterval(GM.timerInt);const scr=document.getElementById('scr-end');scr.classList.remove('hidden');document.getElementById('mt-end').innerText=win?CFG.win:CFG.lose;document.getElementById('end-score').innerText=GM.score;if(music)music.pause();sfx(win?'win':'lose')},reset:()=>{const scr=document.getElementById('scr-end');scr.classList.add('hidden');document.getElementById('char-select-screen').classList.remove('hidden');document.querySelectorAll('.hud').forEach(h=>h.style.display='none');GM.time=parseInt(CFG.time);GM.score=0;document.getElementById('ui-time').innerText=GM.time;document.getElementById('ui-score').innerText=GM.score;GM.objs=[];GM.hurt=0;GM.run=false;if(music)music.currentTime=0;preGameLoop()}};
 document.getElementById('btn-play-game').addEventListener('click',GM.start);document.getElementById('btn-restart').addEventListener('click',GM.reset);window.addEventListener('mousemove',e=>{if(!GM.pause){GM.mx=e.clientX;GM.my=e.clientY}});window.addEventListener('touchmove',e=>{if(!GM.pause){e.preventDefault();GM.mx=e.touches[0].clientX;GM.my=e.touches[0].clientY}},{passive:false});
 function drawBg(){if(iBg.src&&iBg.complete){let ptrn=ctx.createPattern(iBg,'repeat');if(ptrn){ctx.save();ctx.translate(0,GM.bgY%iBg.height);ctx.fillStyle=ptrn;ctx.fillRect(0,-iBg.height,W,H+iBg.height*2);ctx.restore()}}else{ctx.fillStyle='#040a18';ctx.fillRect(0,0,W,H)}}
-function mainLoop(){if(!GM.run)return;requestAnimationFrame(mainLoop);ctx.clearRect(0,0,W,H);if(!GM.pause){let speed=parseInt(CFG.speed);let forwardSpeed=speed*(1.5-GM.my/H);GM.frame++;if(GM.frame%60===0&&iObs.src){GM.objs.push({x:(Math.random()-.5)*W*3,y:(Math.random()-.5)*H*3,z:6e3,t:'o'})}GM.bgY+=forwardSpeed*.5;for(let i=GM.objs.length-1;i>=0;i--){let o=GM.objs[i];o.z-=forwardSpeed;if(o.z<10){GM.objs.splice(i,1);continue}if(o.z<200&&o.z>20){let depthScale=.7+GM.my/H*.6,pSize=120*parseFloat(CFG.scale)*depthScale,scale=500/o.z,sx=W/2+o.x*scale,sy=H/2+o.y*scale,size=100*scale*parseFloat(CFG.objScale||1),dist=Math.hypot(sx-GM.mx,sy-GM.my),hitbox=size*.5+pSize*.4;if(dist<hitbox){let hitObject=GM.objs.splice(i,1)[0];hit(hitObject)}}}if(GM.hurt>0)GM.hurt--}
+function mainLoop(){if(!GM.run)return;requestAnimationFrame(mainLoop);ctx.clearRect(0,0,W,H);if(!GM.pause){let speed=parseInt(CFG.speed);let forwardSpeed=speed*(1.5-GM.my/H);GM.frame++;if(GM.frame%60===0&&iObs.src){GM.objs.push({x:(Math.random()-.5)*W*3,y:(Math.random()-.5)*H*3,z:6e3,t:'o',vx:(Math.random()-.5)*0.8,vy:(Math.random()-.5)*0.8})}GM.bgY+=forwardSpeed*.5;for(let i=GM.objs.length-1;i>=0;i--){let o=GM.objs[i];if(o.vx){o.x+=o.vx;o.y+=o.vy}o.z-=forwardSpeed;if(o.z<10){GM.objs.splice(i,1);continue}if(o.z<200&&o.z>20){let depthScale=.7+GM.my/H*.6,pSize=120*parseFloat(CFG.scale)*depthScale,scale=500/o.z,sx=W/2+o.x*scale,sy=H/2+o.y*scale,size=100*scale*parseFloat(CFG.objScale||1),dist=Math.hypot(sx-GM.mx,sy-GM.my),hitbox=size*.5+pSize*.4;if(dist<hitbox){let hitObject=GM.objs.splice(i,1)[0];hit(hitObject)}}}if(GM.hurt>0)GM.hurt--}
 drawBg();GM.objs.sort((a,b)=>b.z-a.z);let objScaleUser=parseFloat(CFG.objScale||1);for(let o of GM.objs){let scale=500/o.z,sx=W/2+o.x*scale,sy=H/2+o.y*scale,size=100*scale*objScaleUser;let img=o.t==='c'?iCoin:iObs;if(img.src&&img.complete)ctx.drawImage(img,sx-size/2,sy-size/2,size,size)}
 if(!(GM.hurt>0&&Math.floor(GM.hurt/4)%2===0)){let depthScale=.7+GM.my/H*.6,pSize=120*parseFloat(CFG.scale)*depthScale,tilt=(GM.mx-W/2)*.05,avatarSize=pSize*.5;ctx.save();ctx.translate(GM.mx,GM.my);ctx.rotate(tilt*Math.PI/180);if(iCreature.src&&iCreature.complete)ctx.drawImage(iCreature,-pSize/2,-pSize/2,pSize,pSize);if(iAvatar.src&&iAvatar.complete)ctx.drawImage(iAvatar,-avatarSize/2,-pSize*.4,avatarSize,avatarSize);ctx.restore()}}
 function preGameLoop(){if(GM.run)return;requestAnimationFrame(preGameLoop);GM.bgY+=.5;ctx.clearRect(0,0,W,H);drawBg()}
@@ -483,23 +261,10 @@ function hit(obj){if(obj.t==='o'){sfx('boom');GM.hurt=30;let f=document.createEl
 function quiz(q_idx){let q=CFG.qs[q_idx];if(!q){GM.pause=false;return}let box=document.getElementById('quiz-box'),body=document.getElementById('q-body');document.getElementById('q-txt').innerText=q.t;body.innerHTML='';box.style.display='block';const processAns=txt=>{box.style.display='none';if(txt.trim().toLowerCase()===q.c.trim().toLowerCase()){sfx('win');GM.score++;if(CFG.qs.length>0&&GM.score>=CFG.qs.length){setTimeout(()=>GM.end(true),500)}}else{sfx('lose');GM.time-=10}document.getElementById('ui-score').innerText=GM.score;document.getElementById('ui-time').innerText=GM.time;if(GM.time<=0)GM.end(false);setTimeout(()=>GM.pause=false,200)};if(q.type==='choice'){let arr=[q.c,...q.w].sort(()=>Math.random()-.5);arr.forEach(t=>{let b=document.createElement('button');b.className='q-btn';b.innerText=t;b.onclick=e=>{e.stopPropagation();processAns(t)};body.appendChild(b)})}else{let inp=document.createElement('input');inp.className='q-inp';let b=document.createElement('button');b.className='q-btn';b.innerText='OK';b.onclick=e=>{e.stopPropagation();processAns(inp.value)};body.appendChild(inp);body.appendChild(b);inp.focus()}}
 GM.reset();
 <\/script></body></html>`;
-
-        const statusDiv = document.getElementById('generation-status');
-        statusDiv.style.display = 'block';
-        setTimeout(() => { statusDiv.style.display = 'none'; }, 4000);
-        
-        document.getElementById('finalCode').value = CODE;
-        document.getElementById('copySection').style.display = 'block';
-    }
-
-    function doCopy() {
-        document.getElementById('finalCode').select(); document.execCommand('copy');
-        const btn = document.getElementById('copyBtn'), span = document.getElementById('copyText'), icon = document.getElementById('copyIcon');
-        btn.classList.add('success'); span.innerText = dict[currentLang].btn_copied; icon.innerText = "✅";
-        setTimeout(() => { btn.classList.remove('success'); span.innerText = dict[currentLang].btn_copy; icon.innerText = "📋"; }, 3000);
-    }
-    
-    setLang('ru');
+document.getElementById("finalCode").value=CODE;document.getElementById("copySection").style.display="block"}
+function doCopy(){document.getElementById("finalCode").select();document.execCommand("copy");const btn=document.getElementById("copyBtn"),span=document.getElementById("copyText"),icon=document.getElementById("copyIcon");btn.classList.add("success");span.innerText=dict[currentLang].btn_copied;icon.innerText="✅";setTimeout(()=>{btn.classList.remove("success");span.innerText=dict[currentLang].btn_copy;icon.innerText="📋"},3e3)}
+setLang("ru");
 </script>
+
 </body>
 </html>
