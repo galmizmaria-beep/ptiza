@@ -2,178 +2,179 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Путь Аватара - 3D Квест</title>
-    <!-- Подключаем 3D-движок Three.js -->
+    <title>Конструктор и Игра: Аватар 3D</title>
+    <!-- Библиотека загружается только во время игры, чтобы не тормозить редактор -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
-        /* Общие стили */
         body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden; background: #000; color: white; user-select: none; }
         .hidden { display: none !important; }
 
-        /* ==================== СТИЛИ РЕДАКТОРА ==================== */
-        #editor-container { 
-            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; 
-            background: #f4f4f9; color: #333; overflow-y: auto; padding: 20px; box-sizing: border-box; z-index: 100;
-        }
+        /* ================= РЕДАКТОР ================= */
+        #editor-container { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: #f4f4f9; color: #333; overflow-y: auto; padding: 20px; box-sizing: border-box; z-index: 100; }
         .editor-box { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         .editor-box h1 { color: #2c3e50; text-align: center; margin-top: 0; }
-        .q-block { border: 2px solid #e0e0e0; padding: 15px; margin-bottom: 15px; border-radius: 8px; background: #fafafa; position: relative; }
+        .info-panel { background: #fff3cd; color: #856404; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid #ffeeba; }
+        .q-block { border: 2px solid #e0e0e0; padding: 15px; margin-bottom: 15px; border-radius: 8px; background: #fafafa; }
         .q-block input { width: 100%; padding: 10px; margin: 5px 0 15px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
-        .btn-add { background: #3498db; color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 6px; cursor: pointer; }
+        .btn-add { background: #3498db; color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 6px; cursor: pointer; }
         .btn-gen { background: #2ecc71; color: white; border: none; padding: 15px; width: 100%; font-size: 18px; font-weight: bold; border-radius: 6px; cursor: pointer; margin-top: 20px; }
         .btn-add:hover { background: #2980b9; } .btn-gen:hover { background: #27ae60; }
-        textarea { width: 100%; height: 120px; margin-top: 15px; padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-family: monospace; resize: none; box-sizing: border-box; }
+        textarea { width: 100%; height: 100px; margin-top: 10px; padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-family: monospace; resize: none; box-sizing: border-box; }
+        .url-input { border: 2px solid #3498db !important; background: #ebf5fb !important; font-weight: bold; }
 
-        /* ==================== СТИЛИ ИГРЫ ==================== */
+        /* ================= ИГРА ================= */
         #game-container { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; }
         #canvas-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
-        
-        /* UI Игры */
         .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); }
-        .title-game { color: #ff9d00; text-shadow: 0 0 20px #ff9d00; font-size: 4em; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 3px; }
-        .subtitle { color: #00d2ff; font-size: 1.5em; margin-bottom: 20px; }
-        
-        .grid { display: flex; gap: 20px; margin-bottom: 30px; }
-        .card { background: #1a1a1a; border: 2px solid #444; padding: 20px; border-radius: 15px; cursor: pointer; transition: all 0.3s ease; text-align: center; width: 120px; font-size: 1.2em; }
-        .card:hover, .card.selected { border-color: #00d2ff; box-shadow: 0 0 25px #00d2ff; transform: translateY(-10px); background: #2a2a2a; }
-        
-        .btn-start { background: linear-gradient(45deg, #ff9d00, #ff3300); border: none; padding: 15px 50px; font-size: 24px; font-weight: bold; border-radius: 30px; cursor: pointer; transition: 0.3s; color: white; text-transform: uppercase; letter-spacing: 2px; box-shadow: 0 0 20px rgba(255, 157, 0, 0.5); }
-        .btn-start:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(255, 157, 0, 0.8); }
-
-        #hud { position: absolute; top: 20px; left: 20px; z-index: 5; font-size: 24px; font-weight: bold; text-shadow: 2px 2px 4px #000; display: none; background: rgba(0,0,0,0.5); padding: 10px 20px; border-radius: 10px; border: 1px solid #444; }
+        .title-game { color: #ff9d00; text-shadow: 0 0 20px #ff9d00; font-size: 3.5em; margin-bottom: 10px; text-transform: uppercase; text-align: center;}
+        .subtitle { color: #00d2ff; font-size: 1.5em; margin-bottom: 20px; text-align: center; }
+        .grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-bottom: 20px; }
+        .card { background: #1a1a1a; border: 2px solid #444; padding: 15px; border-radius: 15px; cursor: pointer; transition: 0.3s; text-align: center; width: 100px; font-size: 1.2em; }
+        .card:hover, .card.selected { border-color: #00d2ff; box-shadow: 0 0 20px #00d2ff; transform: translateY(-5px); background: #2a2a2a; }
+        .btn-start { background: linear-gradient(45deg, #ff9d00, #ff3300); border: none; padding: 15px 40px; font-size: 22px; font-weight: bold; border-radius: 30px; cursor: pointer; color: white; text-transform: uppercase; box-shadow: 0 0 20px rgba(255, 157, 0, 0.5); }
+        #hud { position: absolute; top: 20px; left: 20px; z-index: 5; font-size: 20px; font-weight: bold; text-shadow: 2px 2px 4px #000; background: rgba(0,0,0,0.5); padding: 10px 20px; border-radius: 10px; border: 1px solid #444; }
         #hud span { color: #ff9d00; }
-        
-        /* Окно вопроса */
-        #quiz-modal { max-width: 600px; width: 90%; background: rgba(15, 25, 35, 0.95); border: 2px solid #00d2ff; box-shadow: 0 0 40px rgba(0, 210, 255, 0.4); padding: 40px; border-radius: 20px; text-align: center; }
-        #q-text { font-size: 24px; margin-bottom: 30px; line-height: 1.4; }
+        #quiz-modal { max-width: 600px; width: 90%; background: rgba(15, 25, 35, 0.95); border: 2px solid #00d2ff; box-shadow: 0 0 40px rgba(0, 210, 255, 0.4); padding: 30px; border-radius: 20px; text-align: center; }
+        #q-text { font-size: 22px; margin-bottom: 25px; line-height: 1.4; }
         .ans-btn { display: block; width: 100%; background: rgba(0, 210, 255, 0.1); border: 2px solid #00d2ff; color: white; padding: 15px; margin: 10px 0; font-size: 18px; cursor: pointer; border-radius: 10px; transition: 0.2s; }
         .ans-btn:hover { background: #00d2ff; color: #000; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <!-- ==================== ЧАСТЬ 1: РЕДАКТОР (Виден только учителю) ==================== -->
+    <!-- ЧАСТЬ 1: РЕДАКТОР -->
     <div id="editor-container" class="hidden">
         <div class="editor-box">
             <h1>⚙️ Конструктор: Аватар 3D</h1>
-            <p>Добавьте вопросы, сгенерируйте код и вставьте его в Genially (Insert -> Others).</p>
+            
+            <div class="info-panel">
+                <b>Ваш адрес на GitHub:</b><br>
+                <input type="text" id="github-url" class="url-input" placeholder="Например: https://ВАШ_ЛОГИН.github.io/avatar/index.html">
+                <small style="color: #666;">Если вы открыли этот файл с компьютера (file:///...), вставьте сюда ссылку, которую вам выдал GitHub Pages. Иначе игра в Genially не заработает.</small>
+            </div>
             
             <div id="questions-list"></div>
             
-            <button class="btn-add" onclick="addQuestion()">+ Добавить вопрос</button>
-            <button class="btn-gen" onclick="generateGameCode()">Создать код для Genially 🚀</button>
+            <button class="btn-add" onclick="addQuestionBlock()">+ Добавить вопрос</button>
+            <button class="btn-gen" onclick="generateGame()">Создать код для Genially 🚀</button>
 
-            <div id="result-container" class="hidden" style="margin-top: 30px; background: #e8f8f5; padding: 20px; border-radius: 8px; border: 1px solid #1abc9c;">
-                <h3 style="margin-top:0; color: #16a085;">✅ Ваш код готов! Копируйте:</h3>
+            <div id="result-container" class="hidden" style="margin-top: 20px; background: #e8f8f5; padding: 20px; border-radius: 8px; border: 1px solid #1abc9c;">
+                <h3 style="margin-top:0; color: #16a085;">✅ Готово! Скопируйте этот код в Genially (Вставить -> Другое):</h3>
                 <textarea id="output-code" readonly onclick="this.select()"></textarea>
             </div>
         </div>
     </div>
 
-    <!-- ==================== ЧАСТЬ 2: ИГРА (Видна ученику) ==================== -->
+    <!-- ЧАСТЬ 2: ИГРА -->
     <div id="game-container" class="hidden">
-        
-        <!-- HUD во время полета -->
         <div id="hud">
             Энергия: <span id="hp">3</span> &nbsp;|&nbsp; Свитки: <span id="score">0</span>/<span id="total-q">0</span>
         </div>
 
-        <!-- Меню выбора -->
         <div id="main-menu" class="overlay">
             <h1 class="title-game">Путь Аватара</h1>
-            
-            <div class="subtitle">Выбери стихию</div>
+            <div class="subtitle">Стихия</div>
             <div class="grid" id="chars">
-                <div class="card selected" onclick="selectElement(this, 0x00d2ff)">Воздух<br>🌪️</div>
-                <div class="card" onclick="selectElement(this, 0xff3300)">Огонь<br>🔥</div>
-                <div class="card" onclick="selectElement(this, 0x0055ff)">Вода<br>💧</div>
-                <div class="card" onclick="selectElement(this, 0x2ecc71)">Земля<br>🪨</div>
+                <div class="card selected" onclick="selectElement(this, 0x00d2ff)">Воздух 🌪️</div>
+                <div class="card" onclick="selectElement(this, 0xff3300)">Огонь 🔥</div>
+                <div class="card" onclick="selectElement(this, 0x0055ff)">Вода 💧</div>
+                <div class="card" onclick="selectElement(this, 0x2ecc71)">Земля 🪨</div>
             </div>
-
-            <div class="subtitle">Выбери локацию</div>
+            <div class="subtitle">Локация</div>
             <div class="grid" id="locs">
-                <div class="card selected" onclick="selectLocation(this, 'sky')">Небесный Храм</div>
-                <div class="card" onclick="selectLocation(this, 'volcano')">Вулкан Огня</div>
-                <div class="card" onclick="selectLocation(this, 'spirit')">Мир Духов</div>
+                <div class="card selected" onclick="selectLocation(this, 'sky')">Небеса</div>
+                <div class="card" onclick="selectLocation(this, 'volcano')">Вулкан</div>
+                <div class="card" onclick="selectLocation(this, 'spirit')">Духи</div>
             </div>
-
             <button class="btn-start" onclick="startGame()">Начать полет</button>
         </div>
 
-        <!-- Модальное окно с вопросом (при подборе монетки) -->
         <div id="quiz-overlay" class="overlay hidden">
             <div id="quiz-modal">
-                <div id="q-text">Текст вопроса загружается...</div>
+                <div id="q-text">Загрузка...</div>
                 <div id="q-answers"></div>
             </div>
         </div>
-
-        <!-- Сюда Three.js рисует 3D -->
         <div id="canvas-container"></div>
     </div>
 
-    <!-- ==================== ЛОГИКА (JAVASCRIPT) ==================== -->
     <script>
-        // --- 1. МАРШРУТИЗАТОР (ОПРЕДЕЛЯЕМ РЕЖИМ: РЕДАКТОР ИЛИ ИГРА) ---
-        const urlParams = new URLSearchParams(window.location.search);
-        const gameDataRaw = urlParams.get('data');
+        // =========================================================
+        // 1. ИНИЦИАЛИЗАЦИЯ: ОПРЕДЕЛЯЕМ, ЧТО ПОКАЗАТЬ (РЕДАКТОР ИЛИ ИГРУ)
+        // =========================================================
         let gameQuestions = [];
+        
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const dataParam = urlParams.get('data');
 
-        if (gameDataRaw) {
-            // Если есть данные в URL -> Запускаем ИГРУ
-            gameQuestions = JSON.parse(decodeURIComponent(gameDataRaw));
-            document.getElementById('game-container').classList.remove('hidden');
-            document.getElementById('total-q').innerText = gameQuestions.length;
-        } else {
-            // Если данных нет -> Запускаем РЕДАКТОР
-            document.getElementById('editor-container').classList.remove('hidden');
-            addQuestion(); // Добавляем первый пустой блок
-        }
+            if (dataParam) {
+                // ЗАПУСК ИГРЫ
+                document.getElementById('game-container').classList.remove('hidden');
+                try {
+                    gameQuestions = JSON.parse(decodeURIComponent(dataParam));
+                    document.getElementById('total-q').innerText = gameQuestions.length;
+                } catch(e) {
+                    alert("Ошибка загрузки вопросов!");
+                }
+            } else {
+                // ЗАПУСК РЕДАКТОРА
+                document.getElementById('editor-container').classList.remove('hidden');
+                
+                // Автоматически подставляем URL, если файл открыт в интернете (не локально)
+                if (window.location.protocol.startsWith('http')) {
+                    document.getElementById('github-url').value = window.location.href.split('?')[0];
+                }
+                
+                addQuestionBlock(); // Добавляем первый пустой блок
+            }
+        };
 
-        // ====================================================================
-        //                       ЛОГИКА РЕДАКТОРА
-        // ====================================================================
+        // =========================================================
+        // 2. ЛОГИКА РЕДАКТОРА
+        // =========================================================
         let qCount = 0;
 
-        function addQuestion() {
+        function addQuestionBlock() {
             qCount++;
             const div = document.createElement('div');
             div.className = 'q-block';
             div.id = `qblock-${qCount}`;
             div.innerHTML = `
                 <div style="font-weight:bold; margin-bottom:10px; color:#2980b9;">Вопрос ${qCount}</div>
-                <input type="text" id="q-${qCount}" placeholder="Текст вопроса (например: Какая столица Царства Земли?)" required>
-                <input type="text" id="c-${qCount}" placeholder="ПРАВИЛЬНЫЙ ответ (например: Ба Синг Се)" style="border-color:#2ecc71; background:#eafaf1;" required>
+                <input type="text" id="q-${qCount}" placeholder="Текст вопроса" required>
+                <input type="text" id="c-${qCount}" placeholder="ПРАВИЛЬНЫЙ ответ" style="border-color:#2ecc71; background:#eafaf1;" required>
                 <input type="text" id="w1-${qCount}" placeholder="Неправильный ответ 1" style="border-color:#e74c3c;">
                 <input type="text" id="w2-${qCount}" placeholder="Неправильный ответ 2 (необязательно)" style="border-color:#e74c3c;">
             `;
             document.getElementById('questions-list').appendChild(div);
         }
 
-        function generateGameCode() {
+        function generateGame() {
+            const baseUrl = document.getElementById('github-url').value.trim();
+            if(!baseUrl) {
+                alert("Пожалуйста, укажите ссылку на этот файл на GitHub!");
+                return;
+            }
+
             const data = [];
             for (let i = 1; i <= qCount; i++) {
-                const q = document.getElementById(`q-${i}`).value.trim();
+                const qInput = document.getElementById(`q-${i}`);
+                if(!qInput) continue;
+                
+                const q = qInput.value.trim();
                 const correct = document.getElementById(`c-${i}`).value.trim();
                 const w1 = document.getElementById(`w1-${i}`).value.trim();
                 const w2 = document.getElementById(`w2-${i}`).value.trim();
 
-                if (q && correct) {
-                    data.push({
-                        q: q,
-                        c: correct, // Сохраняем правильный ответ текстом
-                        w: [w1, w2].filter(val => val !== "") // Сохраняем неправильные, удаляя пустые
-                    });
+                if (q !== "" && correct !== "") {
+                    data.push({ q: q, c: correct, w: [w1, w2].filter(v => v !== "") });
                 }
             }
 
-            if(data.length === 0) { alert("Добавьте хотя бы один заполненный вопрос!"); return; }
+            if(data.length === 0) { alert("Заполните хотя бы один вопрос!"); return; }
 
-            const jsonString = JSON.stringify(data);
-            const encodedData = encodeURIComponent(jsonString);
-            
-            // Автоматически получаем текущий URL файла (без параметров)
-            const baseUrl = window.location.href.split('?')[0];
+            const encodedData = encodeURIComponent(JSON.stringify(data));
             const finalUrl = `${baseUrl}?data=${encodedData}`;
             
             const iframeCode = `<iframe src="${finalUrl}" width="100%" height="600px" frameborder="0" style="border-radius: 15px; overflow:hidden;" allowfullscreen></iframe>`;
@@ -182,240 +183,134 @@
             document.getElementById('result-container').classList.remove('hidden');
         }
 
-        // ====================================================================
-        //                       ЛОГИКА 3D ИГРЫ
-        // ====================================================================
-        
-        // Игровые переменные
-        let playerColor = 0x00d2ff;
-        let locTheme = 'sky';
-        let isPlaying = false;
-        let isPaused = false;
-        let hp = 3;
-        let score = 0;
-        let currentQuestionIndex = 0;
+        // =========================================================
+        // 3. ЛОГИКА 3D ИГРЫ (Запускается только если есть вопросы)
+        // =========================================================
+        let playerColor = 0x00d2ff, locTheme = 'sky';
+        let isPlaying = false, isPaused = false;
+        let hp = 3, score = 0, currentQ = 0;
+        let scene, camera, renderer, player, objects = [], mouseX = 0, mouseY = 0;
 
-        // Выбор в меню
-        function selectElement(el, color) {
-            document.querySelectorAll('#chars .card').forEach(c => c.classList.remove('selected'));
-            el.classList.add('selected');
-            playerColor = color;
-        }
-
-        function selectLocation(el, type) {
-            document.querySelectorAll('#locs .card').forEach(c => c.classList.remove('selected'));
-            el.classList.add('selected');
-            locTheme = type;
-        }
+        function selectElement(el, color) { document.querySelectorAll('#chars .card').forEach(c => c.classList.remove('selected')); el.classList.add('selected'); playerColor = color; }
+        function selectLocation(el, type) { document.querySelectorAll('#locs .card').forEach(c => c.classList.remove('selected')); el.classList.add('selected'); locTheme = type; }
 
         function startGame() {
             document.getElementById('main-menu').classList.add('hidden');
             document.getElementById('hud').style.display = 'block';
+            gameQuestions.sort(() => Math.random() - 0.5); // Перемешиваем вопросы
             init3D();
             isPlaying = true;
             animate3D();
-            
-            // Перемешиваем вопросы перед игрой
-            gameQuestions.sort(() => Math.random() - 0.5);
         }
-
-        // --- 3D Движок ---
-        let scene, camera, renderer, player, objects = [];
-        let mouseX = 0, mouseY = 0;
 
         function init3D() {
             scene = new THREE.Scene();
-            
-            // Настройка атмосферы локации
-            let fogColor, bgColor;
-            if(locTheme === 'sky') { fogColor = 0x87CEEB; bgColor = 0x4aa3df; }
-            else if(locTheme === 'volcano') { fogColor = 0x330000; bgColor = 0x1a0000; }
-            else if(locTheme === 'spirit') { fogColor = 0x2c004c; bgColor = 0x160026; }
+            let fogC = locTheme === 'sky' ? 0x87CEEB : (locTheme === 'volcano' ? 0x330000 : 0x2c004c);
+            let bgC = locTheme === 'sky' ? 0x4aa3df : (locTheme === 'volcano' ? 0x1a0000 : 0x160026);
+            scene.fog = new THREE.FogExp2(fogC, 0.006);
+            scene.background = new THREE.Color(bgC);
 
-            scene.fog = new THREE.FogExp2(fogColor, 0.006);
-            scene.background = new THREE.Color(bgColor);
-
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 500);
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 500);
             camera.position.z = 20;
 
-            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+            renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-            // Освещение
             scene.add(new THREE.AmbientLight(0x404040, 2));
-            const light = new THREE.DirectionalLight(0xffffff, 1);
-            light.position.set(0, 10, 20);
-            scene.add(light);
+            const light = new THREE.DirectionalLight(0xffffff, 1); light.position.set(0, 10, 20); scene.add(light);
 
-            // Игрок (Светящийся Аватар/Магический щит)
-            const pGeo = new THREE.OctahedronGeometry(1.5, 0);
             const pMat = new THREE.MeshLambertMaterial({ color: playerColor, emissive: playerColor, emissiveIntensity: 0.8 });
-            player = new THREE.Mesh(pGeo, pMat);
-            player.position.y = -5;
-            scene.add(player);
+            player = new THREE.Mesh(new THREE.OctahedronGeometry(1.5, 0), pMat);
+            player.position.y = -5; scene.add(player);
 
-            // Эффект полета (частицы)
-            const particles = new THREE.BufferGeometry();
-            const pCount = 1500;
-            const pArray = new Float32Array(pCount * 3);
-            for(let i=0; i<pCount*3; i++) pArray[i] = (Math.random() - 0.5) * 200;
-            particles.setAttribute('position', new THREE.BufferAttribute(pArray, 3));
-            const pMatrial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.3 });
-            scene.add(new THREE.Points(particles, pMatrial));
+            // Звездная пыль
+            const pGeo = new THREE.BufferGeometry();
+            const pArr = new Float32Array(3000);
+            for(let i=0; i<3000; i++) pArr[i] = (Math.random() - 0.5) * 200;
+            pGeo.setAttribute('position', new THREE.BufferAttribute(pArr, 3));
+            scene.add(new THREE.Points(pGeo, new THREE.PointsMaterial({color: 0xffffff, size: 0.3})));
 
-            // Отслеживание курсора/пальца для управления
-            function updateMouse(e) {
-                let clientX = e.touches ? e.touches[0].clientX : e.clientX;
-                let clientY = e.touches ? e.touches[0].clientY : e.clientY;
-                mouseX = (clientX / window.innerWidth) * 2 - 1;
-                mouseY = -(clientY / window.innerHeight) * 2 + 1;
+            function onMove(e) {
+                let x = e.touches ? e.touches[0].clientX : e.clientX;
+                let y = e.touches ? e.touches[0].clientY : e.clientY;
+                mouseX = (x / window.innerWidth) * 2 - 1; mouseY = -(y / window.innerHeight) * 2 + 1;
             }
-            window.addEventListener('mousemove', updateMouse);
-            window.addEventListener('touchmove', updateMouse);
-
-            // Спавн объектов
+            window.addEventListener('mousemove', onMove); window.addEventListener('touchmove', onMove);
             setInterval(spawnObject, 800);
         }
 
         function spawnObject() {
             if(isPaused || !isPlaying) return;
-            
-            // 35% шанс на Монету-Свиток (Вопрос), 65% Препятствие
             const isScroll = Math.random() < 0.35;
-            
             let mesh;
             if(isScroll) {
-                // Светящееся кольцо (Свиток знаний)
-                const geo = new THREE.TorusGeometry(1.5, 0.3, 8, 20);
-                const mat = new THREE.MeshLambertMaterial({ color: 0xffd700, emissive: 0xffaa00 });
-                mesh = new THREE.Mesh(geo, mat);
+                mesh = new THREE.Mesh(new THREE.TorusGeometry(1.5, 0.3, 8, 20), new THREE.MeshLambertMaterial({ color: 0xffd700, emissive: 0xffaa00 }));
             } else {
-                // Темный куб (Препятствие)
-                const geo = new THREE.BoxGeometry(2.5, 2.5, 2.5);
-                const mat = new THREE.MeshLambertMaterial({ color: 0x333333 });
-                mesh = new THREE.Mesh(geo, mat);
+                mesh = new THREE.Mesh(new THREE.BoxGeometry(2.5, 2.5, 2.5), new THREE.MeshLambertMaterial({ color: 0x333333 }));
             }
-
-            mesh.position.set((Math.random() - 0.5) * 40, (Math.random() - 0.5) * 25, -120);
+            mesh.position.set((Math.random()-0.5)*40, (Math.random()-0.5)*25, -120);
             mesh.userData = { isScroll: isScroll };
-            scene.add(mesh);
-            objects.push(mesh);
+            scene.add(mesh); objects.push(mesh);
         }
 
         function animate3D() {
             requestAnimationFrame(animate3D);
             if(isPaused || !isPlaying) return;
 
-            // Плавное следование за курсором
             player.position.x += (mouseX * 20 - player.position.x) * 0.1;
             player.position.y += (mouseY * 15 - player.position.y) * 0.1;
-            player.rotation.z = -mouseX * 0.5; // Наклон планера
-            player.rotation.y += 0.02; // Вращение сферы
+            player.rotation.z = -mouseX * 0.5; player.rotation.y += 0.02;
 
-            // Движение препятствий на нас
-            for(let i = objects.length - 1; i >= 0; i--) {
+            for(let i = objects.length-1; i >= 0; i--) {
                 let obj = objects[i];
-                obj.position.z += 2.0; // Скорость полета
+                obj.position.z += 2.0;
+                if(obj.userData.isScroll) obj.rotation.z += 0.05; else { obj.rotation.x += 0.02; obj.rotation.y += 0.02; }
 
-                if(obj.userData.isScroll) obj.rotation.z += 0.05;
-                else { obj.rotation.x += 0.02; obj.rotation.y += 0.02; }
-
-                // --- СТОЛКНОВЕНИЕ ---
                 if(obj.position.distanceTo(player.position) < 3.5) {
-                    scene.remove(obj);
-                    objects.splice(i, 1);
-                    
-                    if(obj.userData.isScroll) openQuiz();
-                    else takeDamage();
-                }
-                // Удаление пролетевших мимо
-                else if (obj.position.z > 20) {
-                    scene.remove(obj);
-                    objects.splice(i, 1);
+                    scene.remove(obj); objects.splice(i, 1);
+                    if(obj.userData.isScroll) openQuiz(); else takeDamage();
+                } else if (obj.position.z > 20) {
+                    scene.remove(obj); objects.splice(i, 1);
                 }
             }
             renderer.render(scene, camera);
         }
 
-        // --- ЛОГИКА ВОПРОСОВ И ЖИЗНЕЙ ---
         function takeDamage() {
-            hp--;
-            document.getElementById('hp').innerText = hp;
-            
-            // Вспышка красным
-            const originalBg = scene.background;
-            scene.background = new THREE.Color(0xff0000);
-            setTimeout(() => scene.background = originalBg, 150);
-
-            if(hp <= 0) {
-                setTimeout(() => {
-                    alert("Энергия иссякла! Аватар пал. Попробуй снова!");
-                    location.reload(); // Перезапуск
-                }, 200);
-            }
+            hp--; document.getElementById('hp').innerText = hp;
+            const oldBg = scene.background; scene.background = new THREE.Color(0xff0000);
+            setTimeout(() => scene.background = oldBg, 150);
+            if(hp <= 0) { setTimeout(() => { alert("Игра окончена!"); location.reload(); }, 100); }
         }
 
         function openQuiz() {
-            if(currentQuestionIndex >= gameQuestions.length) {
-                alert("Поздравляем! Вы собрали все знания и освоили магию!");
-                location.reload();
-                return;
-            }
-
+            if(currentQ >= gameQuestions.length) { alert("Победа!"); location.reload(); return; }
             isPaused = true;
-            const qData = gameQuestions[currentQuestionIndex];
+            const qData = gameQuestions[currentQ];
             document.getElementById('q-text').innerText = qData.q;
             
-            // Собираем все ответы и перемешиваем их
-            let answersArr = [qData.c, ...qData.w];
-            answersArr.sort(() => Math.random() - 0.5);
-
-            const ansContainer = document.getElementById('q-answers');
-            ansContainer.innerHTML = '';
+            let answers = [qData.c, ...qData.w].sort(() => Math.random() - 0.5);
+            const ansCont = document.getElementById('q-answers');
+            ansCont.innerHTML = '';
             
-            answersArr.forEach(ansText => {
+            answers.forEach(ans => {
                 const btn = document.createElement('button');
-                btn.className = 'ans-btn';
-                btn.innerText = ansText;
-                // При клике проверяем, совпадает ли текст с правильным
-                btn.onclick = () => checkAnswer(ansText, qData.c);
-                ansContainer.appendChild(btn);
+                btn.className = 'ans-btn'; btn.innerText = ans;
+                btn.onclick = () => {
+                    if(ans === qData.c) {
+                        score++; document.getElementById('score').innerText = score; currentQ++;
+                        const oldBg = scene.background; scene.background = new THREE.Color(0x00ff00);
+                        setTimeout(() => scene.background = oldBg, 150);
+                        document.getElementById('quiz-overlay').classList.add('hidden'); isPaused = false;
+                    } else { alert("Неверно!"); takeDamage(); }
+                };
+                ansCont.appendChild(btn);
             });
-
             document.getElementById('quiz-overlay').classList.remove('hidden');
         }
 
-        function checkAnswer(selectedText, correctText) {
-            if(selectedText === correctText) {
-                // Верно
-                score++;
-                document.getElementById('score').innerText = score;
-                currentQuestionIndex++;
-                
-                // Вспышка зеленым (лечение/успех)
-                const originalBg = scene.background;
-                scene.background = new THREE.Color(0x00ff00);
-                setTimeout(() => scene.background = originalBg, 200);
-
-                document.getElementById('quiz-overlay').classList.add('hidden');
-                isPaused = false;
-            } else {
-                // Неверно
-                alert("Ответ неверный! Ты теряешь энергию.");
-                takeDamage();
-                // Даем еще шанс ответить на этот же вопрос
-            }
-        }
-
-        // Адаптация под размер экрана
-        window.addEventListener('resize', () => {
-            if(renderer) {
-                renderer.setSize(window.innerWidth, window.innerHeight);
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-            }
-        });
+        window.addEventListener('resize', () => { if(renderer) { renderer.setSize(window.innerWidth, window.innerHeight); camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); }});
     </script>
 </body>
 </html>
