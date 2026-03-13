@@ -23,21 +23,35 @@
         .url-input { border: 2px solid #3498db !important; background: #ebf5fb !important; font-weight: bold; }
 
         /* ================= ИГРА ================= */
-        #game-container { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; }
+        /* Настройка заднего фона с плавной сменой картинок */
+        #game-container { 
+            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; 
+            background-size: cover; background-position: center; 
+            transition: background-image 0.8s ease-in-out;
+            background-color: #000;
+        }
+        
         #canvas-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
-        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); }
-        .title-game { color: #ff9d00; text-shadow: 0 0 20px #ff9d00; font-size: 3.5em; margin-bottom: 10px; text-transform: uppercase; text-align: center;}
-        .subtitle { color: #00d2ff; font-size: 1.5em; margin-bottom: 20px; text-align: center; }
-        .grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-bottom: 20px; }
-        .card { background: #1a1a1a; border: 2px solid #444; padding: 15px; border-radius: 15px; cursor: pointer; transition: 0.3s; text-align: center; width: 100px; font-size: 1.2em; }
-        .card:hover, .card.selected { border-color: #00d2ff; box-shadow: 0 0 20px #00d2ff; transform: translateY(-5px); background: #2a2a2a; }
-        .btn-start { background: linear-gradient(45deg, #ff9d00, #ff3300); border: none; padding: 15px 40px; font-size: 22px; font-weight: bold; border-radius: 30px; cursor: pointer; color: white; text-transform: uppercase; box-shadow: 0 0 20px rgba(255, 157, 0, 0.5); }
-        #hud { position: absolute; top: 20px; left: 20px; z-index: 5; font-size: 20px; font-weight: bold; text-shadow: 2px 2px 4px #000; background: rgba(0,0,0,0.5); padding: 10px 20px; border-radius: 10px; border: 1px solid #444; }
+        
+        /* Меню игры стало более прозрачным, чтобы видеть фоны */
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); }
+        .title-game { color: #fff; text-shadow: 0 0 20px #00d2ff, 0 0 40px #00d2ff; font-size: 3.5em; margin-bottom: 10px; text-transform: uppercase; text-align: center;}
+        .subtitle { color: #ff9d00; font-size: 1.5em; margin-bottom: 15px; text-align: center; text-shadow: 0 2px 5px #000; }
+        .grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-bottom: 25px; max-width: 800px; }
+        
+        .card { background: rgba(20, 20, 20, 0.8); border: 2px solid #555; padding: 15px; border-radius: 12px; cursor: pointer; transition: 0.3s; text-align: center; width: 110px; font-size: 1.1em; color: #ddd; backdrop-filter: blur(5px); }
+        .card:hover, .card.selected { border-color: #fff; box-shadow: 0 0 20px #fff; transform: translateY(-5px); background: rgba(50, 50, 50, 0.9); color: white; font-weight: bold; }
+        
+        .btn-start { background: linear-gradient(45deg, #ff9d00, #ff3300); border: none; padding: 15px 50px; font-size: 22px; font-weight: bold; border-radius: 30px; cursor: pointer; color: white; text-transform: uppercase; box-shadow: 0 0 20px rgba(255, 157, 0, 0.8); transition: 0.2s; }
+        .btn-start:hover { transform: scale(1.05); }
+        
+        #hud { position: absolute; top: 20px; left: 20px; z-index: 5; font-size: 20px; font-weight: bold; text-shadow: 2px 2px 4px #000; background: rgba(0,0,0,0.5); padding: 10px 20px; border-radius: 10px; border: 1px solid #444; backdrop-filter: blur(5px); }
         #hud span { color: #ff9d00; }
-        #quiz-modal { max-width: 600px; width: 90%; background: rgba(15, 25, 35, 0.95); border: 2px solid #00d2ff; box-shadow: 0 0 40px rgba(0, 210, 255, 0.4); padding: 30px; border-radius: 20px; text-align: center; }
-        #q-text { font-size: 22px; margin-bottom: 25px; line-height: 1.4; }
+        
+        #quiz-modal { max-width: 600px; width: 90%; background: rgba(10, 15, 25, 0.95); border: 2px solid #00d2ff; box-shadow: 0 0 50px rgba(0, 210, 255, 0.5); padding: 30px; border-radius: 20px; text-align: center; }
+        #q-text { font-size: 22px; margin-bottom: 25px; line-height: 1.4; color: #fff; }
         .ans-btn { display: block; width: 100%; background: rgba(0, 210, 255, 0.1); border: 2px solid #00d2ff; color: white; padding: 15px; margin: 10px 0; font-size: 18px; cursor: pointer; border-radius: 10px; transition: 0.2s; }
-        .ans-btn:hover { background: #00d2ff; color: #000; font-weight: bold; }
+        .ans-btn:hover { background: #00d2ff; color: #000; font-weight: bold; box-shadow: 0 0 15px #00d2ff; }
     </style>
 </head>
 <body>
@@ -46,18 +60,14 @@
     <div id="editor-container" class="hidden">
         <div class="editor-box">
             <h1>⚙️ Конструктор: Аватар 3D</h1>
-            
             <div class="info-panel">
                 <b>Ваш адрес на GitHub:</b><br>
                 <input type="text" id="github-url" class="url-input" placeholder="Например: https://ВАШ_ЛОГИН.github.io/avatar/index.html">
                 <small style="color: #666;">Если вы открыли этот файл с компьютера (file:///...), вставьте сюда ссылку, которую вам выдал GitHub Pages. Иначе игра в Genially не заработает.</small>
             </div>
-            
             <div id="questions-list"></div>
-            
             <button class="btn-add" onclick="addQuestionBlock()">+ Добавить вопрос</button>
             <button class="btn-gen" onclick="generateGame()">Создать код для Genially 🚀</button>
-
             <div id="result-container" class="hidden" style="margin-top: 20px; background: #e8f8f5; padding: 20px; border-radius: 8px; border: 1px solid #1abc9c;">
                 <h3 style="margin-top:0; color: #16a085;">✅ Готово! Скопируйте этот код в Genially (Вставить -> Другое):</h3>
                 <textarea id="output-code" readonly onclick="this.select()"></textarea>
@@ -73,19 +83,24 @@
 
         <div id="main-menu" class="overlay">
             <h1 class="title-game">Путь Аватара</h1>
-            <div class="subtitle">Стихия</div>
+            
+            <div class="subtitle">1. Выбери Магию</div>
             <div class="grid" id="chars">
-                <div class="card selected" onclick="selectElement(this, 0x00d2ff)">Воздух 🌪️</div>
-                <div class="card" onclick="selectElement(this, 0xff3300)">Огонь 🔥</div>
-                <div class="card" onclick="selectElement(this, 0x0055ff)">Вода 💧</div>
-                <div class="card" onclick="selectElement(this, 0x2ecc71)">Земля 🪨</div>
+                <div class="card selected" onclick="selectElement(this, 0x00d2ff)">Воздух<br>🌪️</div>
+                <div class="card" onclick="selectElement(this, 0x0055ff)">Вода<br>💧</div>
+                <div class="card" onclick="selectElement(this, 0x2ecc71)">Земля<br>🪨</div>
+                <div class="card" onclick="selectElement(this, 0xff3300)">Огонь<br>🔥</div>
             </div>
-            <div class="subtitle">Локация</div>
+            
+            <div class="subtitle">2. Выбери Локацию</div>
             <div class="grid" id="locs">
-                <div class="card selected" onclick="selectLocation(this, 'sky')">Небеса</div>
-                <div class="card" onclick="selectLocation(this, 'volcano')">Вулкан</div>
-                <div class="card" onclick="selectLocation(this, 'spirit')">Духи</div>
+                <div class="card selected" onclick="selectLocation(this, 'air_temple')">Храм Воздуха</div>
+                <div class="card" onclick="selectLocation(this, 'water_tribe')">Племя Воды</div>
+                <div class="card" onclick="selectLocation(this, 'earth_kingdom')">Царство Земли</div>
+                <div class="card" onclick="selectLocation(this, 'fire_nation')">Нация Огня</div>
+                <div class="card" onclick="selectLocation(this, 'spirit_world')">Мир Духов</div>
             </div>
+            
             <button class="btn-start" onclick="startGame()">Начать полет</button>
         </div>
 
@@ -95,13 +110,21 @@
                 <div id="q-answers"></div>
             </div>
         </div>
+        
+        <!-- Слой для 3D частиц поверх картинки -->
         <div id="canvas-container"></div>
     </div>
 
     <script>
-        // =========================================================
-        // 1. ИНИЦИАЛИЗАЦИЯ: ОПРЕДЕЛЯЕМ, ЧТО ПОКАЗАТЬ (РЕДАКТОР ИЛИ ИГРУ)
-        // =========================================================
+        // --- ГАЛЕРЕЯ ФОНОВЫХ ИЗОБРАЖЕНИЙ (Высокое качество, тематика Аватара) ---
+        const backgrounds = {
+            'air_temple': 'https://images.unsplash.com/photo-1499346030926-9a72daac6c63?q=80&w=1920&auto=format&fit=crop', // Горы в облаках
+            'water_tribe': 'https://images.unsplash.com/photo-1518182170546-076616fd63e8?q=80&w=1920&auto=format&fit=crop', // Ледники и океан
+            'earth_kingdom': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=1920&auto=format&fit=crop', // Каньоны/Горы
+            'fire_nation': 'https://images.unsplash.com/photo-1542382156909-9ae37b3f56fd?q=80&w=1920&auto=format&fit=crop', // Вулкан и пепел
+            'spirit_world': 'https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1920&auto=format&fit=crop'  // Мистическое сияние
+        };
+
         let gameQuestions = [];
         
         window.onload = function() {
@@ -111,6 +134,9 @@
             if (dataParam) {
                 // ЗАПУСК ИГРЫ
                 document.getElementById('game-container').classList.remove('hidden');
+                // Устанавливаем дефолтный фон при загрузке
+                document.getElementById('game-container').style.backgroundImage = `url('${backgrounds['air_temple']}')`;
+                
                 try {
                     gameQuestions = JSON.parse(decodeURIComponent(dataParam));
                     document.getElementById('total-q').innerText = gameQuestions.length;
@@ -120,21 +146,17 @@
             } else {
                 // ЗАПУСК РЕДАКТОРА
                 document.getElementById('editor-container').classList.remove('hidden');
-                
-                // Автоматически подставляем URL, если файл открыт в интернете (не локально)
                 if (window.location.protocol.startsWith('http')) {
                     document.getElementById('github-url').value = window.location.href.split('?')[0];
                 }
-                
-                addQuestionBlock(); // Добавляем первый пустой блок
+                addQuestionBlock();
             }
         };
 
         // =========================================================
-        // 2. ЛОГИКА РЕДАКТОРА
+        // ЛОГИКА РЕДАКТОРА
         // =========================================================
         let qCount = 0;
-
         function addQuestionBlock() {
             qCount++;
             const div = document.createElement('div');
@@ -152,52 +174,47 @@
 
         function generateGame() {
             const baseUrl = document.getElementById('github-url').value.trim();
-            if(!baseUrl) {
-                alert("Пожалуйста, укажите ссылку на этот файл на GitHub!");
-                return;
-            }
-
+            if(!baseUrl) { alert("Укажите ссылку на GitHub!"); return; }
             const data = [];
             for (let i = 1; i <= qCount; i++) {
                 const qInput = document.getElementById(`q-${i}`);
                 if(!qInput) continue;
-                
-                const q = qInput.value.trim();
-                const correct = document.getElementById(`c-${i}`).value.trim();
-                const w1 = document.getElementById(`w1-${i}`).value.trim();
-                const w2 = document.getElementById(`w2-${i}`).value.trim();
-
-                if (q !== "" && correct !== "") {
-                    data.push({ q: q, c: correct, w: [w1, w2].filter(v => v !== "") });
-                }
+                const q = qInput.value.trim(), correct = document.getElementById(`c-${i}`).value.trim();
+                const w1 = document.getElementById(`w1-${i}`).value.trim(), w2 = document.getElementById(`w2-${i}`).value.trim();
+                if (q !== "" && correct !== "") data.push({ q: q, c: correct, w: [w1, w2].filter(v => v !== "") });
             }
-
-            if(data.length === 0) { alert("Заполните хотя бы один вопрос!"); return; }
-
-            const encodedData = encodeURIComponent(JSON.stringify(data));
-            const finalUrl = `${baseUrl}?data=${encodedData}`;
-            
-            const iframeCode = `<iframe src="${finalUrl}" width="100%" height="600px" frameborder="0" style="border-radius: 15px; overflow:hidden;" allowfullscreen></iframe>`;
-            
-            document.getElementById('output-code').value = iframeCode;
+            if(data.length === 0) { alert("Заполните вопросы!"); return; }
+            const finalUrl = `${baseUrl}?data=${encodeURIComponent(JSON.stringify(data))}`;
+            document.getElementById('output-code').value = `<iframe src="${finalUrl}" width="100%" height="600px" frameborder="0" style="border-radius: 15px; overflow:hidden;" allowfullscreen></iframe>`;
             document.getElementById('result-container').classList.remove('hidden');
         }
 
         // =========================================================
-        // 3. ЛОГИКА 3D ИГРЫ (Запускается только если есть вопросы)
+        // ЛОГИКА ИГРЫ И 3D ПОЛЕТА
         // =========================================================
-        let playerColor = 0x00d2ff, locTheme = 'sky';
+        let playerColor = 0x00d2ff, locTheme = 'air_temple';
         let isPlaying = false, isPaused = false;
         let hp = 3, score = 0, currentQ = 0;
         let scene, camera, renderer, player, objects = [], mouseX = 0, mouseY = 0;
 
-        function selectElement(el, color) { document.querySelectorAll('#chars .card').forEach(c => c.classList.remove('selected')); el.classList.add('selected'); playerColor = color; }
-        function selectLocation(el, type) { document.querySelectorAll('#locs .card').forEach(c => c.classList.remove('selected')); el.classList.add('selected'); locTheme = type; }
+        function selectElement(el, color) { 
+            document.querySelectorAll('#chars .card').forEach(c => c.classList.remove('selected')); 
+            el.classList.add('selected'); 
+            playerColor = color; 
+        }
+        
+        // Изменение локации и мгновенная подмена картинки на заднем фоне
+        function selectLocation(el, type) { 
+            document.querySelectorAll('#locs .card').forEach(c => c.classList.remove('selected')); 
+            el.classList.add('selected'); 
+            locTheme = type; 
+            document.getElementById('game-container').style.backgroundImage = `url('${backgrounds[locTheme]}')`;
+        }
 
         function startGame() {
             document.getElementById('main-menu').classList.add('hidden');
             document.getElementById('hud').style.display = 'block';
-            gameQuestions.sort(() => Math.random() - 0.5); // Перемешиваем вопросы
+            gameQuestions.sort(() => Math.random() - 0.5); 
             init3D();
             isPlaying = true;
             animate3D();
@@ -205,31 +222,43 @@
 
         function init3D() {
             scene = new THREE.Scene();
-            let fogC = locTheme === 'sky' ? 0x87CEEB : (locTheme === 'volcano' ? 0x330000 : 0x2c004c);
-            let bgC = locTheme === 'sky' ? 0x4aa3df : (locTheme === 'volcano' ? 0x1a0000 : 0x160026);
-            scene.fog = new THREE.FogExp2(fogC, 0.006);
-            scene.background = new THREE.Color(bgC);
+            
+            // Настройка тумана в зависимости от локации, чтобы 3D частицы сливались с фото-фоном
+            let fogColor = 0xffffff;
+            if(locTheme === 'air_temple') fogColor = 0x87CEEB;
+            if(locTheme === 'water_tribe') fogColor = 0x002244;
+            if(locTheme === 'earth_kingdom') fogColor = 0x2e8b57;
+            if(locTheme === 'fire_nation') fogColor = 0x330000;
+            if(locTheme === 'spirit_world') fogColor = 0x4b0082;
+            
+            scene.fog = new THREE.FogExp2(fogColor, 0.005);
+            // ФОН СЦЕНЫ прозрачный (чтобы было видно CSS картинку сзади)
+            scene.background = null; 
 
             camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 500);
             camera.position.z = 20;
 
-            renderer = new THREE.WebGLRenderer({ antialias: true });
+            // Включаем поддержку прозрачности (alpha: true)
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x000000, 0); // Прозрачный холст
             document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-            scene.add(new THREE.AmbientLight(0x404040, 2));
+            scene.add(new THREE.AmbientLight(0xffffff, 1));
             const light = new THREE.DirectionalLight(0xffffff, 1); light.position.set(0, 10, 20); scene.add(light);
 
             const pMat = new THREE.MeshLambertMaterial({ color: playerColor, emissive: playerColor, emissiveIntensity: 0.8 });
             player = new THREE.Mesh(new THREE.OctahedronGeometry(1.5, 0), pMat);
             player.position.y = -5; scene.add(player);
 
-            // Звездная пыль
+            // Создаем поток магической энергии (звезд/снега/пепла) в зависимости от стихии
             const pGeo = new THREE.BufferGeometry();
             const pArr = new Float32Array(3000);
             for(let i=0; i<3000; i++) pArr[i] = (Math.random() - 0.5) * 200;
             pGeo.setAttribute('position', new THREE.BufferAttribute(pArr, 3));
-            scene.add(new THREE.Points(pGeo, new THREE.PointsMaterial({color: 0xffffff, size: 0.3})));
+            
+            // Цвет частиц зависит от выбранного мага (Аватара)
+            scene.add(new THREE.Points(pGeo, new THREE.PointsMaterial({color: playerColor, size: 0.4, transparent: true, opacity: 0.8})));
 
             function onMove(e) {
                 let x = e.touches ? e.touches[0].clientX : e.clientX;
@@ -247,7 +276,7 @@
             if(isScroll) {
                 mesh = new THREE.Mesh(new THREE.TorusGeometry(1.5, 0.3, 8, 20), new THREE.MeshLambertMaterial({ color: 0xffd700, emissive: 0xffaa00 }));
             } else {
-                mesh = new THREE.Mesh(new THREE.BoxGeometry(2.5, 2.5, 2.5), new THREE.MeshLambertMaterial({ color: 0x333333 }));
+                mesh = new THREE.Mesh(new THREE.BoxGeometry(2.5, 2.5, 2.5), new THREE.MeshLambertMaterial({ color: 0x222222 }));
             }
             mesh.position.set((Math.random()-0.5)*40, (Math.random()-0.5)*25, -120);
             mesh.userData = { isScroll: isScroll };
@@ -279,13 +308,14 @@
 
         function takeDamage() {
             hp--; document.getElementById('hp').innerText = hp;
-            const oldBg = scene.background; scene.background = new THREE.Color(0xff0000);
-            setTimeout(() => scene.background = oldBg, 150);
+            const container = document.getElementById('game-container');
+            container.style.filter = "sepia(100%) hue-rotate(-50deg) saturate(500%)"; // Эффект красной вспышки поверх фото
+            setTimeout(() => container.style.filter = "none", 200);
             if(hp <= 0) { setTimeout(() => { alert("Игра окончена!"); location.reload(); }, 100); }
         }
 
         function openQuiz() {
-            if(currentQ >= gameQuestions.length) { alert("Победа!"); location.reload(); return; }
+            if(currentQ >= gameQuestions.length) { alert("Вы собрали все знания! Победа!"); location.reload(); return; }
             isPaused = true;
             const qData = gameQuestions[currentQ];
             document.getElementById('q-text').innerText = qData.q;
@@ -300,10 +330,11 @@
                 btn.onclick = () => {
                     if(ans === qData.c) {
                         score++; document.getElementById('score').innerText = score; currentQ++;
-                        const oldBg = scene.background; scene.background = new THREE.Color(0x00ff00);
-                        setTimeout(() => scene.background = oldBg, 150);
+                        const container = document.getElementById('game-container');
+                        container.style.filter = "hue-rotate(90deg) saturate(200%)"; // Эффект зеленой вспышки
+                        setTimeout(() => container.style.filter = "none", 200);
                         document.getElementById('quiz-overlay').classList.add('hidden'); isPaused = false;
-                    } else { alert("Неверно!"); takeDamage(); }
+                    } else { alert("Неверный ответ! Потеря энергии."); takeDamage(); }
                 };
                 ansCont.appendChild(btn);
             });
