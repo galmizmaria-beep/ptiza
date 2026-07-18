@@ -573,8 +573,8 @@
     // ГЕНЕРАЦИЯ ДЛЯ СКАЧИВАНИЯ
     function generate() {
         const gameHtml = getGameCode();
-        const b64 = btoa(unescape(encodeURIComponent(gameHtml)));
-        const iframeCode = `<iframe src="data:text/html;base64,${b64}" width="100%" height="100%" frameborder="0" allow="autoplay; fullscreen" style="border:none; width:100%; height:100%; border-radius: 10px;"></iframe>`;
+        const uid = 'gen_' + Math.random().toString(36).substr(2, 9);
+        const iframeCode = `<div id="${uid}" style="width:100%;height:100vh;margin:0;padding:0;"></div><script>(function(){var iframe=document.createElement('iframe');iframe.style.cssText='width:100%;height:100%;border:none;border-radius:10px;';iframe.setAttribute('allow','autoplay; fullscreen');document.getElementById('${uid}').appendChild(iframe);iframe.contentWindow.document.open();iframe.contentWindow.document.write(decodeURIComponent("${encodeURIComponent(gameHtml)}"));iframe.contentWindow.document.close();})();<` + `/script>`;
         
         document.getElementById('finalCode').value = iframeCode;
         document.getElementById('generation-status').style.display = 'block';
