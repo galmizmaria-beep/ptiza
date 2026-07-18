@@ -3,321 +3,389 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Полет Аватара: Конструктор</title>
+    <title>Полет Аватара: Мастер</title>
     <style>
         :root { 
-            --primary: #00d2ff; --bg: #040a18; --panel: rgba(10, 16, 36, 0.9); 
-            --text: #e0e0ff; --success: #00ff88;
-            --border-glow: #00a2ff50; --shadow-glow: #00d2ff;
+            --primary: #00d2ff; 
+            --bg: #040a18; 
+            --panel: rgba(10, 16, 36, 0.7); 
+            --text: #e0e0ff; 
+            --accent: #ff00ff; 
+            --success: #00ff88;
+            --border-glow: #00a2ff80;
+            --shadow-glow-soft: #00d2ff30;
+            --shadow-glow-hard: #00d2ff;
         }
         body { 
             font-family: 'Segoe UI', Tahoma, sans-serif; 
-            background: var(--bg); color: var(--text); 
-            margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+            background: var(--bg) url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Cdefs%3E%3CradialGradient id="grad" cx="50%25" cy="50%25" r="50%25"%3E%3Cstop offset="0%25" stop-color="%23fff" stop-opacity="0.2" /%3E%3Cstop offset="100%25" stop-color="%23fff" stop-opacity="0" /%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx="20" cy="30" r="1.5" fill="url(%23grad)"/%3E%3Ccircle cx="80" cy="70" r="1" fill="url(%23grad)"/%3E%3Ccircle cx="50" cy="90" r="0.5" fill="url(%23grad)"/%3E%3Ccircle cx="90" cy="10" r="1.2" fill="url(%23grad)"/%3E%3C/svg%3E');
+            color: var(--text); 
+            margin: 0; 
+            padding: 20px; 
+            font-size: 14px; 
+            height: 100vh;
+            box-sizing: border-box;
+            overflow: hidden;
         }
         
-        /* Заголовок */
         header { 
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 10px 20px; background: #02050c; border-bottom: 2px solid var(--primary);
-            box-shadow: 0 0 15px var(--border-glow); z-index: 10;
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 2px solid var(--border-glow); 
+            padding-bottom: 10px; 
+            margin-bottom: 15px; 
+            text-shadow: 0 0 10px var(--shadow-glow-hard);
+            height: 50px;
         }
-        h1 { margin: 0; color: var(--primary); font-size: 20px; text-transform: uppercase; text-shadow: 0 0 10px var(--primary); }
-        .lang-switch button { background: #333; color: #fff; border: 1px solid #555; padding: 5px 10px; cursor: pointer; border-radius: 3px;}
-        .lang-switch button.active { background: var(--primary); color: #000; font-weight: bold; }
+        h1 { margin: 0; color: var(--primary); text-transform: uppercase; font-size: 22px; }
+        .lang-switch button { background: #333; color: #fff; border: 1px solid #555; padding: 5px 10px; cursor: pointer; transition: 0.3s; }
+        .lang-switch button.active { background: var(--primary); color: #000; font-weight: bold; box-shadow: 0 0 10px var(--shadow-glow-hard); }
 
-        /* Основная сетка: Левая панель и Правое превью */
-        .main-layout { display: flex; height: calc(100vh - 50px); width: 100%; }
+        /* ИЗМЕНЕННАЯ СЕТКА: Панель слева, Предпросмотр справа */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 450px 1fr;
+            gap: 20px;
+            height: calc(100vh - 100px);
+        }
+
+        .left-panel {
+            overflow-y: auto;
+            padding-right: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Настройка скроллбара для панели слева */
+        .left-panel::-webkit-scrollbar { width: 8px; }
+        .left-panel::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); border-radius: 4px; }
+        .left-panel::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
+
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .card { 
+            background: var(--panel); 
+            padding: 20px; 
+            border-radius: 10px; 
+            border: 1px solid var(--border-glow);
+            box-shadow: 0 0 15px var(--shadow-glow-soft), inset 0 0 10px var(--shadow-glow-soft);
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+        .card:hover { border-color: var(--primary); }
+
+        h2 { margin-top: 0; color: var(--primary); border-bottom: 1px solid var(--border-glow); padding-bottom: 10px; font-size: 18px; text-shadow: 0 0 5px var(--primary); }
+        h3 { font-size:16px; margin-top:15px; margin-bottom: 10px; color:#fff; border-top: 1px solid var(--border-glow); padding-top: 15px; }
+
+        label { display: block; margin-top: 12px; font-weight: bold; color: #aaa; font-size: 13px;}
+        input[type="text"], input[type="number"], textarea.bulk-input, select, input[type="color"] { 
+            width: 100%; padding: 8px; margin-top: 5px; background: #0a0a1a; border: 1px solid #555; color: #fff; border-radius: 4px; box-sizing: border-box; transition: all 0.3s ease;
+        }
+        input[type="color"] { padding: 2px 5px; height: 35px; cursor: pointer; }
+        input:focus, textarea:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 10px var(--shadow-glow-hard); }
+        input[type="range"] { width: 100%; margin-top: 8px; margin-bottom: 5px; }
         
-        /* Левая панель инструментов */
-        .sidebar { 
-            width: 450px; min-width: 450px; background: var(--panel); border-right: 1px solid var(--border-glow);
-            overflow-y: auto; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 20px;
-        }
+        .color-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+        .char-previews { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 5px; min-height: 54px; max-height: 150px; overflow-y: auto; }
+        .preview-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: rgba(255,255,255,0.05); padding: 5px; border-radius: 4px; }
+        .preview-item-content { display: flex; align-items: center; gap: 10px; }
+        .preview-item img { width: 40px; height: 40px; object-fit: cover; border: 2px solid var(--primary); border-radius: 5px; flex-shrink: 0; }
+        .status-text { font-size: 12px; color: var(--success); }
+        .btn-remove { background: #ff5555; color: white; border: none; border-radius: 3px; cursor: pointer; padding: 2px 5px; font-weight: bold; font-size: 10px; }
+        .btn-remove:hover { background: #ff0000; }
+
+        textarea.bulk-input { flex-grow: 1; min-height: 250px; resize: vertical; }
+        .help-text { font-size: 12px; color: #888; margin-top: 5px; line-height: 1.4; }
+
+        /* IFRAME ПРЕДПРОСМОТР ИГРЫ */
+        #previewContainer { flex-grow: 1; border: 2px solid var(--primary); background: #000; overflow: hidden; box-shadow: 0 0 20px var(--shadow-glow-hard); border-radius: 10px; position: relative;}
+        #gamePreview { width: 100%; height: 100%; border: none; display: block; }
         
-        /* Правая панель (игра) */
-        .preview-area { 
-            flex-grow: 1; padding: 20px; display: flex; flex-direction: column; align-items: center; background: #000;
-        }
-        #gamePreview { 
-            width: 100%; max-width: 1200px; aspect-ratio: 16/9; border: 2px solid var(--primary); 
-            border-radius: 10px; box-shadow: 0 0 30px var(--border-glow); background: #111;
-        }
+        .preview-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;}
 
-        .card { background: rgba(0,0,0,0.5); padding: 15px; border-radius: 8px; border: 1px solid #333; }
-        h2 { margin: 0 0 15px 0; font-size: 16px; color: var(--primary); border-bottom: 1px solid #333; padding-bottom: 5px; }
-        h3 { font-size: 14px; margin: 15px 0 5px 0; color: #aaa; }
-
-        label { display: block; margin-top: 10px; font-size: 12px; font-weight: bold; color: #ccc; }
-        input[type="text"], input[type="number"], select, textarea { 
-            width: 100%; padding: 8px; margin-top: 4px; background: #0a0a1a; 
-            border: 1px solid #555; color: #fff; border-radius: 4px; box-sizing: border-box; 
-        }
-        input:focus, textarea:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 5px var(--primary); }
-        input[type="color"] { width: 100%; height: 35px; padding: 0; border: none; border-radius: 4px; cursor: pointer; margin-top:4px;}
-        input[type="range"] { width: 100%; margin-top: 8px; }
-
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-        .btn-main { background: linear-gradient(45deg, var(--primary), #0088ff); color: #fff; border: none; padding: 15px; width: 100%; font-size: 16px; font-weight: bold; cursor: pointer; border-radius: 5px; text-transform: uppercase; transition: 0.3s; margin-top: 20px;}
-        .btn-main:hover { transform: translateY(-2px); box-shadow: 0 0 15px var(--primary); }
-        .btn-copy { background: #444; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 5px; width: 100%; margin-top: 10px; font-weight: bold;}
-        .btn-copy.success { background: var(--success); color: #000; box-shadow: 0 0 15px var(--success);}
+        .btn-main, .btn-action { background: linear-gradient(45deg, var(--primary), #0088ff); color: #fff; border: none; padding: 12px; font-size: 16px; font-weight: bold; cursor: pointer; border-radius: 5px; text-transform: uppercase; transition: 0.3s; text-shadow: 0 0 5px #fff; width: 100%;}
+        .btn-action { padding: 8px 15px; font-size: 14px; width: auto; background: #333; border: 1px solid #555; color: #fff; box-shadow: none; }
+        .btn-main:hover, .btn-action:hover { transform: scale(1.02); box-shadow: 0 0 15px var(--shadow-glow-hard); border-color: var(--primary);}
         
-        .char-previews { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
-        .preview-thumb { width: 40px; height: 40px; object-fit: cover; border: 1px solid var(--primary); border-radius: 5px; cursor: pointer; position: relative;}
-        .preview-thumb:hover::after { content: "❌"; position: absolute; top:0; left:0; right:0; bottom:0; background:rgba(255,0,0,0.7); display:flex; align-items:center; justify-content:center; font-size: 12px; }
-
-        textarea.bulk-input { height: 120px; resize: vertical; white-space: pre; }
-        .help-text { font-size: 11px; color: #888; margin-top: 5px; }
-
-        /* Скрытые элементы */
-        #finalCode { position: absolute; left: -9999px; }
-        .hidden { display: none !important; }
+        #generation-status { color: var(--success); text-align: center; margin-top: 10px; font-weight: bold; display: none; font-size: 16px;}
+        #copySection { display: none; background: #111; padding: 15px; border-radius: 5px; text-align: center; border: 1px solid var(--success);}
+        .btn-copy { background: #444; color: white; border: 2px solid #666; padding: 10px 20px; font-size: 14px; cursor: pointer; border-radius: 50px; display: inline-flex; align-items: center; gap: 10px; transition: all 0.3s ease; }
+        .btn-copy:hover { box-shadow: 0 0 15px var(--primary);}
+        .btn-copy.success { background: var(--success); color: #000; border-color: var(--success); box-shadow: 0 0 15px var(--success);}
+        .hidden-code { position: absolute; left: -9999px; }
     </style>
 </head>
 <body>
 
-<header>
-    <h1 data-key="title">Полет Аватара: Конструктор</h1>
-    <div class="lang-switch">
-        <button onclick="setLang('ru')" id="btn-ru" class="active">RU</button>
-        <button onclick="setLang('en')" id="btn-en">EN</button>
-    </div>
-</header>
-
-<div class="main-layout">
-    <!-- ЛЕВАЯ ПАНЕЛЬ ИНСТРУМЕНТОВ -->
-    <div class="sidebar" id="sidebar">
-        
-        <!-- Секция: Базовые тексты -->
-        <div class="card">
-            <h2 data-key="sec_texts">📝 Тексты и названия</h2>
-            <div class="grid-2">
-                <div><label data-key="lbl_gameTitle">Заголовок игры:</label><input type="text" id="txtTitle" value="ПОЛЕТ АВАТАРА" oninput="scheduleUpdate()"></div>
-                <div><label data-key="lbl_btnStart">Кнопка Старт:</label><input type="text" id="txtStart" value="ИГРАТЬ" oninput="scheduleUpdate()"></div>
-                <div><label data-key="lbl_win">Текст победы:</label><input type="text" id="txtWin" value="ТЫ ПОБЕДИЛ!" oninput="scheduleUpdate()"></div>
-                <div><label data-key="lbl_lose">Текст поражения:</label><input type="text" id="txtLose" value="ВРЕМЯ ВЫШЛО" oninput="scheduleUpdate()"></div>
-                <div><label data-key="lbl_name1">Имя 1 (Аватар):</label><input type="text" id="txtAvatarLabel" value="АВАТАР" oninput="scheduleUpdate()"></div>
-                <div><label data-key="lbl_name2">Имя 2 (Существо):</label><input type="text" id="txtCreatureLabel" value="СУЩЕСТВО" oninput="scheduleUpdate()"></div>
-            </div>
+    <header>
+        <h1 data-key="title">Полет Аватара: Мастер</h1>
+        <div class="lang-switch">
+            <button onclick="setLang('ru')" id="btn-ru" class="active">RU</button>
+            <button onclick="setLang('en')" id="btn-en">EN</button>
         </div>
+    </header>
 
-        <!-- Секция: Цвета и Дизайн -->
-        <div class="card">
-            <h2 data-key="sec_design">🎨 Цвета и Дизайн</h2>
+    <div class="main-layout" id="settingsPanel">
+        <!-- ЛЕВАЯ ПАНЕЛЬ ИНСТРУМЕНТОВ -->
+        <div class="left-panel">
             
-            <label data-key="lbl_anim">Анимация названия:</label>
-            <select id="selTitleAnim" onchange="scheduleUpdate()">
-                <option value="pulse-title">Пульсация (Свечение)</option>
-                <option value="bounce-title">Прыжок (Вверх-вниз)</option>
-                <option value="float-title">Полет (Покачивание)</option>
-                <option value="none">Без анимации</option>
-            </select>
+            <div class="card">
+                <h2 data-key="sec_settings">⚙️ Тексты и Геймплей</h2>
+                <label data-key="lbl_gameTitle">Заголовок игры:</label>
+                <input type="text" id="txtTitle" value="ПОЛЕТ АВАТАРА">
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div><label data-key="lbl_avatar_name">Текст 'Аватар':</label><input type="text" id="txtAvatarLbl" value="АВАТАР"></div>
+                    <div><label data-key="lbl_creature_name">Текст 'Существо':</label><input type="text" id="txtCreatureLbl" value="СУЩЕСТВО"></div>
+                    
+                    <div><label data-key="lbl_btnStart">Кнопка Старт:</label><input type="text" id="txtStart" value="ИГРАТЬ"></div>
+                    <div><label data-key="lbl_time">Время (с):</label><input type="number" id="valTime" value="60"></div>
+                    
+                    <div><label data-key="lbl_win">Текст победы:</label><input type="text" id="txtWin" value="ТЫ ПОБЕДИЛ!"></div>
+                    <div><label data-key="lbl_lose">Текст поражения:</label><input type="text" id="txtLose" value="ВРЕМЯ ВЫШЛО"></div>
+                </div>
 
-            <div class="grid-2">
-                <div><label>Цвет названия:</label><input type="color" id="colTitle" value="#ffffff" oninput="scheduleUpdate()"></div>
-                <div><label>Имена персонажей:</label><input type="color" id="colLabels" value="#ffffff" oninput="scheduleUpdate()"></div>
-                <div><label>Текст победы:</label><input type="color" id="colWin" value="#00ff88" oninput="scheduleUpdate()"></div>
-                <div><label>Текст поражения:</label><input type="color" id="colLose" value="#ff3333" oninput="scheduleUpdate()"></div>
+                <label data-key="lbl_level_style">Стиль уровня:</label>
+                <select id="levelStyle">
+                   <option value="balanced" data-key="opt_balanced">Сбалансированный</option>
+                   <option value="sparse" data-key="opt_sparse">Редкие (для новичков)</option>
+                   <option value="dense" data-key="opt_dense">Плотные (астероидный дождь)</option>
+                </select>
+
+                <label data-key="lbl_speed">Скорость полета:</label>
+                <input type="range" id="speedRange" min="1" max="10" value="3">
+                <label data-key="lbl_size">Размер аватара/существа:</label>
+                <input type="range" id="sizeRange" min="0.5" max="2.0" step="0.1" value="1.0">
+                <label data-key="lbl_obj_size">Размер объектов:</label>
+                <input type="range" id="objSizeRange" min="0.5" max="2.0" step="0.1" value="1.0">
             </div>
 
-            <h3>Кнопки (Играть / Рестарт)</h3>
-            <div class="grid-2">
-                <div><label>Цвет фона кнопки:</label><input type="color" id="colBtn" value="#00d2ff" oninput="scheduleUpdate()"></div>
-                <div><label>Цвет текста:</label><input type="color" id="colBtnText" value="#ffffff" oninput="scheduleUpdate()"></div>
-                <div><label>Цвет свечения:</label><input type="color" id="colBtnGlow" value="#00d2ff" oninput="scheduleUpdate()"></div>
+            <div class="card">
+                <h2 data-key="sec_colors">🎨 Цвета и Анимация</h2>
+                
+                <label data-key="lbl_anim_title">Анимация заголовка:</label>
+                <select id="titleAnimation">
+                    <option value="anim-pulse" data-key="opt_anim_pulse">Пульсация (Pulse)</option>
+                    <option value="anim-bounce" data-key="opt_anim_bounce">Прыжок (Bounce)</option>
+                    <option value="anim-shake" data-key="opt_anim_shake">Тряска (Shake)</option>
+                    <option value="anim-none" data-key="opt_anim_none">Без анимации</option>
+                </select>
+
+                <label data-key="lbl_c_bg_op">Прозрачность фона (0.1 - 1.0):</label>
+                <input type="range" id="cBgOp" min="0.1" max="1.0" step="0.1" value="0.7">
+
+                <div class="color-grid">
+                    <div><label data-key="lbl_c_title">Цвет заголовка:</label><input type="color" id="cTitle" value="#ffffff"></div>
+                    <div><label data-key="lbl_c_char">Цвет 'Аватар/Существо':</label><input type="color" id="cChar" value="#ffffff"></div>
+                    
+                    <div><label data-key="lbl_c_bg">Цвет фона игры:</label><input type="color" id="cBg" value="#040a18"></div>
+                    <div><label data-key="lbl_c_btn">Цвет кнопок:</label><input type="color" id="cBtn" value="#00d2ff"></div>
+                    
+                    <div><label data-key="lbl_c_btn_glow">Свечение кнопок:</label><input type="color" id="cBtnGlow" value="#00d2ff"></div>
+                    <div><label data-key="lbl_c_play">Текст на кнопках:</label><input type="color" id="cPlayTxt" value="#ffffff"></div>
+
+                    <div><label data-key="lbl_c_quiz">Цвет окна вопроса:</label><input type="color" id="cQuiz" value="#040a18"></div>
+                    <div><label data-key="lbl_c_quiz_ans">Цвет вариантов ответа:</label><input type="color" id="cQuizAns" value="#1a1a2d"></div>
+                    
+                    <div><label data-key="lbl_c_quiz_glow">Свечение вопроса:</label><input type="color" id="cQuizGlow" value="#00d2ff"></div>
+                    <div><label data-key="lbl_c_winlose">Текст победы/поражения:</label><input type="color" id="cWinLose" value="#ffffff"></div>
+                </div>
             </div>
 
-            <h3>Окно с вопросом</h3>
-            <div class="grid-2">
-                <div><label>Фон окна:</label><input type="color" id="colQuizBg" value="#040a18" oninput="scheduleUpdate()"></div>
-                <div><label>Кнопки ответов:</label><input type="color" id="colQuizBtn" value="#1a1a2d" oninput="scheduleUpdate()"></div>
-                <div><label>Свечение окна:</label><input type="color" id="colQuizGlow" value="#00d2ff" oninput="scheduleUpdate()"></div>
+            <div class="card">
+                <h2 data-key="sec_visual">🖼️ Картинки и Ресурсы</h2>
+                
+                <label data-key="lbl_frame">Свой круг/рамка для выбора:</label>
+                <input type="file" id="fFrame" accept="image/*" onchange="loadSingleAsset('frame')">
+
+                <label data-key="lbl_avatars">Аватары (до 6 шт.):</label>
+                <input type="file" id="fAvatars" accept="image/*" multiple onchange="loadMultipleAssets('avatars', 'avatar-previews')">
+                <div id="avatar-previews" class="char-previews"></div>
+                
+                <label data-key="lbl_creatures">Существа (до 6 шт.):</label>
+                <input type="file" id="fCreatures" accept="image/*" multiple onchange="loadMultipleAssets('creatures', 'creature-previews')">
+                <div id="creature-previews" class="char-previews"></div>
+
+                <label data-key="lbl_bg">Фон уровня:</label>
+                <input type="file" id="fBg" accept="image/*" onchange="loadSingleAsset('bg')">
+                <label data-key="lbl_obs">Препятствие:</label>
+                <input type="file" id="fObs" accept="image/*" onchange="loadSingleAsset('obs')">
+                <label data-key="lbl_coin">Монета (для вопросов):</label>
+                <input type="file" id="fCoin" accept="image/*" onchange="loadSingleAsset('coin')">
+                <label data-key="lbl_music">Музыка:</label>
+                <input type="file" id="fMusic" accept="audio/*" onchange="loadSingleAsset('music', false)">
+
+                <h3 data-key="sec_compress">Сжатие картинок</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div><label data-key="lbl_max_dim">Макс. (px):</label><input type="number" id="maxDim" value="1024"></div>
+                    <div><label data-key="lbl_quality">Качество:</label><input type="range" id="jpegQuality" min="0.1" max="1.0" step="0.1" value="0.7"></div>
+                </div>
             </div>
 
-            <h3>Задний фон уровня</h3>
-            <div class="grid-2">
-                <div><label>Цвет фона (если нет картинки):</label><input type="color" id="colBg" value="#040a18" oninput="scheduleUpdate()"></div>
-                <div><label>Прозрачность оверлея (0-1):</label><input type="range" id="rangeBgOp" min="0" max="1" step="0.1" value="0.7" oninput="scheduleUpdate()"></div>
+            <div class="card" style="display:flex; flex-direction:column; flex-grow: 1;">
+                <h2 data-key="sec_questions">❓ Вопросы</h2>
+                <textarea id="bulkQuestions" class="bulk-input" placeholder="..."></textarea>
+                <div class="help-text" data-key="help_q">Формат для выбора: Вопрос | Правильный | Неверный 1 | Неверный 2<br>Формат ввода: Вопрос | Правильный ответ</div>
+            </div>
+            
+        </div>
+
+        <!-- ПРАВАЯ ПАНЕЛЬ ПРЕДПРОСМОТРА И ЭКСПОРТА -->
+        <div class="right-panel">
+            <div class="preview-header">
+                <h2 style="margin:0; border:none;" data-key="sec_preview">🎮 Тест-Драйв Игры</h2>
+                <button class="btn-action" onclick="forcePreviewUpdate()" data-key="btn_restart">🔄 Перезапустить игру</button>
+            </div>
+            
+            <div id="previewContainer">
+                <iframe id="gamePreview" title="Game Preview"></iframe>
+            </div>
+
+            <div style="background: var(--panel); padding: 15px; border-radius: 10px; border: 1px solid var(--border-glow);">
+                <button id="generateBtn" class="btn-main" onclick="generate()" data-key="btn_gen">🚀 СКАЧАТЬ КОД ИГРЫ</button>
+                <div id="generation-status" data-key="gen_status_ok">✅ Игра успешно создана! Скопируйте код ниже.</div>
+                
+                <div id="copySection">
+                   <textarea id="finalCode" class="hidden-code"></textarea>
+                   <button class="btn-copy" id="copyBtn" onclick="doCopy()">
+                       <span id="copyIcon">📋</span> <span id="copyText" data-key="btn_copy">СКОПИРОВАТЬ КОД</span>
+                   </button>
+                   <p class="help-text" data-key="lbl_copy_hint" style="margin-top:10px;">Вставьте этот код в Genially (Insert -> Others).</p>
+               </div>
             </div>
         </div>
-
-        <!-- Секция: Игровой процесс -->
-        <div class="card">
-            <h2 data-key="sec_gameplay">⚙️ Геймплей</h2>
-            <div class="grid-2">
-                <div><label data-key="lbl_time">Время (сек):</label><input type="number" id="valTime" value="60" oninput="scheduleUpdate()"></div>
-                <div><label data-key="lbl_speed">Скорость:</label><input type="range" id="speedRange" min="1" max="10" value="3" oninput="scheduleUpdate()"></div>
-                <div><label data-key="lbl_size">Размер героя:</label><input type="range" id="sizeRange" min="0.5" max="2.0" step="0.1" value="1.0" oninput="scheduleUpdate()"></div>
-                <div><label data-key="lbl_obj_size">Размер преград:</label><input type="range" id="objSizeRange" min="0.5" max="2.0" step="0.1" value="1.0" oninput="scheduleUpdate()"></div>
-            </div>
-            <label data-key="lbl_level_style">Стиль уровня:</label>
-            <select id="levelStyle" onchange="scheduleUpdate()">
-                <option value="balanced" data-key="opt_balanced">Сбалансированный</option>
-                <option value="sparse" data-key="opt_sparse">Редкие (для новичков)</option>
-                <option value="dense" data-key="opt_dense">Плотные (астероидный дождь)</option>
-            </select>
-        </div>
-
-        <!-- Секция: Графика -->
-        <div class="card">
-            <h2 data-key="sec_images">🖼️ Картинки и Звук</h2>
-            <label>Круг (рамка) для выбора персонажей:</label>
-            <input type="file" id="fFrame" accept="image/*" onchange="loadSingleAsset('frame')">
-            <p class="help-text">Если не выбрано, будет использована стандартная рамка.</p>
-
-            <label>Фон уровня:</label><input type="file" id="fBg" accept="image/*" onchange="loadSingleAsset('bg')">
-            <label>Препятствие:</label><input type="file" id="fObs" accept="image/*" onchange="loadSingleAsset('obs')">
-            <label>Монета/Бонус:</label><input type="file" id="fCoin" accept="image/*" onchange="loadSingleAsset('coin')">
-            <label>Музыка (mp3):</label><input type="file" id="fMusic" accept="audio/*" onchange="loadSingleAsset('music', false)">
-
-            <h3>Аватары (Группа 1)</h3>
-            <input type="file" id="fAvatars" accept="image/*" multiple onchange="loadMultipleAssets('avatars')">
-            <div id="avatars-preview" class="char-previews"></div>
-
-            <h3>Существа (Группа 2)</h3>
-            <input type="file" id="fCreatures" accept="image/*" multiple onchange="loadMultipleAssets('creatures')">
-            <div id="creatures-preview" class="char-previews"></div>
-        </div>
-
-        <!-- Секция: Вопросы -->
-        <div class="card">
-            <h2 data-key="sec_questions">❓ Список вопросов</h2>
-            <textarea id="bulkQuestions" class="bulk-input" placeholder="Вопрос | Верный | Неверный 1 | Неверный 2" oninput="scheduleUpdate()"></textarea>
-            <p class="help-text">С новой строки каждый вопрос.</p>
-        </div>
-
-        <button class="btn-main" onclick="generateExportCode()">💾 СКАЧАТЬ КОД ИГРЫ</button>
-        <div id="copySection" class="hidden">
-            <textarea id="finalCode"></textarea>
-            <button class="btn-copy" id="copyBtn" onclick="doCopy()">📋 СКОПИРОВАТЬ</button>
-        </div>
-
     </div>
-
-    <!-- ПРАВАЯ ПАНЕЛЬ ПРЕДПРОСМОТРА -->
-    <div class="preview-area">
-        <h2 style="color:#888; border:none; margin-bottom:10px;">👁️ Предпросмотр (Тест-драйв)</h2>
-        <iframe id="gamePreview" frameborder="0"></iframe>
-    </div>
-</div>
 
 <script>
-    // --- Глобальные переменные ---
-    let updateTimeout;
-    const defaultFrameUrl = 'https://github.com/galmizmaria-beep/ptiza/blob/main/1.png?raw=true';
-    const assets = { bg: null, obs: null, coin: null, frame: null, music: null, avatars: [], creatures: [] };
-    
-    // --- Словари (Мультиязычность) ---
+    const assets = { bg: null, obs: null, coin: null, music: null, frame: null, avatars: [], creatures: [] };
     let currentLang = 'ru';
+    let frameImgUrl = 'https://github.com/galmizmaria-beep/ptiza/blob/main/1.png?raw=true';
+
     const dict = {
         ru: {
-            title: "Полет Аватара: Конструктор", sec_texts: "📝 Тексты и названия",
-            lbl_gameTitle: "Заголовок игры:", lbl_btnStart: "Кнопка Старт:", lbl_win: "Текст победы:", lbl_lose: "Текст поражения:",
-            lbl_name1: "Имя 1 (Аватар):", lbl_name2: "Имя 2 (Существо):",
-            sec_design: "🎨 Цвета и Дизайн", sec_gameplay: "⚙️ Геймплей", sec_images: "🖼️ Картинки и Звук", sec_questions: "❓ Список вопросов",
-            lbl_time: "Время (сек):", lbl_speed: "Скорость:", lbl_size: "Размер героя:", lbl_obj_size: "Размер преград:",
-            lbl_level_style: "Стиль уровня:", opt_balanced: "Сбалансированный", opt_sparse: "Редкие", opt_dense: "Плотные",
-            msg_out_of_coins: "МОНЕТЫ ЗАКОНЧИЛИСЬ!", btn_try_again: "ПОПРОБОВАТЬ СНОВА", score_lbl: "Собрано:"
+            title: "Полет Аватара: Мастер", sec_settings: "⚙️ Тексты и Геймплей", sec_visual: "🖼️ Картинки и Ресурсы", sec_preview: "🎮 Тест-Драйв Игры",
+            lbl_gameTitle: "Заголовок игры:", lbl_avatar_name: "Текст 'Аватар':", lbl_creature_name: "Текст 'Существо':",
+            lbl_btnStart: "Кнопка Старт:", lbl_win: "Текст победы:", lbl_lose: "Текст поражения:", lbl_time: "Время (с):",
+            lbl_level_style: "Стиль уровня:", opt_balanced: "Сбалансированный", opt_sparse: "Редкие (для новичков)", opt_dense: "Плотные (астероидный дождь)",
+            lbl_speed: "Скорость полета:", lbl_size: "Размер аватара/существа:", lbl_obj_size: "Размер объектов:",
+            sec_colors: "🎨 Цвета и Анимация", lbl_anim_title: "Анимация заголовка:", opt_anim_pulse: "Пульсация (Pulse)", opt_anim_bounce: "Прыжок (Bounce)", opt_anim_shake: "Тряска (Shake)", opt_anim_none: "Без анимации",
+            lbl_c_bg_op: "Прозрачность фона (0.1 - 1.0):", lbl_c_title: "Цвет заголовка:", lbl_c_char: "Цвет 'Аватар/Существо':", lbl_c_bg: "Цвет фона игры:", lbl_c_btn: "Цвет кнопок:", lbl_c_btn_glow: "Свечение кнопок:", lbl_c_play: "Текст на кнопках:", lbl_c_quiz: "Цвет окна вопроса:", lbl_c_quiz_ans: "Цвет вариантов ответа:", lbl_c_quiz_glow: "Свечение вопроса:", lbl_c_winlose: "Текст победы/поражения:",
+            lbl_frame: "Свой круг/рамка для выбора:", lbl_avatars: "Аватары (до 6 шт.):", lbl_creatures: "Существа (до 6 шт.):", lbl_bg: "Фон уровня:", lbl_obs: "Препятствие:", lbl_coin: "Монета (для вопросов):", lbl_music: "Музыка:",
+            sec_questions: "❓ Вопросы", help_q: "Формат: Вопрос | Правильный | Неверный 1 | Неверный 2<br>Ввод: Вопрос | Правильный ответ",
+            btn_restart: "🔄 Перезапустить игру", btn_gen: "🚀 СКАЧАТЬ КОД ИГРЫ", btn_copy: "СКОПИРОВАТЬ КОД", btn_copied: "СКОПИРОВАНО!", lbl_copy_hint: "Вставьте этот код в Genially (Insert -> Others) и растяните на весь слайд.",
+            ph_bulk: "Сколько будет 2+2? | 4 | 5 | 6\nСтолица Франции? | Париж", gen_status_ok: "✅ Игра успешно создана! Код ниже.",
+            status_avatar_loaded: "Аватар", status_creature_loaded: "Существо", status_loaded: "загружен", err_max_files: "Максимум 6 файлов.", sec_compress: "Сжатие картинок", lbl_max_dim: "Макс. (px):", lbl_quality: "Качество:",
+            val_title: "ПОЛЕТ АВАТАРА", val_start: "ИГРАТЬ", val_win: "ПОБЕДА!", val_lose: "ВРЕМЯ ВЫШЛО", val_avatar: "АВАТАР", val_creature: "СУЩЕСТВО", msg_out_of_coins: "МОНЕТЫ ЗАКОНЧИЛИСЬ!", btn_try_again: "ПОПРОБОВАТЬ СНОВА", score_lbl: "Собрано:"
         },
         en: {
-            title: "Avatar Flight: Builder", sec_texts: "📝 Texts & Labels",
-            lbl_gameTitle: "Game Title:", lbl_btnStart: "Start Button:", lbl_win: "Win Text:", lbl_lose: "Lose Text:",
-            lbl_name1: "Name 1 (Avatar):", lbl_name2: "Name 2 (Creature):",
-            sec_design: "🎨 Colors & Design", sec_gameplay: "⚙️ Gameplay", sec_images: "🖼️ Images & Audio", sec_questions: "❓ Questions",
-            lbl_time: "Time (s):", lbl_speed: "Speed:", lbl_size: "Hero Size:", lbl_obj_size: "Obstacle Size:",
-            lbl_level_style: "Level Style:", opt_balanced: "Balanced", opt_sparse: "Sparse", opt_dense: "Dense",
-            msg_out_of_coins: "OUT OF COINS!", btn_try_again: "TRY AGAIN", score_lbl: "Score:"
+            title: "Avatar Flight: Master", sec_settings: "⚙️ Texts & Gameplay", sec_visual: "🖼️ Images & Assets", sec_preview: "🎮 Test Drive",
+            lbl_gameTitle: "Game Title:", lbl_avatar_name: "Avatar Text:", lbl_creature_name: "Creature Text:",
+            lbl_btnStart: "Start Button:", lbl_win: "Win Text:", lbl_lose: "Lose Text:", lbl_time: "Time (s):",
+            lbl_level_style: "Level Style:", opt_balanced: "Balanced", opt_sparse: "Sparse (Beginners)", opt_dense: "Dense (Asteroid rain)",
+            lbl_speed: "Flight Speed:", lbl_size: "Character Size:", lbl_obj_size: "Object Size:",
+            sec_colors: "🎨 Colors & Animation", lbl_anim_title: "Title Animation:", opt_anim_pulse: "Pulse", opt_anim_bounce: "Bounce", opt_anim_shake: "Shake", opt_anim_none: "None",
+            lbl_c_bg_op: "BG Opacity (0.1 - 1.0):", lbl_c_title: "Title Color:", lbl_c_char: "Avatar/Creature Text:", lbl_c_bg: "Game BG Color:", lbl_c_btn: "Button Color:", lbl_c_btn_glow: "Button Glow:", lbl_c_play: "Button Text Color:", lbl_c_quiz: "Quiz Window Color:", lbl_c_quiz_ans: "Quiz Answers Color:", lbl_c_quiz_glow: "Quiz Glow:", lbl_c_winlose: "Win/Lose Text Color:",
+            lbl_frame: "Custom Selection Frame:", lbl_avatars: "Avatars (up to 6):", lbl_creatures: "Creatures (up to 6):", lbl_bg: "Level BG:", lbl_obs: "Obstacle:", lbl_coin: "Coin:", lbl_music: "Music:",
+            sec_questions: "❓ Questions", help_q: "Choice: Q | Correct | Wrong1 | Wrong2<br>Input: Q | Correct",
+            btn_restart: "🔄 Restart Game", btn_gen: "🚀 GET GAME CODE", btn_copy: "COPY CODE", btn_copied: "COPIED!", lbl_copy_hint: "Paste into Genially (Insert -> Others) and stretch full screen.",
+            ph_bulk: "2+2? | 4 | 5 | 6\nCapital of France? | Paris", gen_status_ok: "✅ Game created! Code below.",
+            status_avatar_loaded: "Avatar", status_creature_loaded: "Creature", status_loaded: "loaded", err_max_files: "Max 6 files.", sec_compress: "Image Compression", lbl_max_dim: "Max (px):", lbl_quality: "Quality:",
+            val_title: "AVATAR FLIGHT", val_start: "PLAY", val_win: "YOU WON!", val_lose: "GAME OVER", val_avatar: "AVATAR", val_creature: "CREATURE", msg_out_of_coins: "OUT OF COINS!", btn_try_again: "TRY AGAIN", score_lbl: "Collected:"
         }
     };
-
+    
     function setLang(lang) {
         currentLang = lang;
         document.querySelectorAll('[data-key]').forEach(el => {
             const key = el.dataset.key;
-            if (dict[lang][key]) { el.tagName === 'OPTION' ? el.textContent = dict[lang][key] : el.innerHTML = dict[lang][key]; }
+            if (dict[lang][key]) {
+                 if (el.tagName === 'OPTION') el.textContent = dict[lang][key];
+                 else el.innerHTML = dict[lang][key];
+            }
         });
         document.getElementById('btn-ru').className = lang === 'ru' ? 'active' : '';
         document.getElementById('btn-en').className = lang === 'en' ? 'active' : '';
-        scheduleUpdate();
+        const d = dict[lang];
+        document.getElementById('txtTitle').value = d.val_title;
+        document.getElementById('txtStart').value = d.val_start;
+        document.getElementById('txtWin').value = d.val_win;
+        document.getElementById('txtLose').value = d.val_lose;
+        document.getElementById('txtAvatarLbl').value = d.val_avatar;
+        document.getElementById('txtCreatureLbl').value = d.val_creature;
+        document.getElementById('bulkQuestions').placeholder = d.ph_bulk;
+        document.getElementById('copyText').innerText = d.btn_copy;
+        forcePreviewUpdate();
     }
 
-    // --- Обработка Файлов (Сжатие картинок) ---
-    function compressImage(file) {
-        return new Promise((resolve) => {
-            const reader = new FileReader();
+    function hexToRgba(hex, alpha) {
+        let r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    function compressImage(file, settings) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader(); reader.readAsDataURL(file);
             reader.onload = e => {
-                const img = new Image();
+                const img = new Image(); img.src = e.target.result;
                 img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    let { width, height } = img;
-                    const max = 800; // Ограничение для оптимизации
-                    if (width > height && width > max) { height *= max / width; width = max; } 
-                    else if (height > max) { width *= max / height; height = max; }
-                    canvas.width = width; canvas.height = height;
-                    ctx.drawImage(img, 0, 0, width, height);
-                    resolve(canvas.toDataURL('image/webp', 0.8));
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
+                    const canvas = document.createElement('canvas'), ctx = canvas.getContext('2d');
+                    let { width, height } = img; const { maxDim, quality } = settings;
+                    if (width > height) { if (width > maxDim) { height *= maxDim / width; width = maxDim; } } 
+                    else { if (height > maxDim) { width *= maxDim / height; height = maxDim; } }
+                    canvas.width = width; canvas.height = height; ctx.drawImage(img, 0, 0, width, height);
+                    resolve(file.type === 'image/jpeg' ? canvas.toDataURL('image/jpeg', quality) : canvas.toDataURL('image/png'));
+                }; img.onerror = reject;
+            }; reader.onerror = reject;
         });
     }
 
     async function loadSingleAsset(key, isImg = true) {
-        const file = document.getElementById('f' + key.charAt(0).toUpperCase() + key.slice(1)).files[0];
-        if (!file) return;
-        if (isImg) assets[key] = await compressImage(file);
-        else {
-            const reader = new FileReader();
-            reader.onload = e => { assets[key] = e.target.result; scheduleUpdate(); };
-            reader.readAsDataURL(file);
-            return;
-        }
-        scheduleUpdate();
-    }
-
-    async function loadMultipleAssets(key) {
         const input = document.getElementById('f' + key.charAt(0).toUpperCase() + key.slice(1));
-        for (const file of input.files) {
-            if (assets[key].length < 6) assets[key].push(await compressImage(file));
-        }
-        input.value = "";
-        renderThumbnails(key);
-        scheduleUpdate();
+        if (!input.files || !input.files[0]) return;
+        try {
+            if (isImg) {
+                assets[key] = await compressImage(input.files[0], { maxDim: parseInt(document.getElementById('maxDim').value)||1024, quality: parseFloat(document.getElementById('jpegQuality').value)||0.7 });
+            } else {
+                assets[key] = await new Promise((res, rej) => { const r = new FileReader(); r.onload = e => res(e.target.result); r.onerror = rej; r.readAsDataURL(input.files[0]); });
+            }
+            forcePreviewUpdate();
+        } catch (e) { alert("Ошибка файла."); }
     }
 
-    function removeAsset(key, index) {
-        assets[key].splice(index, 1);
-        renderThumbnails(key);
-        scheduleUpdate();
-    }
+    function removeAsset(key, id) { assets[key][id] = null; renderAssetPreviews(key); forcePreviewUpdate(); }
 
-    function renderThumbnails(key) {
-        const container = document.getElementById(`${key}-preview`);
+    function renderAssetPreviews(key) {
+        const container = document.getElementById(key === 'avatars' ? 'avatar-previews' : 'creature-previews');
         container.innerHTML = '';
-        assets[key].forEach((src, i) => {
-            const img = document.createElement('img');
-            img.src = src; img.className = 'preview-thumb';
-            img.onclick = () => removeAsset(key, i);
-            container.appendChild(img);
+        assets[key].forEach((data, i) => {
+            if (!data) return;
+            const div = document.createElement('div'); div.className = 'preview-item';
+            div.innerHTML = `<div class="preview-item-content"><img src="${data}"><span class="status-text ok">✅ ${key==='avatars'?dict[currentLang].status_avatar_loaded:dict[currentLang].status_creature_loaded} ${i+1}</span></div><button class="btn-remove" onclick="removeAsset('${key}', ${i})">❌</button>`;
+            container.appendChild(div);
         });
     }
-
-    // Вспомогательная функция (HEX -> RGB)
-    function hexToRgb(hex) {
-        let r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
-        return `${r}, ${g}, ${b}`;
+    
+    async function loadMultipleAssets(key) {
+        const input = document.getElementById('f' + key.charAt(0).toUpperCase() + key.slice(1));
+        let count = assets[key].filter(a => a !== null).length;
+        if (count >= 6) { alert(dict[currentLang].err_max_files); return; }
+        const files = Array.from(input.files).slice(0, 6 - count);
+        const set = { maxDim: parseInt(document.getElementById('maxDim').value)||1024, quality: parseFloat(document.getElementById('jpegQuality').value)||0.7 };
+        for (const file of files) {
+            let idx = assets[key].indexOf(null);
+            if (idx === -1) { idx = assets[key].length; assets[key].push(null); }
+            assets[key][idx] = await compressImage(file, set);
+        }
+        renderAssetPreviews(key); input.value = ""; forcePreviewUpdate();
     }
-
-    // --- Логика Предпросмотра ---
-    function scheduleUpdate() {
-        clearTimeout(updateTimeout);
-        updateTimeout = setTimeout(refreshPreview, 500); // Debounce 0.5s
-    }
-
+    
     function parseQuestions() {
         return document.getElementById('bulkQuestions').value.trim().split('\n').filter(l => l.trim() !== '').map((l, i) => {
             const p = l.split('|').map(s => s.trim());
@@ -325,135 +393,128 @@
         });
     }
 
-    // Генерация полного кода (используется для предпросмотра и скачивания)
-    function buildGameHTML() {
-        const q = parseQuestions();
-        const conf = {
-            title: document.getElementById('txtTitle').value, startBtn: document.getElementById('txtStart').value,
+    // СБОРКА ИГРОВОГО КОДА
+    function getGameCode() {
+        const langData = { lang: currentLang, dict: dict[currentLang] };
+        const cleanAssets = { ...assets, avatars: assets.avatars.filter(a => a !== null), creatures: assets.creatures.filter(a => a !== null) };
+        
+        // Передача пользовательских настроек дизайна
+        const CFG = {
+            title: document.getElementById('txtTitle').value, btn: document.getElementById('txtStart').value,
             win: document.getElementById('txtWin').value, lose: document.getElementById('txtLose').value,
-            label1: document.getElementById('txtAvatarLabel').value, label2: document.getElementById('txtCreatureLabel').value,
+            lblAvatar: document.getElementById('txtAvatarLbl').value, lblCreature: document.getElementById('txtCreatureLbl').value,
             time: document.getElementById('valTime').value, speed: document.getElementById('speedRange').value,
             scale: document.getElementById('sizeRange').value, objScale: document.getElementById('objSizeRange').value,
-            levelStyle: document.getElementById('levelStyle').value, qs: q, img: assets, lang: dict[currentLang]
+            levelStyle: document.getElementById('levelStyle').value,
+            frame_img: assets.frame || frameImgUrl,
+            
+            // Цвета
+            c_bg: document.getElementById('cBg').value, c_bg_op: document.getElementById('cBgOp').value,
+            c_btn: document.getElementById('cBtn').value, c_btn_glow: document.getElementById('cBtnGlow').value,
+            c_play_txt: document.getElementById('cPlayTxt').value,
+            c_quiz: document.getElementById('cQuiz').value, c_quiz_ans: document.getElementById('cQuizAns').value,
+            c_quiz_glow: document.getElementById('cQuizGlow').value,
+            c_title: document.getElementById('cTitle').value, c_char: document.getElementById('cChar').value,
+            c_winlose: document.getElementById('cWinLose').value,
+            anim_title: document.getElementById('titleAnimation').value,
+
+            qs: parseQuestions(), img: cleanAssets, lang: langData
         };
 
-        // Настройки дизайна (CSS переменные)
-        const cssColors = `
-        :root {
-            --bg-color: ${document.getElementById('colBg').value};
-            --bg-rgb: ${hexToRgb(document.getElementById('colBg').value)};
-            --bg-op: ${document.getElementById('rangeBgOp').value};
-            --c-btn: ${document.getElementById('colBtn').value};
-            --c-btn-txt: ${document.getElementById('colBtnText').value};
-            --c-btn-glow: ${document.getElementById('colBtnGlow').value};
-            --c-quiz-bg: ${document.getElementById('colQuizBg').value};
-            --c-quiz-btn: ${document.getElementById('colQuizBtn').value};
-            --c-quiz-glow: ${document.getElementById('colQuizGlow').value};
-            --c-title: ${document.getElementById('colTitle').value};
-            --c-labels: ${document.getElementById('colLabels').value};
-            --c-win: ${document.getElementById('colWin').value};
-            --c-lose: ${document.getElementById('colLose').value};
-            --img-frame: url('${assets.frame || defaultFrameUrl}');
-            --anim-title: ${document.getElementById('selTitleAnim').value};
-        }`;
+        const bgRgba = hexToRgba(CFG.c_bg, CFG.c_bg_op);
+        const configJson = JSON.stringify(CFG);
 
-        // Шаблон Игры (встраиваемый HTML)
         return `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
-        ${cssColors}
-        @keyframes pulse-title { 0%,100%{transform:scale(1);text-shadow:0 0 10px #fff,0 0 20px var(--c-title)} 50%{transform:scale(1.05);text-shadow:0 0 20px #fff,0 0 40px var(--c-title)} }
-        @keyframes bounce-title { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-15px)} }
-        @keyframes float-title { 0%,100%{transform:rotate(-2deg)} 50%{transform:rotate(2deg)} }
-        @keyframes none { 0%{opacity:1} }
-        html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:var(--bg-color);color:#fff;font-family:'Segoe UI',sans-serif;user-select:none}
-        #game-box{position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;touch-action:none;background:rgba(var(--bg-rgb), var(--bg-op));}
-        canvas{display:block;width:100%;height:100%;position:absolute;top:0;left:0;z-index:1}
-        .hud{position:absolute;top:10px;color:var(--c-btn);font-size:30px;font-weight:700;text-shadow:0 0 5px var(--c-btn-glow),2px 2px 0 #000;padding:5px 15px;background:rgba(0,0,0,.6);border-radius:10px;border:1px solid var(--c-btn);z-index:50}
-        .screen{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(var(--bg-rgb),0.8);backdrop-filter:blur(5px);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;transition:opacity .5s}
+        :root {
+            --c-bg-rgba: ${bgRgba}; --c-bg-hex: ${CFG.c_bg};
+            --c-btn: ${CFG.c_btn}; --c-btn-glow: ${CFG.c_btn_glow}; --c-play-txt: ${CFG.c_play_txt};
+            --c-quiz: ${CFG.c_quiz}; --c-quiz-ans: ${CFG.c_quiz_ans}; --c-quiz-glow: ${CFG.c_quiz_glow};
+            --c-title: ${CFG.c_title}; --c-char: ${CFG.c_char}; --c-winlose: ${CFG.c_winlose};
+        }
+        @keyframes anim-pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.05);}}
+        @keyframes anim-bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-15px);}}
+        @keyframes anim-shake{0%,100%{transform:rotate(0deg);}25%{transform:rotate(-3deg);}75%{transform:rotate(3deg);}}
+        @keyframes anim-none{0%,100%{transform:none;}}
+
+        html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:var(--c-bg-hex);color:#e0e0ff;font-family:'Segoe UI',sans-serif;user-select:none}
+        #game-box{position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;touch-action:none;}
+        canvas{display:block;width:100%;height:100%;pointer-events:none;position:absolute;top:0;left:0;z-index:1}
+        .hud{position:absolute;top:10px;color:var(--c-btn);font-size:clamp(20px,4vw,30px);font-weight:700;text-shadow:0 0 5px var(--c-btn), 2px 2px 0 #000;padding:5px 15px;background:rgba(0,0,0,.6);border-radius:10px;border:1px solid var(--c-btn);z-index:50}
+        .screen{position:absolute;top:0;left:0;width:100%;height:100%;background:var(--c-bg-rgba);backdrop-filter:blur(5px);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;pointer-events:auto;transition:opacity .5s}
         .screen.hidden{opacity:0;pointer-events:none}
-        #mt-title{color:var(--c-title);font-size:clamp(30px,6vw,60px);text-transform:uppercase;text-shadow:0 0 10px #fff,0 0 30px var(--c-title);margin:20px;text-align:center;animation:var(--anim-title) 3s infinite ease-in-out;}
-        button.btn-play{background:var(--c-btn);border:2px solid #fff;padding:15px 60px;color:var(--c-btn-txt);font-size:30px;font-weight:700;border-radius:60px;cursor:pointer;box-shadow:0 0 20px var(--c-btn-glow);transition:all .2s;z-index:200;margin-top:40px}
-        button.btn-play:hover:not(:disabled){transform:scale(1.05);box-shadow:0 0 30px var(--c-btn-glow)}
+        
+        #mt-title{color:var(--c-title);font-size:clamp(30px,6vw,60px);text-transform:uppercase;text-shadow:0 0 10px #000, 0 0 20px var(--c-title);margin:20px;text-align:center;position:relative;animation:${CFG.anim_title} 2s infinite ease-in-out;}
+        #mt-end, #lbl-score{color:var(--c-winlose); text-shadow:0 0 10px #000;}
+        
+        button.btn-play{background:var(--c-btn);border:4px solid #fff;padding:15px 60px;color:var(--c-play-txt);font-size:clamp(24px,5vw,40px);font-weight:700;text-transform:uppercase;border-radius:60px;cursor:pointer;box-shadow:0 0 20px var(--c-btn-glow);transition:all .2s;text-shadow:1px 1px 2px #000;z-index:200;margin-top:40px}
+        button.btn-play:hover:not(:disabled){transform:scale(1.05);box-shadow:0 0 35px var(--c-btn-glow)}
         button.btn-play:disabled{cursor:not-allowed;filter:grayscale(.8);opacity:.5}
-        #quiz-box{display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:90%;max-width:500px;background:var(--c-quiz-bg);border:2px solid var(--c-quiz-glow);padding:20px;border-radius:15px;text-align:center;z-index:200;box-shadow:0 0 30px var(--c-quiz-glow);}
-        .q-btn{display:block;width:100%;padding:15px;margin:8px 0;background:var(--c-quiz-btn);border:1px solid var(--c-quiz-glow);color:#fff;font-size:18px;cursor:pointer;transition:all .2s;border-radius:5px;}
-        .q-btn:hover{background:var(--c-quiz-glow);color:#000;box-shadow:0 0 15px var(--c-quiz-glow)}
-        input.q-inp{width:80%;padding:10px;font-size:20px;text-align:center;margin-bottom:10px;}
-        .selection-container{display:flex;justify-content:center;gap:5vw;width:100%;margin-bottom:30px}
-        .selection-group{display:flex;flex-direction:column;align-items:center;gap:15px;}
-        .selection-box{width:200px;height:200px;background-image:var(--img-frame);background-size:100% 100%;background-position:center;background-repeat:no-repeat;display:flex;align-items:center;justify-content:center;position:relative;}
-        .selection-box::before{content:attr(data-label);position:absolute;top:-35px;color:var(--c-labels);font-weight:700;font-size:22px;text-shadow:0 0 10px #000, 0 0 20px var(--c-labels);}
-        .selection-box img{max-width:70%;max-height:70%;object-fit:contain;animation:breath 4s infinite ease-in-out;}
-        @keyframes breath{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
-        .choice-row{display:flex;gap:10px;justify-content:center;max-width:250px;padding:5px;overflow-x:auto;background:rgba(0,0,0,.5);border-radius:10px;min-height:66px}
-        .choice-thumb{width:50px;height:50px;object-fit:cover;border:3px solid #555;border-radius:5px;cursor:pointer;}
-        .choice-thumb.active{border-color:var(--c-btn-glow);box-shadow:0 0 10px var(--c-btn-glow)}
-        </style></head><body><div id="game-box"><div class="hud" style="left:10px;display:none;">⏱ <span id="ui-time">0</span></div><div class="hud" style="right:10px;display:none;">🏆 <span id="ui-score">0</span></div><canvas id="cvs"></canvas><div id="char-select-screen" class="screen"><h1 id="mt-title"></h1><div class="selection-container"><div class="selection-group"><div class="selection-box" id="avatar-box"><img id="avatar-display"></div><div id="avatar-choices" class="choice-row"></div></div><div class="selection-group"><div class="selection-box" id="creature-box"><img id="creature-display"></div><div id="creature-choices" class="choice-row"></div></div></div><button id="btn-play-game" class="btn-play" disabled></button></div><div id="scr-end" class="screen hidden"><h1 id="mt-end"></h1><p style="font-size:30px; font-weight:bold;"><span id="lbl-score"></span> <span id="end-score">0</span></p><button id="btn-restart" class="btn-play" style="margin-top:20px;"></button></div><div id="quiz-box"><h2 id="q-txt"></h2><div id="q-body"></div></div></div><script>
-        const CFG=${JSON.stringify(conf)},IMG=CFG.img,LANG=CFG.lang;
-        document.getElementById('mt-title').innerText=CFG.title;
-        document.getElementById('btn-play-game').innerText=CFG.startBtn;
-        document.getElementById('avatar-box').dataset.label=CFG.label1;
-        document.getElementById('creature-box').dataset.label=CFG.label2;
-        const cvs=document.getElementById('cvs'),ctx=cvs.getContext('2d');let W,H;
-        function resize(){W=cvs.width=window.innerWidth;H=cvs.height=window.innerHeight;if(!GM.run)GM.mx=W/2,GM.my=H*.8} window.addEventListener('resize',resize);setTimeout(resize,100);
-        const AC=new(window.AudioContext||window.webkitAudioContext);
-        function sfx(type){if(!AC||AC.state==='suspended')AC.resume();const t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();o.connect(g),g.connect(AC.destination);if(type==='coin'){o.type='sine';o.frequency.setValueAtTime(1200,t);g.gain.setValueAtTime(.1,t);g.gain.exponentialRampToValueAtTime(.001,t+.5)}else if(type==='boom'){o.type='sawtooth';o.frequency.setValueAtTime(120,t);o.frequency.exponentialRampToValueAtTime(20,t+.4);g.gain.setValueAtTime(.2,t);g.gain.linearRampToValueAtTime(0,t+.4)}else if(type==='win'){o.type='triangle';[659,783,987].forEach((n,i)=>{o.frequency.setValueAtTime(n,t+i*.1)});g.gain.setValueAtTime(.1,t);g.gain.linearRampToValueAtTime(0,t+.4)}else{o.type='square';o.frequency.setValueAtTime(200,t);o.frequency.exponentialRampToValueAtTime(50,t+.4);g.gain.setValueAtTime(.15,t);g.gain.linearRampToValueAtTime(0,t+.4)}o.start(t),o.stop(t+.6)}
-        const iBg=new Image(),iObs=new Image(),iCoin=new Image(),iAvatar=new Image(),iCreature=new Image();
-        if(IMG.bg)iBg.src=IMG.bg; if(IMG.obs)iObs.src=IMG.obs; if(IMG.coin)iCoin.src=IMG.coin;
-        let music=null;if(IMG.music){music=new Audio(IMG.music);music.loop=true;music.volume=.4}
-        let selA=null,selC=null;
-        function setupC(){
-            const ac=document.getElementById('avatar-choices'),cc=document.getElementById('creature-choices'),pb=document.getElementById('btn-play-game');
-            const ch=()=>{if(selA&&selC)pb.disabled=false};
-            IMG.avatars.forEach(s=>{let i=new Image();i.src=s;i.className='choice-thumb';i.onclick=()=>{selA=s;document.getElementById('avatar-display').src=s;ac.querySelectorAll('img').forEach(x=>x.classList.remove('active'));i.classList.add('active');ch()};ac.appendChild(i)});
-            IMG.creatures.forEach(s=>{let i=new Image();i.src=s;i.className='choice-thumb';i.onclick=()=>{selC=s;document.getElementById('creature-display').src=s;cc.querySelectorAll('img').forEach(x=>x.classList.remove('active'));i.classList.add('active');ch()};cc.appendChild(i)});
-        } setupC();
-        const WM={t:0,pool:[],qi:0,init(){this.pool=CFG.levelStyle==='sparse'?['s','d']:CFG.levelStyle==='dense'?['w','c','sl','d']:['s','d','c','w'];this.t=10;this.qi=0;this.sw('s',2000);this.sw('d',4500);this.nx()},nx(){this.t=CFG.levelStyle==='sparse'?60+Math.random()*40:CFG.levelStyle==='dense'?20+Math.random()*20:40+Math.random()*40},upd(){if(GM.pause)return;this.t--;if(this.t<=0){this.sw(this.pool[Math.floor(Math.random()*this.pool.length)]);this.nx()}},sw(tp,bz=8e3){let y=(Math.random()-.5)*H*.8,pc=this.qi<CFG.qs.length,add=(t,x,z,q)=>{let o={t,x,y,z};if(q!==null)o.q=q;GM.objs.push(o)};if(tp==='s'){if(pc){add('c',(Math.random()-.5)*W*.6,bz,this.qi++)}else add('o',(Math.random()-.5)*W*1.5,bz,null)}else if(tp==='d'){let x=(Math.random()-.5)*W*1.5;add('o',x,bz,null);if(pc)add('c',x+(Math.random()>.5?W*.4:-W*.4),bz+500,this.qi++);else add('o',x+(Math.random()>.5?W*.5:-W*.5),bz+500,null)}else if(tp==='w'){let g=Math.random()<.5?1:3;for(let i=0;i<5;i++){let x=(i-2)*W*.4;if(i===g){if(pc)add('c',x,bz,this.qi++)}else add('o',x,bz,null)}}else if(tp==='c'){let px=(Math.random()-.5)*W*.2,wd=W*(.4+Math.random()*.3);for(let i=0;i<6;i++){add('o',px-wd,bz+i*200,null);add('o',px+wd,bz+i*200,null)}if(pc)add('c',px,bz-200,this.qi++)}else if(tp==='sl'){let sx=(Math.random()-.5)*W*.3;for(let i=0;i<4;i++)add('o',sx+W*.5*(i%2?1:-1),bz+i*800,null);if(pc)add('c',sx,bz+1200,this.qi++)}}};
-        const GM={run:false,pause:false,time:0,score:0,objs:[],mx:0,my:0,bgY:0,hurt:0,int:null,
-            start:()=>{if(!selA||!selC)return;iA=new Image();iA.src=selA;iC=new Image();iC.src=selC;document.getElementById('char-select-screen').classList.add('hidden');document.querySelectorAll('.hud').forEach(h=>h.style.display='block');resize();if(AC.state==='suspended')AC.resume();if(music)music.play().catch(e=>{});WM.init();GM.run=true;loop();GM.int=setInterval(()=>{if(GM.run&&!GM.pause){GM.time--;document.getElementById('ui-time').innerText=GM.time;if(GM.time<=0)GM.end(false)}},1e3);document.getElementById('ui-time').innerText=GM.time},
-            end:r=>{GM.run=false;clearInterval(GM.int);const scr=document.getElementById('scr-end');scr.classList.remove('hidden');let te=document.getElementById('mt-end'),be=document.getElementById('btn-restart');document.getElementById('lbl-score').innerText=LANG.score_lbl;
-            if(r===true){te.innerText=CFG.win;te.style.color="var(--c-win)";sfx('win');be.innerText="↺";}else if(r===false){te.innerText=CFG.lose;te.style.color="var(--c-lose)";sfx('lose');be.innerText="↺";}else{te.innerText=LANG.msg_out_of_coins;te.style.color="var(--c-lose)";sfx('lose');be.innerText=LANG.btn_try_again;}document.getElementById('end-score').innerText=GM.score+(CFG.qs.length?" / "+CFG.qs.length:"");if(music)music.pause()},
-            reset:()=>{document.getElementById('scr-end').classList.add('hidden');document.getElementById('char-select-screen').classList.remove('hidden');document.querySelectorAll('.hud').forEach(h=>h.style.display='none');GM.time=parseInt(CFG.time);GM.score=0;document.getElementById('ui-time').innerText=GM.time;document.getElementById('ui-score').innerText=GM.score;GM.objs=[];GM.hurt=0;GM.run=false;if(music)music.currentTime=0;pre()}
-        };
-        document.getElementById('btn-play-game').addEventListener('click',GM.start);document.getElementById('btn-restart').addEventListener('click',GM.reset);
-        window.addEventListener('mousemove',e=>{if(!GM.pause){GM.mx=e.clientX;GM.my=e.clientY}});window.addEventListener('touchmove',e=>{if(!GM.pause){e.preventDefault();GM.mx=e.touches[0].clientX;GM.my=e.touches[0].clientY}},{passive:false});
-        function drawBg(){if(iBg.src&&iBg.complete){let p=ctx.createPattern(iBg,'repeat');if(p){ctx.save();ctx.translate(0,GM.bgY%iBg.height);ctx.fillStyle=p;ctx.fillRect(0,-iBg.height,W,H+iBg.height*2);ctx.restore()}}}
-        function loop(){if(!GM.run)return;requestAnimationFrame(loop);ctx.clearRect(0,0,W,H);drawBg();if(!GM.pause){let sp=parseInt(CFG.speed)*4;WM.upd();GM.bgY+=sp*.1;let pX=(W/2-GM.mx)*.3,pY=(H*.75-GM.my)*.3;for(let i=GM.objs.length-1;i>=0;i--){let o=GM.objs[i];o.z-=sp;if(o.z<10){GM.objs.splice(i,1);continue}if(o.z<200&&o.z>20){let ds=.7+GM.my/H*.6,ps=120*parseFloat(CFG.scale)*ds,sc=500/o.z,sx=W/2+(o.x+pX)*sc,sy=H/2+(o.y+pY)*sc,sz=100*sc*parseFloat(CFG.objScale),dt=Math.hypot(sx-GM.mx,sy-GM.my);if(dt<sz*.5+ps*.4){let ho=GM.objs.splice(i,1)[0];hit(ho)}}}if(GM.hurt>0)GM.hurt--;if(CFG.qs.length>0&&WM.qi>=CFG.qs.length&&!GM.objs.some(o=>o.t==='c')){GM.end(GM.score>=CFG.qs.length?true:'out_of_coins');return}} GM.objs.sort((a,b)=>b.z-a.z);let px=(W/2-GM.mx)*.3,py=(H*.75-GM.my)*.3,os=parseFloat(CFG.objScale);for(let o of GM.objs){let sc=500/o.z,sx=W/2+(o.x+px)*sc,sy=H/2+(o.y+py)*sc,sz=100*sc*os,im=o.t==='c'?iCoin:iObs;if(im.src&&im.complete)ctx.drawImage(im,sx-sz/2,sy-sz/2,sz,sz)} if(!(GM.hurt>0&&Math.floor(GM.hurt/4)%2===0)){let ds=.7+GM.my/H*.6,ps=120*parseFloat(CFG.scale)*ds,ti=(GM.mx-W/2)*.05,as=ps*.5;ctx.save();ctx.translate(GM.mx,GM.my);ctx.rotate(ti*Math.PI/180);if(iC.src&&iC.complete)ctx.drawImage(iC,-ps/2,-ps/2,ps,ps);if(iA.src&&iA.complete)ctx.drawImage(iA,-as/2,-ps*.4,as,as);ctx.restore()}}
-        function pre(){if(GM.run)return;requestAnimationFrame(pre);GM.bgY+=.5;ctx.clearRect(0,0,W,H);drawBg()}
-        function hit(o){if(o.t==='o'){sfx('boom');GM.hurt=30;GM.time-=5;if(GM.time<=0)GM.end(false)}else{sfx('coin');if(CFG.qs.length&&o.q!==undefined){GM.pause=true;quiz(o.q)}}document.getElementById('ui-time').innerText=GM.time;document.getElementById('ui-score').innerText=GM.score}
-        function quiz(qi){let q=CFG.qs[qi];if(!q){GM.pause=false;return}let bx=document.getElementById('quiz-box'),bd=document.getElementById('q-body');document.getElementById('q-txt').innerText=q.t;bd.innerHTML='';bx.style.display='block';const pa=t=>{bx.style.display='none';if(t.trim().toLowerCase()===q.c.trim().toLowerCase()){sfx('win');GM.score++}else{sfx('lose');GM.time-=10}document.getElementById('ui-score').innerText=GM.score;document.getElementById('ui-time').innerText=GM.time;if(GM.time<=0)GM.end(false);setTimeout(()=>GM.pause=false,200)};if(q.type==='choice'){let ar=[q.c,...q.w].sort(()=>Math.random()-.5);ar.forEach(t=>{let b=document.createElement('button');b.className='q-btn';b.innerText=t;b.onclick=e=>{e.stopPropagation();pa(t)};bd.appendChild(b)})}else{let inP=document.createElement('input');inP.className='q-inp';let b=document.createElement('button');b.className='q-btn';b.innerText='OK';b.onclick=e=>{e.stopPropagation();pa(inP.value)};bd.appendChild(inP);bd.appendChild(b);inP.focus()}}
+        
+        #quiz-box{display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:90%;max-width:500px;background:var(--c-quiz);border:2px solid var(--c-quiz-glow);padding:20px;border-radius:15px;text-align:center;z-index:200;pointer-events:auto;box-shadow:0 0 30px var(--c-quiz-glow);backdrop-filter:blur(5px)}
+        .q-btn{display:block;width:100%;padding:15px;margin:8px 0;background:var(--c-quiz-ans);border:1px solid var(--c-quiz-glow);color:#fff;font-size:18px;cursor:pointer;transition:all .2s; border-radius:5px;}
+        .q-btn:hover{background:var(--c-quiz-glow);color:#000;box-shadow:0 0 10px var(--c-quiz-glow)}
+        input.q-inp{width:80%;padding:10px;font-size:20px;text-align:center;margin-bottom:10px;color:#000; border-radius:5px;}
+        
+        #char-select-screen{justify-content:center;padding-bottom:0}
+        #char-select-screen h1{margin-bottom:50px}
+        .selection-container{display:flex;justify-content:center;gap:5vw;width:100%;align-items:flex-start;margin-bottom:50px}
+        .selection-group{display:flex;flex-direction:column;align-items:center;gap:15px;perspective:1000px}
+        .selection-box{width:clamp(120px,25vw,250px);height:clamp(120px,25vw,250px);border:none;background-image:url('${CFG.frame_img}');background-size:100% 100%;background-position:center;background-repeat:no-repeat;display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer}
+        .selection-box::before{content:attr(data-label);position:absolute;top:-40px;color:var(--c-char);text-transform:uppercase;font-weight:700;font-size:clamp(16px,3vw,24px);text-shadow:0 0 10px #000, 0 0 5px var(--c-char)}
+        .selection-box img{max-width:70%;max-height:70%;object-fit:contain;transition:transform .5s cubic-bezier(.25,1,.5,1);animation:anim-pulse 4s infinite ease-in-out;transform-style:preserve-3d}
+        .selection-box img.animate-3d{transform:scale(1.2) rotateY(360deg)!important}
+        
+        .choice-row{display:flex;gap:10px;justify-content:center;max-width:clamp(120px,25vw,250px);padding:5px;box-sizing:border-box;overflow-x:auto;background:rgba(0,0,0,.5);border-radius:10px;min-height:66px}
+        .choice-thumb{width:50px;height:50px;object-fit:cover;border:3px solid #555;border-radius:5px;cursor:pointer;transition:all .2s;flex-shrink:0}
+        .choice-thumb:hover{transform:scale(1.1);border-color:#fff}
+        .choice-thumb.active{border-color:var(--c-btn);box-shadow:0 0 10px var(--c-btn-glow)}
+        </style></head><body><div id="game-box"><div class="hud" style="left:10px;display:none;z-index:50">⏱ <span id="ui-time">0</span></div><div class="hud" style="right:10px;display:none;z-index:50">🏆 <span id="ui-score">0</span></div><canvas id="cvs"></canvas><div id="char-select-screen" class="screen"><h1 id="mt-title"></h1><div class="selection-container"><div class="selection-group"><div class="selection-box" id="avatar-box"><img id="avatar-display"></div><div id="avatar-choices" class="choice-row"></div></div><div class="selection-group"><div class="selection-box" id="creature-box"><img id="creature-display"></div><div id="creature-choices" class="choice-row"></div></div></div><button id="btn-play-game" class="btn-play" disabled></button></div><div id="scr-end" class="screen hidden"><h1 id="mt-end"></h1><p style="font-size:30px; font-weight:bold;"><span id="lbl-score">Score:</span> <span id="end-score" style="color:#fff;">0</span></p><button id="btn-restart" class="btn-play" style="margin-top:20px;"></button></div><div id="quiz-box"><h2 id="q-txt" style="color:#fff; text-shadow:none;"></h2><div id="q-body"></div></div></div><script>
+        const CFG=${configJson};
+        const IMG=CFG.img,LANG=CFG.lang.dict;document.getElementById('mt-title').innerText=CFG.title;document.getElementById('btn-play-game').innerText=CFG.btn;document.getElementById('avatar-box').dataset.label=CFG.lblAvatar;document.getElementById('creature-box').dataset.label=CFG.lblCreature;const cvs=document.getElementById('cvs'),ctx=cvs.getContext('2d');let W,H;function resize(){W=cvs.width=window.innerWidth;H=cvs.height=window.innerHeight;if(!GM.run)GM.mx=W/2,GM.my=H*.8}
+        window.addEventListener('resize',resize);setTimeout(resize,100);const AC=new(window.AudioContext||window.webkitAudioContext);function sfx(type){if(!AC||AC.state==='suspended')AC.resume();const t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();o.connect(g),g.connect(AC.destination);if(type==='coin'){o.type='sine';o.frequency.setValueAtTime(1200,t);g.gain.setValueAtTime(.1,t);g.gain.exponentialRampToValueAtTime(.001,t+.5)}else if(type==='boom'){o.type='sawtooth';o.frequency.setValueAtTime(120,t);o.frequency.exponentialRampToValueAtTime(20,t+.4);g.gain.setValueAtTime(.2,t);g.gain.linearRampToValueAtTime(0,t+.4)}else if(type==='win'){o.type='triangle';const notes=[659,783,987];notes.forEach((n,i)=>{o.frequency.setValueAtTime(n,t+i*.1)});g.gain.setValueAtTime(.1,t);g.gain.linearRampToValueAtTime(0,t+.4)}else if(type==='lose'){o.type='square';o.frequency.setValueAtTime(200,t);o.frequency.exponentialRampToValueAtTime(50,t+.4);g.gain.setValueAtTime(.15,t);g.gain.linearRampToValueAtTime(0,t+.4)}o.start(t),o.stop(t+.6)}
+        const iBg=new Image(),iObs=new Image(),iCoin=new Image(),iAvatar=new Image(),iCreature=new Image();if(IMG.bg)iBg.src=IMG.bg;if(IMG.obs)iObs.src=IMG.obs;if(IMG.coin)iCoin.src=IMG.coin;let music=null;if(IMG.music){music=new Audio(IMG.music);music.loop=true;music.volume=.4}
+        let selectedAvatar=null,selectedCreature=null;function setupChoices(){const avChoices=document.getElementById('avatar-choices'),crChoices=document.getElementById('creature-choices'),playBtn=document.getElementById('btn-play-game');function checkSelection(){if(selectedAvatar&&selectedCreature)playBtn.disabled=false}
+        IMG.avatars.forEach(src=>{const i=new Image();i.src=src,i.className='choice-thumb',i.onclick=()=>{selectedAvatar=src;document.getElementById('avatar-display').src=src;avChoices.querySelectorAll('img').forEach(c=>c.classList.remove('active'));i.classList.add('active');checkSelection()},avChoices.appendChild(i)});IMG.creatures.forEach(src=>{const i=new Image();i.src=src,i.className='choice-thumb',i.onclick=()=>{selectedCreature=src;document.getElementById('creature-display').src=src;crChoices.querySelectorAll('img').forEach(c=>c.classList.remove('active'));i.classList.add('active');checkSelection()},crChoices.appendChild(i)})}
+        ['avatar-box','creature-box'].forEach(id=>{document.getElementById(id).onclick=e=>{const t=e.currentTarget.querySelector('img');if(t.src&&!t.classList.contains("animate-3d")){t.classList.add("animate-3d");setTimeout(()=>t.classList.remove("animate-3d"),1e3)}}});setupChoices();
+        const waveManager={timer:0,config:{},qIndex:0,wavePool:[],init:function(){const style=CFG.levelStyle;if(style==='sparse'){this.config={minTime:60,maxTime:100};this.wavePool=['single','double']}else if(style==='dense'){this.config={minTime:20,maxTime:40};this.wavePool=['wall','corridor','slalom','double']}else{this.config={minTime:40,maxTime:80};this.wavePool=['single','double','corridor','wall']}
+        this.timer=10;this.qIndex=0;this.spawnWave('single', 2000);this.spawnWave('double', 4500);this.spawnWave(this.wavePool[Math.floor(Math.random()*this.wavePool.length)], 7000);this.setNextWaveTimer()},setNextWaveTimer:function(){this.timer=this.config.minTime+Math.random()*(this.config.maxTime-this.config.minTime)},update:function(){if(GM.pause)return;this.timer--;if(this.timer<=0){this.spawnWave(this.wavePool[Math.floor(Math.random()*this.wavePool.length)]);this.setNextWaveTimer()}},spawnWave:function(type, baseZ=8e3){const z=baseZ, y=(Math.random()-.5)*H*.8, placeCoin=this.qIndex<CFG.qs.length;const addObj=(t,x,y,z,qid=null)=>{const obj={t,x,y,z};if(qid!==null)obj.qid=qid;GM.objs.push(obj)};if(type==='single'){if(placeCoin){addObj('c',(Math.random()-.5)*W*.6,y,z,this.qIndex);this.qIndex++}else{addObj('o',(Math.random()-.5)*W*1.5,y,z)}}else if(type==='double'){const x1=(Math.random()-.5)*W*1.5;addObj('o',x1,y,z);if(placeCoin){addObj('c',x1+(Math.random()>.5?W*.4:-W*.4),y,z+500,this.qIndex);this.qIndex++}else{addObj('o',x1+(Math.random()>.5?W*.5:-W*.5),(Math.random()-.5)*H,z+500)}}else if(type==='wall'){const gapIndex=Math.random()<0.6?2:(Math.random()<0.5?1:3);for(let i=0;i<5;i++){const x=(i-2)*W*.4;if(i===gapIndex){if(placeCoin){addObj('c',x,y,z,this.qIndex);this.qIndex++}}else{addObj('o',x,y,z)}}}else if(type==='corridor'){const pathX=(Math.random()-.5)*W*.2;const width=W*(.4+Math.random()*.3);for(let i=0;i<6;i++){addObj('o',pathX-width,y+i*H/5-H/2,z+i*200);addObj('o',pathX+width,y+i*H/5-H/2,z+i*200)}if(placeCoin){addObj('c',pathX,y,z-200,this.qIndex);this.qIndex++}}else if(type==='slalom'){const startX=(Math.random()-.5)*W*.3;for(let i=0;i<4;i++){addObj('o',startX+W*.5*(i%2===0?1:-1),y,z+i*800)}if(placeCoin){addObj('c',startX,y,z+1200,this.qIndex);this.qIndex++}}}};
+        const GM={run:false,pause:false,frame:0,time:0,score:0,objs:[],mx:0,my:0,bgY:0,hurt:0,timerInt:null,start:()=>{if(!selectedAvatar||!selectedCreature)return;iAvatar.src=selectedAvatar;iCreature.src=selectedCreature;document.getElementById('char-select-screen').classList.add('hidden');document.querySelectorAll('.hud').forEach(h=>h.style.display='block');resize();if(AC.state==='suspended')AC.resume();if(music)music.play().catch(e=>{});waveManager.init();GM.run=true;mainLoop();GM.timerInt=setInterval(()=>{if(GM.run&&!GM.pause){GM.time--;document.getElementById('ui-time').innerText=GM.time;if(GM.time<=0)GM.end(false)}},1e3);document.getElementById('ui-time').innerText=GM.time},end:reason=>{if(!GM.run)return;GM.run=false;clearInterval(GM.timerInt);const scr=document.getElementById('scr-end');scr.classList.remove('hidden');let titleEl=document.getElementById('mt-end');let btnEl=document.getElementById('btn-restart');document.getElementById('lbl-score').innerText=LANG.score_lbl+" ";if(reason===true){titleEl.innerText=CFG.win;sfx('win');btnEl.innerText="↺";}else if(reason===false){titleEl.innerText=CFG.lose;sfx('lose');btnEl.innerText="↺";}else if(reason==='out_of_coins'){titleEl.innerText=LANG.msg_out_of_coins;sfx('lose');btnEl.innerText=LANG.btn_try_again;}document.getElementById('end-score').innerText=GM.score+(CFG.qs.length>0?" / "+CFG.qs.length:"");if(music)music.pause();},reset:()=>{const scr=document.getElementById('scr-end');scr.classList.add('hidden');document.getElementById('char-select-screen').classList.remove('hidden');document.querySelectorAll('.hud').forEach(h=>h.style.display='none');GM.time=parseInt(CFG.time);GM.score=0;document.getElementById('ui-time').innerText=GM.time;document.getElementById('ui-score').innerText=GM.score;GM.objs=[];GM.hurt=0;GM.run=false;if(music)music.currentTime=0;preGameLoop()}};
+        document.getElementById('btn-play-game').addEventListener('click',GM.start);document.getElementById('btn-restart').addEventListener('click',GM.reset);window.addEventListener('mousemove',e=>{if(!GM.pause){GM.mx=e.clientX;GM.my=e.clientY}});window.addEventListener('touchmove',e=>{if(!GM.pause){e.preventDefault();GM.mx=e.touches[0].clientX;GM.my=e.touches[0].clientY}},{passive:false});
+        function drawBg(){if(iBg.src&&iBg.complete){let ptrn=ctx.createPattern(iBg,'repeat');if(ptrn){let ch=iBg.height||H;ctx.save();ctx.translate(0,GM.bgY%ch);ctx.fillStyle=ptrn;ctx.fillRect(0,-ch,W,H+ch*2);ctx.restore()}}else{ctx.fillStyle=CFG.c_bg;ctx.fillRect(0,0,W,H)}}
+        function mainLoop(){if(!GM.run)return;requestAnimationFrame(mainLoop);ctx.clearRect(0,0,W,H);if(!GM.pause){let speed=parseInt(CFG.speed);let forwardSpeed=speed*4;GM.frame++;waveManager.update();GM.bgY+=forwardSpeed*.1;let pX=(W/2-GM.mx)*.3,pY=(H*.75-GM.my)*.3;for(let i=GM.objs.length-1;i>=0;i--){let o=GM.objs[i];o.z-=forwardSpeed;if(o.z<10){GM.objs.splice(i,1);continue}if(o.z<200&&o.z>20){let depthScale=.7+GM.my/H*.6,pSize=120*parseFloat(CFG.scale)*depthScale,scale=500/o.z,sx=W/2+(o.x+pX)*scale,sy=H/2+(o.y+pY)*scale,size=100*scale*parseFloat(CFG.objScale||1),dist=Math.hypot(sx-GM.mx,sy-GM.my),hitbox=size*.5+pSize*.4;if(dist<hitbox){let hitObject=GM.objs.splice(i,1)[0];hit(hitObject)}}}if(GM.hurt>0)GM.hurt--;if(!GM.pause&&CFG.qs.length>0&&waveManager.qIndex>=CFG.qs.length&&!GM.objs.some(o=>o.t==='c')){if(GM.score>=CFG.qs.length)GM.end(true);else GM.end('out_of_coins');return;}}
+        drawBg();GM.objs.sort((a,b)=>b.z-a.z);let objScaleUser=parseFloat(CFG.objScale||1);let pX=(W/2-GM.mx)*.3,pY=(H*.75-GM.my)*.3;for(let o of GM.objs){let scale=500/o.z,sx=W/2+(o.x+pX)*scale,sy=H/2+(o.y+pY)*scale,size=100*scale*objScaleUser;let img=o.t==='c'?iCoin:iObs;if(img.src&&img.complete)ctx.drawImage(img,sx-size/2,sy-size/2,size,size)}
+        if(!(GM.hurt>0&&Math.floor(GM.hurt/4)%2===0)){let depthScale=.7+GM.my/H*.6,pSize=120*parseFloat(CFG.scale)*depthScale,tilt=(GM.mx-W/2)*.05,avatarSize=pSize*.5;ctx.save();ctx.translate(GM.mx,GM.my);ctx.rotate(tilt*Math.PI/180);if(iCreature.src&&iCreature.complete)ctx.drawImage(iCreature,-pSize/2,-pSize/2,pSize,pSize);if(iAvatar.src&&iAvatar.complete)ctx.drawImage(iAvatar,-avatarSize/2,-pSize*.4,avatarSize,avatarSize);ctx.restore()}}
+        function preGameLoop(){if(GM.run)return;requestAnimationFrame(preGameLoop);GM.bgY+=.5;ctx.clearRect(0,0,W,H);drawBg()}
+        function hit(obj){if(obj.t==='o'){sfx('boom');GM.hurt=30;let f=document.createElement('div');f.style="position:absolute;top:0;left:0;width:100%;height:100%;background:radial-gradient(circle at center, rgba(255,0,0,0.5) 0%, rgba(255,0,0,0) 70%);pointer-events:none;z-index:99";document.body.appendChild(f);setTimeout(()=>f.remove(),150);GM.time-=5;if(GM.time<=0)GM.end(false)}else if(obj.t==='c'){sfx('coin');if(CFG.qs.length>0&&obj.qid!==undefined){GM.pause=true;quiz(obj.qid)}}document.getElementById('ui-time').innerText=GM.time;document.getElementById('ui-score').innerText=GM.score}
+        function quiz(q_idx){let q=CFG.qs[q_idx];if(!q){GM.pause=false;return}let box=document.getElementById('quiz-box'),body=document.getElementById('q-body');document.getElementById('q-txt').innerText=q.t;body.innerHTML='';box.style.display='block';const processAns=txt=>{box.style.display='none';if(txt.trim().toLowerCase()===q.c.trim().toLowerCase()){sfx('win');GM.score++;}else{sfx('lose');GM.time-=10;}document.getElementById('ui-score').innerText=GM.score;document.getElementById('ui-time').innerText=GM.time;if(GM.time<=0)GM.end(false);setTimeout(()=>GM.pause=false,200);};if(q.type==='choice'){let arr=[q.c,...q.w].sort(()=>Math.random()-.5);arr.forEach(t=>{let b=document.createElement('button');b.className='q-btn';b.innerText=t;b.onclick=e=>{e.stopPropagation();processAns(t)};body.appendChild(b)})}else{let inp=document.createElement('input');inp.className='q-inp';let b=document.createElement('button');b.className='q-btn';b.innerText='OK';b.onclick=e=>{e.stopPropagation();processAns(inp.value)};body.appendChild(inp);body.appendChild(b);inp.focus()}}
         GM.reset();
         <\/script></body></html>`;
     }
 
-    // Обновление предпросмотра (iframe)
-    function refreshPreview() {
-        const iframe = document.getElementById('gamePreview');
-        iframe.srcdoc = buildGameHTML();
+    // ЛАЙВ ПРЕДПРОСМОТР
+    let previewTimeout;
+    function schedulePreviewUpdate() { clearTimeout(previewTimeout); previewTimeout = setTimeout(forcePreviewUpdate, 800); }
+    function forcePreviewUpdate() { document.getElementById('gamePreview').srcdoc = getGameCode(); }
+
+    // ГЕНЕРАЦИЯ ДЛЯ СКАЧИВАНИЯ
+    function generate() {
+        document.getElementById('finalCode').value = getGameCode();
+        document.getElementById('generation-status').style.display = 'block';
+        document.getElementById('copySection').style.display = 'block';
+        setTimeout(() => { document.getElementById('generation-status').style.display = 'none'; }, 5000);
     }
 
-    // Экспорт финального кода
-    function generateExportCode() {
-        const html = buildGameHTML();
-        document.getElementById('finalCode').value = html;
-        document.getElementById('copySection').classList.remove('hidden');
-    }
-
-    // Копирование в буфер обмена
     function doCopy() {
-        const copyText = document.getElementById("finalCode");
-        copyText.select();
-        document.execCommand("copy");
-        
-        const btn = document.getElementById("copyBtn");
-        btn.classList.add("success");
-        btn.innerText = "✅ СКОПИРОВАНО!";
-        setTimeout(() => {
-            btn.classList.remove("success");
-            btn.innerText = "📋 СКОПИРОВАТЬ";
-        }, 2000);
+        document.getElementById('finalCode').select(); document.execCommand('copy');
+        const btn = document.getElementById('copyBtn'), span = document.getElementById('copyText'), icon = document.getElementById('copyIcon');
+        btn.classList.add('success'); span.innerText = dict[currentLang].btn_copied; icon.innerText = "✅";
+        setTimeout(() => { btn.classList.remove('success'); span.innerText = dict[currentLang].btn_copy; icon.innerText = "📋"; }, 3000);
     }
+    
+    // Слушатели для авто-обновления игры при любых изменениях в панели настроек
+    document.getElementById('settingsPanel').addEventListener('input', schedulePreviewUpdate);
+    document.getElementById('settingsPanel').addEventListener('change', schedulePreviewUpdate);
 
-    // Инициализация
     setLang('ru');
 </script>
 </body>
