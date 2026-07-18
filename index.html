@@ -224,16 +224,11 @@
                 <input type="file" id="fCreatures" accept="image/*" multiple onchange="loadMultipleAssets('creatures', 'creature-previews')">
                 <div id="creature-previews" class="char-previews"></div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <div>
-                        <label>Картинка Победы:</label>
-                        <input type="file" id="fWinImg" accept="image/*" onchange="loadSingleAsset('winImg'); fullRestart();">
-                    </div>
-                    <div>
-                        <label>Картинка Поражения:</label>
-                        <input type="file" id="fLoseImg" accept="image/*" onchange="loadSingleAsset('loseImg'); fullRestart();">
-                    </div>
-                </div>
+                <label>Картинка Победы:</label>
+                <input type="file" id="fWinImg" accept="image/*" onchange="loadSingleAsset('winImg'); fullRestart();">
+                
+                <label>Картинка Поражения:</label>
+                <input type="file" id="fLoseImg" accept="image/*" onchange="loadSingleAsset('loseImg'); fullRestart();">
 
                 <label data-key="lbl_bg">Фон уровня:</label>
                 <input type="file" id="fBg" accept="image/*" onchange="loadSingleAsset('bg'); fullRestart();">
@@ -577,7 +572,11 @@
 
     // ГЕНЕРАЦИЯ ДЛЯ СКАЧИВАНИЯ
     function generate() {
-        document.getElementById('finalCode').value = getGameCode();
+        const gameHtml = getGameCode();
+        const b64 = btoa(unescape(encodeURIComponent(gameHtml)));
+        const iframeCode = `<iframe src="data:text/html;base64,${b64}" width="100%" height="100%" frameborder="0" allow="autoplay; fullscreen" style="border:none; width:100%; height:100%; border-radius: 10px;"></iframe>`;
+        
+        document.getElementById('finalCode').value = iframeCode;
         document.getElementById('generation-status').style.display = 'block';
         document.getElementById('copySection').style.display = 'block';
         setTimeout(() => { document.getElementById('generation-status').style.display = 'none'; }, 5000);
