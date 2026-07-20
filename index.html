@@ -216,6 +216,10 @@
                     
                     <div><label data-key="lbl_c_quiz_glow">Свечение вопроса:</label><input type="color" id="cQuizGlow" value="#00d2ff"></div>
                     <div><label data-key="lbl_c_winlose">Текст победы/поражения:</label><input type="color" id="cWinLose" value="#ffffff"></div>
+
+                    <!-- НОВЫЕ ПОЛЯ ДЛЯ ПЛАШКИ ВВОДА -->
+                    <div><label data-key="lbl_c_inp_bg">Фон поля ввода:</label><input type="color" id="cInpBg" value="#ffffff"></div>
+                    <div><label data-key="lbl_c_inp_border">Рамка поля ввода:</label><input type="color" id="cInpBorder" value="#555555"></div>
                 </div>
             </div>
 
@@ -254,7 +258,8 @@
 
                 <h3 data-key="sec_compress">Сжатие картинок</h3>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <div><label data-key="lbl_max_dim">Макс. (px):</label><input type="number" id="maxDim" value="256"></div>
+                    <!-- ИЗМЕНЕНО БАЗОВОЕ ЗНАЧЕНИЕ maxDim на 1920 -->
+                    <div><label data-key="lbl_max_dim">Макс. (px):</label><input type="number" id="maxDim" value="1920"></div>
                     <div><label data-key="lbl_quality">Качество:</label><input type="range" id="jpegQuality" min="0.1" max="1.0" step="0.1" value="0.5"></div>
                 </div>
             </div>
@@ -312,6 +317,7 @@
             lbl_speed: "Скорость полета:", lbl_size: "Размер аватара/существа:", lbl_obj_size: "Размер объектов:",
             sec_colors: "🎨 Цвета и Анимация", lbl_anim_title: "Анимация заголовка:", opt_anim_pulse: "Пульсация (Pulse)", opt_anim_bounce: "Прыжок (Bounce)", opt_anim_shake: "Тряска (Shake)", opt_anim_none: "Без анимации",
             lbl_c_bg_op: "Прозрачность фона окон (0.1 - 1.0):", lbl_c_title: "Цвет заголовка:", lbl_c_char: "Цвет 'Аватар/Существо':", lbl_c_bg: "Цвет фона игры:", lbl_c_btn: "Цвет кнопок:", lbl_c_btn_glow: "Свечение кнопок:", lbl_c_play: "Текст на кнопках:", lbl_c_quiz: "Цвет окна вопроса:", lbl_c_quiz_ans: "Цвет вариантов ответа:", lbl_c_quiz_glow: "Свечение вопроса:", lbl_c_winlose: "Текст победы/поражения:",
+            lbl_c_inp_bg: "Фон поля ввода:", lbl_c_inp_border: "Рамка поля ввода:", // НОВЫЕ СТРОКИ
             lbl_frame: "Свой круг/рамка для выбора:", lbl_avatars: "Аватары (до 6 шт.):", lbl_avatars_flight: "Аватары в полете (до 6 шт.):", lbl_creatures: "Существа (до 6 шт.):", lbl_bg: "Фон уровня:", lbl_obs: "Препятствие:", lbl_coin: "Монета (для вопросов):", lbl_music: "Музыка:",
             btn_restart: "🔄 Перезапустить игру", btn_gen: "🚀 СКАЧАТЬ КОД ИГРЫ", btn_copy: "СКОПИРОВАТЬ КОД", btn_copied: "СКОПИРОВАНО!", lbl_copy_hint: "Вставьте этот код в Genially (Insert -> Others) и растяните на весь слайд.",
             ph_bulk: "Сколько будет 2+2? | 4 | 5 | 6\nВычислите $\\frac{10}{2}$: | 5", gen_status_ok: "✅ Игра успешно создана! Код ниже.",
@@ -327,6 +333,7 @@
             lbl_speed: "Flight Speed:", lbl_size: "Character Size:", lbl_obj_size: "Object Size:",
             sec_colors: "🎨 Colors & Animation", lbl_anim_title: "Title Animation:", opt_anim_pulse: "Pulse", opt_anim_bounce: "Bounce", opt_anim_shake: "Shake", opt_anim_none: "None",
             lbl_c_bg_op: "BG Opacity (0.1 - 1.0):", lbl_c_title: "Title Color:", lbl_c_char: "Avatar/Creature Text:", lbl_c_bg: "Game BG Color:", lbl_c_btn: "Button Color:", lbl_c_btn_glow: "Button Glow:", lbl_c_play: "Button Text Color:", lbl_c_quiz: "Quiz Window Color:", lbl_c_quiz_ans: "Quiz Answers Color:", lbl_c_quiz_glow: "Quiz Glow:", lbl_c_winlose: "Win/Lose Text Color:",
+            lbl_c_inp_bg: "Input BG Color:", lbl_c_inp_border: "Input Border Color:", // НОВЫЕ СТРОКИ
             lbl_frame: "Custom Selection Frame:", lbl_avatars: "Avatars (up to 6):", lbl_avatars_flight: "Avatars in flight (up to 6):", lbl_creatures: "Creatures (up to 6):", lbl_bg: "Level BG:", lbl_obs: "Obstacle:", lbl_coin: "Coin:", lbl_music: "Music:",
             btn_restart: "🔄 Restart Game", btn_gen: "🚀 GET GAME CODE", btn_copy: "COPY CODE", btn_copied: "COPIED!", lbl_copy_hint: "Paste into Genially (Insert -> Others) and stretch full screen.",
             ph_bulk: "2+2? | 4 | 5 | 6\nCalculate $\\frac{10}{2}$: | 5", gen_status_ok: "✅ Game created! Code below.",
@@ -386,7 +393,7 @@
         if (!input.files || !input.files[0]) return;
         try {
             if (isImg) {
-                assets[key] = await compressImage(input.files[0], { maxDim: parseInt(document.getElementById('maxDim').value)||256, quality: parseFloat(document.getElementById('jpegQuality').value)||0.5 });
+                assets[key] = await compressImage(input.files[0], { maxDim: parseInt(document.getElementById('maxDim').value)||1920, quality: parseFloat(document.getElementById('jpegQuality').value)||0.5 });
             } else {
                 assets[key] = await new Promise((res, rej) => { const r = new FileReader(); r.onload = e => res(e.target.result); r.onerror = rej; r.readAsDataURL(input.files[0]); });
             }
@@ -413,7 +420,7 @@
         let count = assets[key].filter(a => a !== null).length;
         if (count >= 6) { alert(dict[currentLang].err_max_files); return; }
         const files = Array.from(input.files).slice(0, 6 - count);
-        const set = { maxDim: parseInt(document.getElementById('maxDim').value)||256, quality: parseFloat(document.getElementById('jpegQuality').value)||0.5 };
+        const set = { maxDim: parseInt(document.getElementById('maxDim').value)||1920, quality: parseFloat(document.getElementById('jpegQuality').value)||0.5 };
         for (const file of files) {
             let idx = assets[key].indexOf(null);
             if (idx === -1) { idx = assets[key].length; assets[key].push(null); }
@@ -451,6 +458,7 @@
             c_play_txt: document.getElementById('cPlayTxt').value,
             c_quiz: document.getElementById('cQuiz').value, c_quiz_ans: document.getElementById('cQuizAns').value,
             c_quiz_glow: document.getElementById('cQuizGlow').value,
+            c_inp_bg: document.getElementById('cInpBg').value, c_inp_border: document.getElementById('cInpBorder').value, // ДОБАВЛЕНО
             c_title: document.getElementById('cTitle').value, c_char: document.getElementById('cChar').value,
             c_winlose: document.getElementById('cWinLose').value,
             anim_title: document.getElementById('titleAnimation').value,
@@ -477,6 +485,7 @@
             --c-bg-rgba: ${CFG.bgRgba}; --c-bg-hex: ${CFG.c_bg};
             --c-btn: ${CFG.c_btn}; --c-btn-glow: ${CFG.c_btn_glow}; --c-play-txt: ${CFG.c_play_txt};
             --c-quiz: ${CFG.c_quiz}; --c-quiz-ans: ${CFG.c_quiz_ans}; --c-quiz-glow: ${CFG.c_quiz_glow};
+            --c-inp-bg: ${CFG.c_inp_bg}; --c-inp-border: ${CFG.c_inp_border};
             --c-title: ${CFG.c_title}; --c-char: ${CFG.c_char}; --c-winlose: ${CFG.c_winlose};
             --font-fam: ${CFG.fontFam}; --q-size: ${CFG.qSize}px; --a-size: ${CFG.aSize}px;
         }
@@ -503,7 +512,7 @@
         #q-txt{color:#fff; text-shadow:none; font-size:var(--q-size); margin-bottom: 20px;}
         .q-btn{font-family:var(--font-fam); display:block;width:100%;padding:15px;margin:8px 0;background:var(--c-quiz-ans);border:1px solid var(--c-quiz-glow);color:#fff;font-size:var(--a-size);cursor:pointer;transition:all .2s; border-radius:5px;}
         .q-btn:hover{background:var(--c-quiz-glow);color:#000;box-shadow:0 0 10px var(--c-quiz-glow)}
-        input.q-inp{font-family:var(--font-fam); width:80%;padding:10px;font-size:var(--a-size);text-align:center;margin-bottom:10px;color:#000; border-radius:5px;}
+        input.q-inp{font-family:var(--font-fam); width:80%;padding:10px;font-size:var(--a-size);text-align:center;margin-bottom:10px;color:#000; border-radius:5px; background:var(--c-inp-bg); border:2px solid var(--c-inp-border); outline:none;}
         
         #char-select-screen{justify-content:center;padding-bottom:0}
         #char-select-screen h1{margin-bottom:50px}
@@ -551,6 +560,8 @@
                 root.style.setProperty('--c-quiz', c.c_quiz);
                 root.style.setProperty('--c-quiz-ans', c.c_quiz_ans);
                 root.style.setProperty('--c-quiz-glow', c.c_quiz_glow);
+                root.style.setProperty('--c-inp-bg', c.c_inp_bg);
+                root.style.setProperty('--c-inp-border', c.c_inp_border);
                 root.style.setProperty('--c-title', c.c_title);
                 root.style.setProperty('--c-char', c.c_char);
                 root.style.setProperty('--c-winlose', c.c_winlose);
