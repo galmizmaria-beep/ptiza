@@ -44,9 +44,9 @@
 
         .main-layout {
             display: grid;
-            grid-template-columns: 450px 1fr;
+            grid-template-columns: 330px 1fr; /* Уменьшено для расширения предпросмотра */
             gap: 20px;
-            height: calc(100vh - 120px); /* Изменено для размещения копирайта */
+            height: calc(100vh - 130px); /* Точный расчет, чтобы влез копирайт */
         }
 
         .left-panel {
@@ -102,7 +102,7 @@
         textarea.bulk-input { flex-grow: 1; min-height: 250px; resize: vertical; }
         .help-text { font-size: 12px; color: #888; margin-top: 5px; line-height: 1.4; }
 
-        /* Изменено для пропорций 16:9 */
+        /* Убраны жесткие ограничения пропорций для полного заполнения */
         #previewContainer { 
             flex-grow: 1; 
             border: 2px solid var(--primary); 
@@ -111,10 +111,7 @@
             box-shadow: 0 0 20px var(--shadow-glow-hard); 
             border-radius: 10px; 
             position: relative;
-            aspect-ratio: 16 / 9;
             width: 100%;
-            max-height: calc(100vh - 270px);
-            margin: 0 auto;
         }
         #gamePreview { width: 100%; height: 100%; border: none; display: block; }
         
@@ -131,12 +128,12 @@
         .btn-copy.success { background: var(--success); color: #000; border-color: var(--success); box-shadow: 0 0 15px var(--success);}
         .hidden-code { position: absolute; left: -9999px; }
 
-        /* Добавлен класс для копирайта */
+        /* Отступ скорректирован для Genially */
         .copyright {
             text-align: center;
             color: #555;
             font-size: 12px;
-            margin-top: 12px;
+            margin-top: 10px; 
             letter-spacing: 0.5px;
         }
     </style>
@@ -267,7 +264,6 @@
 
                 <h3 data-key="sec_compress">Сжатие картинок</h3>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <!-- Изменены значения по умолчанию для лучшего сжатия -->
                     <div><label data-key="lbl_max_dim">Макс. (px):</label><input type="number" id="maxDim" value="800"></div>
                     <div><label data-key="lbl_quality">Качество:</label><input type="range" id="jpegQuality" min="0.1" max="1.0" step="0.1" value="0.6"></div>
                 </div>
@@ -311,7 +307,6 @@
         </div>
     </div>
 
-    <!-- Добавлен копирайт -->
     <div class="copyright">Все права защищены и принадлежат Гальмиз Марии Александровне</div>
 
 <script>
