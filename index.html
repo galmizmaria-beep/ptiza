@@ -23,9 +23,9 @@
             margin: 0; 
             padding: 20px; 
             font-size: 14px; 
-            height: 100vh;
+            min-height: 100vh;
             box-sizing: border-box;
-            overflow: hidden;
+            overflow-y: auto;
         }
         
         header { 
@@ -44,13 +44,12 @@
 
         .main-layout {
             display: grid;
-            grid-template-columns: 330px 1fr; /* Уменьшено для расширения предпросмотра */
+            grid-template-columns: 450px 1fr;
             gap: 20px;
-            height: calc(100vh - 130px); /* Точный расчет, чтобы влез копирайт */
+            min-height: calc(100vh - 120px); /* Изменено для размещения копирайта */
         }
 
         .left-panel {
-            overflow-y: auto;
             padding-right: 10px;
             display: flex;
             flex-direction: column;
@@ -102,7 +101,7 @@
         textarea.bulk-input { flex-grow: 1; min-height: 250px; resize: vertical; }
         .help-text { font-size: 12px; color: #888; margin-top: 5px; line-height: 1.4; }
 
-        /* Убраны жесткие ограничения пропорций для полного заполнения */
+        /* Изменено для пропорций 16:9 */
         #previewContainer { 
             flex-grow: 1; 
             border: 2px solid var(--primary); 
@@ -111,7 +110,10 @@
             box-shadow: 0 0 20px var(--shadow-glow-hard); 
             border-radius: 10px; 
             position: relative;
+            aspect-ratio: 16 / 9;
             width: 100%;
+            min-height: 400px;
+            margin: 0 auto;
         }
         #gamePreview { width: 100%; height: 100%; border: none; display: block; }
         
@@ -128,12 +130,12 @@
         .btn-copy.success { background: var(--success); color: #000; border-color: var(--success); box-shadow: 0 0 15px var(--success);}
         .hidden-code { position: absolute; left: -9999px; }
 
-        /* Отступ скорректирован для Genially */
+        /* Добавлен класс для копирайта */
         .copyright {
             text-align: center;
             color: #555;
             font-size: 12px;
-            margin-top: 10px; 
+            margin-top: 12px;
             letter-spacing: 0.5px;
         }
     </style>
@@ -264,6 +266,7 @@
 
                 <h3 data-key="sec_compress">Сжатие картинок</h3>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <!-- Изменены значения по умолчанию для лучшего сжатия -->
                     <div><label data-key="lbl_max_dim">Макс. (px):</label><input type="number" id="maxDim" value="800"></div>
                     <div><label data-key="lbl_quality">Качество:</label><input type="range" id="jpegQuality" min="0.1" max="1.0" step="0.1" value="0.6"></div>
                 </div>
@@ -307,6 +310,7 @@
         </div>
     </div>
 
+    <!-- Добавлен копирайт -->
     <div class="copyright">Все права защищены и принадлежат Гальмиз Марии Александровне</div>
 
 <script>
@@ -321,7 +325,7 @@
             lbl_btnStart: "Кнопка Старт:", lbl_win: "Текст победы:", lbl_lose: "Текст поражения:", lbl_time: "Время (с):",
             lbl_level_style: "Стиль уровня:", opt_balanced: "Сбалансированный", opt_sparse: "Редкие (для новичков)", opt_dense: "Плотные (астероидный дождь)",
             lbl_speed: "Скорость полета:", lbl_size: "Размер аватара/существа:", lbl_obj_size: "Размер объектов:",
-            sec_colors: "🎨 Цвета и Анимация", lbl_anim_title: "Анимация заголовка:", opt_anim_pulse: "Пульсация (Pulse)", opt_anim_bounce: "Прыжок (Bounce)", opt_anim_shake: "Тряска (Shake)", opt_anim_none: "Без анимации",
+            sec_colors: "🎨 Цвета и Анимация", lbl_anim_title: "Анимация заголовка:", opt_            anim_pulse: "Пульсация (Pulse)", opt_anim_bounce: "Прыжок (Bounce)", opt_anim_shake: "Тряска (Shake)", opt_anim_none: "Без анимации",
             lbl_c_bg_op: "Прозрачность фона окон (0.1 - 1.0):", lbl_c_title: "Цвет заголовка:", lbl_c_char: "Цвет 'Аватар/Существо':", lbl_c_bg: "Цвет фона игры:", lbl_c_btn: "Цвет кнопок:", lbl_c_btn_glow: "Свечение кнопок:", lbl_c_play: "Текст на кнопках:", lbl_c_quiz: "Цвет окна вопроса:", lbl_c_quiz_ans: "Цвет вариантов ответа:", lbl_c_quiz_glow: "Свечение вопроса:", lbl_c_winlose: "Текст победы/поражения:",
             lbl_frame: "Свой круг/рамка для выбора:", lbl_avatars: "Аватары (до 6 шт.):", lbl_avatars_flight: "Аватары в полете (до 6 шт.):", lbl_creatures: "Существа (до 6 шт.):", lbl_bg: "Фон уровня:", lbl_obs: "Препятствие:", lbl_coin: "Монета (для вопросов):", lbl_music: "Музыка:",
             btn_restart: "🔄 Перезапустить игру", btn_gen: "🚀 СКАЧАТЬ КОД ИГРЫ", btn_copy: "СКОПИРОВАТЬ КОД", btn_copied: "СКОПИРОВАНО!", lbl_copy_hint: "Вставьте этот код в Genially (Insert -> Others) и растяните на весь слайд.",
@@ -525,8 +529,7 @@
         .choice-row{display:flex;gap:10px;justify-content:center;max-width:clamp(120px,25vw,250px);padding:5px;box-sizing:border-box;overflow-x:auto;background:rgba(0,0,0,.5);border-radius:10px;min-height:66px}
         .choice-thumb{width:50px;height:50px;object-fit:cover;border:3px solid #555;border-radius:5px;cursor:pointer;transition:all .2s;flex-shrink:0}
         .choice-thumb:hover{transform:scale(1.1);border-color:#fff}
-        .choice-thumb.active{border-color:var(--c-btn);box-shadow:0 0 10px var(--c-btn-glow)}
-        </style></head><body><div id="game-box"><div class="hud" style="left:10px;display:none;z-index:50">⏱ <span id="ui-time">0</span></div><div class="hud" style="right:10px;display:none;z-index:50">🏆 <span id="ui-score">0</span></div><canvas id="cvs"></canvas><div id="char-select-screen" class="screen"><h1 id="mt-title"></h1><div class="selection-container"><div class="selection-group"><div class="selection-box" id="avatar-box"><img id="avatar-display"></div><div id="avatar-choices" class="choice-row"></div></div><div class="selection-group"><div class="selection-box" id="creature-box"><img id="creature-display"></div><div id="creature-choices" class="choice-row"></div></div></div><button id="btn-play-game" class="btn-play" disabled></button></div><div id="scr-end" class="screen hidden"><h1 id="mt-end"></h1><img id="end-img" src="" style="display:none; max-width:80%; max-height:30vh; object-fit:contain; border-radius:10px; margin: 10px 0;"><p style="font-size:30px; font-weight:bold; margin:10px;"><span id="lbl-score">Score:</span> <span id="end-score" style="color:#fff;">0</span></p><button id="btn-restart" class="btn-play"></button></div><div id="quiz-box"><h2 id="q-txt"></h2><div id="q-body"></div></div></div><script>
+        .choice-thumb.active{border-color:var(--c-btn);box-shadow:0 0 10px var(--c-btn-glow)}end" class="screen hidden"><h1 id="mt-end"></h1><img id="end-img" src="" style="display:none; max-width:80%; max-height:30vh; object-fit:contain; border-radius:10px; margin: 10px 0;"><p style="font-size:30px; font-weight:bold; margin:10px;"><span id="lbl-score">Score:</span> <span id="end-score" style="color:#fff;">0</span></p><button id="btn-restart" class="btn-play"></button></div><div id="quiz-box"><h2 id="q-txt"></h2><div id="q-body"></div></div></div><script>
         const CFG=${configJson};
         const IMG=CFG.img,LANG=CFG.lang.dict;document.getElementById('mt-title').innerText=CFG.title;document.getElementById('btn-play-game').innerText=CFG.btn;document.getElementById('avatar-box').dataset.label=CFG.lblAvatar;document.getElementById('creature-box').dataset.label=CFG.lblCreature;const cvs=document.getElementById('cvs'),ctx=cvs.getContext('2d');let W,H;function resize(){W=cvs.width=window.innerWidth;H=cvs.height=window.innerHeight;if(!GM.run)GM.mx=W/2,GM.my=H*.8}
         window.addEventListener('resize',resize);setTimeout(resize,100);const AC=new(window.AudioContext||window.webkitAudioContext);function sfx(type){if(!AC||AC.state==='suspended')AC.resume();const t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();o.connect(g),g.connect(AC.destination);if(type==='coin'){o.type='sine';o.frequency.setValueAtTime(1200,t);g.gain.setValueAtTime(.1,t);g.gain.exponentialRampToValueAtTime(.001,t+.5)}else if(type==='boom'){o.type='sawtooth';o.frequency.setValueAtTime(120,t);o.frequency.exponentialRampToValueAtTime(20,t+.4);g.gain.setValueAtTime(.2,t);g.gain.linearRampToValueAtTime(0,t+.4)}else if(type==='win'){o.type='triangle';const notes=[659,783,987];notes.forEach((n,i)=>{o.frequency.setValueAtTime(n,t+i*.1)});g.gain.setValueAtTime(.1,t);g.gain.linearRampToValueAtTime(0,t+.4)}else if(type==='lose'){o.type='square';o.frequency.setValueAtTime(200,t);o.frequency.exponentialRampToValueAtTime(50,t+.4);g.gain.setValueAtTime(.15,t);g.gain.linearRampToValueAtTime(0,t+.4)}o.start(t),o.stop(t+.6)}
@@ -624,4 +627,4 @@
     fullRestart(); // Инициализация игры при загрузке страницы
 </script>
 </body>
-</html>
+</html>      
