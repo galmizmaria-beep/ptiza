@@ -217,7 +217,6 @@
                     <div><label data-key="lbl_c_quiz_glow">Свечение вопроса:</label><input type="color" id="cQuizGlow" value="#00d2ff"></div>
                     <div><label data-key="lbl_c_winlose">Текст победы/поражения:</label><input type="color" id="cWinLose" value="#ffffff"></div>
 
-                    <!-- НОВЫЕ ПОЛЯ ДЛЯ ПЛАШКИ ВВОДА -->
                     <div><label data-key="lbl_c_inp_bg">Фон поля ввода:</label><input type="color" id="cInpBg" value="#ffffff"></div>
                     <div><label data-key="lbl_c_inp_border">Рамка поля ввода:</label><input type="color" id="cInpBorder" value="#555555"></div>
                 </div>
@@ -227,10 +226,10 @@
                 <h2 data-key="sec_visual">🖼️ Картинки и Ресурсы</h2>
                 
                 <label data-key="lbl_frame">Свой круг/рамка для выбора:</label>
-                <input type="file" id="fFrame" accept="image/*" onchange="loadSingleAsset('frame'); fullRestart();">
+                <input type="file" id="fFrame" accept="image/*" onchange="loadSingleAsset('frame');">
 
                 <label data-key="lbl_avatars">Аватары (до 6 шт.):</label>
-                <input type="file" id="fAvatars" accept="image/*" multiple onchange="loadMultipleAssets('avatars', 'avatar-previews')">
+                <input type="file" id="fAvatars" accept="image/*" multiple onchange="loadMultipleAssets('avatars')">
                 <div id="avatar-previews" class="char-previews"></div>
                 
                 <label data-key="lbl_avatars_flight">Аватары в полете (до 6 шт.):</label>
@@ -238,29 +237,28 @@
                 <div id="avatar-flight-previews" class="char-previews"></div>
                 
                 <label data-key="lbl_creatures">Существа (до 6 шт.):</label>
-                <input type="file" id="fCreatures" accept="image/*" multiple onchange="loadMultipleAssets('creatures', 'creature-previews')">
+                <input type="file" id="fCreatures" accept="image/*" multiple onchange="loadMultipleAssets('creatures')">
                 <div id="creature-previews" class="char-previews"></div>
 
                 <label>Картинка Победы:</label>
-                <input type="file" id="fWinImg" accept="image/*" onchange="loadSingleAsset('winImg'); fullRestart();">
+                <input type="file" id="fWinImg" accept="image/*" onchange="loadSingleAsset('winImg');">
                 
                 <label>Картинка Поражения:</label>
-                <input type="file" id="fLoseImg" accept="image/*" onchange="loadSingleAsset('loseImg'); fullRestart();">
+                <input type="file" id="fLoseImg" accept="image/*" onchange="loadSingleAsset('loseImg');">
 
                 <label data-key="lbl_bg">Фон уровня:</label>
-                <input type="file" id="fBg" accept="image/*" onchange="loadSingleAsset('bg'); fullRestart();">
+                <input type="file" id="fBg" accept="image/*" onchange="loadSingleAsset('bg');">
                 <label data-key="lbl_obs">Препятствие:</label>
-                <input type="file" id="fObs" accept="image/*" onchange="loadSingleAsset('obs'); fullRestart();">
+                <input type="file" id="fObs" accept="image/*" onchange="loadSingleAsset('obs');">
                 <label data-key="lbl_coin">Монета (для вопросов):</label>
-                <input type="file" id="fCoin" accept="image/*" onchange="loadSingleAsset('coin'); fullRestart();">
+                <input type="file" id="fCoin" accept="image/*" onchange="loadSingleAsset('coin');">
                 <label data-key="lbl_music">Музыка:</label>
-                <input type="file" id="fMusic" accept="audio/*" onchange="loadSingleAsset('music', false); fullRestart();">
+                <input type="file" id="fMusic" accept="audio/*" onchange="loadSingleAsset('music', false);">
 
                 <h3 data-key="sec_compress">Сжатие картинок</h3>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <!-- ИЗМЕНЕНО БАЗОВОЕ ЗНАЧЕНИЕ maxDim на 1920 -->
-                    <div><label data-key="lbl_max_dim">Макс. (px):</label><input type="number" id="maxDim" value="1920"></div>
-                    <div><label data-key="lbl_quality">Качество:</label><input type="range" id="jpegQuality" min="0.1" max="1.0" step="0.1" value="0.5"></div>
+                    <div><label data-key="lbl_max_dim">Макс. (px):</label><input type="number" id="maxDim" value="1920" onchange="recompressAll()"></div>
+                    <div><label data-key="lbl_quality">Качество:</label><input type="range" id="jpegQuality" min="0.1" max="1.0" step="0.1" value="0.5" onchange="recompressAll()"></div>
                 </div>
             </div>
 
@@ -303,6 +301,7 @@
     </div>
 
 <script>
+    const originalFiles = { bg: null, obs: null, coin: null, frame: null, winImg: null, loseImg: null, avatars: [], creatures: [], avatarsInFlight: [] };
     const assets = { bg: null, obs: null, coin: null, music: null, frame: null, winImg: null, loseImg: null, avatars: [], creatures: [], avatarsInFlight: [] };
     let currentLang = 'ru';
     let frameImgUrl = 'https://github.com/galmizmaria-beep/ptiza/blob/main/1.png?raw=true';
@@ -317,7 +316,7 @@
             lbl_speed: "Скорость полета:", lbl_size: "Размер аватара/существа:", lbl_obj_size: "Размер объектов:",
             sec_colors: "🎨 Цвета и Анимация", lbl_anim_title: "Анимация заголовка:", opt_anim_pulse: "Пульсация (Pulse)", opt_anim_bounce: "Прыжок (Bounce)", opt_anim_shake: "Тряска (Shake)", opt_anim_none: "Без анимации",
             lbl_c_bg_op: "Прозрачность фона окон (0.1 - 1.0):", lbl_c_title: "Цвет заголовка:", lbl_c_char: "Цвет 'Аватар/Существо':", lbl_c_bg: "Цвет фона игры:", lbl_c_btn: "Цвет кнопок:", lbl_c_btn_glow: "Свечение кнопок:", lbl_c_play: "Текст на кнопках:", lbl_c_quiz: "Цвет окна вопроса:", lbl_c_quiz_ans: "Цвет вариантов ответа:", lbl_c_quiz_glow: "Свечение вопроса:", lbl_c_winlose: "Текст победы/поражения:",
-            lbl_c_inp_bg: "Фон поля ввода:", lbl_c_inp_border: "Рамка поля ввода:", // НОВЫЕ СТРОКИ
+            lbl_c_inp_bg: "Фон поля ввода:", lbl_c_inp_border: "Рамка поля ввода:",
             lbl_frame: "Свой круг/рамка для выбора:", lbl_avatars: "Аватары (до 6 шт.):", lbl_avatars_flight: "Аватары в полете (до 6 шт.):", lbl_creatures: "Существа (до 6 шт.):", lbl_bg: "Фон уровня:", lbl_obs: "Препятствие:", lbl_coin: "Монета (для вопросов):", lbl_music: "Музыка:",
             btn_restart: "🔄 Перезапустить игру", btn_gen: "🚀 СКАЧАТЬ КОД ИГРЫ", btn_copy: "СКОПИРОВАТЬ КОД", btn_copied: "СКОПИРОВАНО!", lbl_copy_hint: "Вставьте этот код в Genially (Insert -> Others) и растяните на весь слайд.",
             ph_bulk: "Сколько будет 2+2? | 4 | 5 | 6\nВычислите $\\frac{10}{2}$: | 5", gen_status_ok: "✅ Игра успешно создана! Код ниже.",
@@ -333,7 +332,7 @@
             lbl_speed: "Flight Speed:", lbl_size: "Character Size:", lbl_obj_size: "Object Size:",
             sec_colors: "🎨 Colors & Animation", lbl_anim_title: "Title Animation:", opt_anim_pulse: "Pulse", opt_anim_bounce: "Bounce", opt_anim_shake: "Shake", opt_anim_none: "None",
             lbl_c_bg_op: "BG Opacity (0.1 - 1.0):", lbl_c_title: "Title Color:", lbl_c_char: "Avatar/Creature Text:", lbl_c_bg: "Game BG Color:", lbl_c_btn: "Button Color:", lbl_c_btn_glow: "Button Glow:", lbl_c_play: "Button Text Color:", lbl_c_quiz: "Quiz Window Color:", lbl_c_quiz_ans: "Quiz Answers Color:", lbl_c_quiz_glow: "Quiz Glow:", lbl_c_winlose: "Win/Lose Text Color:",
-            lbl_c_inp_bg: "Input BG Color:", lbl_c_inp_border: "Input Border Color:", // НОВЫЕ СТРОКИ
+            lbl_c_inp_bg: "Input BG Color:", lbl_c_inp_border: "Input Border Color:",
             lbl_frame: "Custom Selection Frame:", lbl_avatars: "Avatars (up to 6):", lbl_avatars_flight: "Avatars in flight (up to 6):", lbl_creatures: "Creatures (up to 6):", lbl_bg: "Level BG:", lbl_obs: "Obstacle:", lbl_coin: "Coin:", lbl_music: "Music:",
             btn_restart: "🔄 Restart Game", btn_gen: "🚀 GET GAME CODE", btn_copy: "COPY CODE", btn_copied: "COPIED!", lbl_copy_hint: "Paste into Genially (Insert -> Others) and stretch full screen.",
             ph_bulk: "2+2? | 4 | 5 | 6\nCalculate $\\frac{10}{2}$: | 5", gen_status_ok: "✅ Game created! Code below.",
@@ -381,7 +380,6 @@
                     if (width > height) { if (width > maxDim) { height *= maxDim / width; width = maxDim; } } 
                     else { if (height > maxDim) { width *= maxDim / height; height = maxDim; } }
                     canvas.width = width; canvas.height = height; ctx.drawImage(img, 0, 0, width, height);
-                    // Использование WebP гарантирует экстремально сильное сжатие при сохранении прозрачности
                     resolve(canvas.toDataURL('image/webp', quality));
                 }; img.onerror = reject;
             }; reader.onerror = reject;
@@ -393,14 +391,26 @@
         if (!input.files || !input.files[0]) return;
         try {
             if (isImg) {
-                assets[key] = await compressImage(input.files[0], { maxDim: parseInt(document.getElementById('maxDim').value)||1920, quality: parseFloat(document.getElementById('jpegQuality').value)||0.5 });
+                originalFiles[key] = input.files[0];
+                await applyCompressionToSingle(key);
             } else {
                 assets[key] = await new Promise((res, rej) => { const r = new FileReader(); r.onload = e => res(e.target.result); r.onerror = rej; r.readAsDataURL(input.files[0]); });
             }
         } catch (e) { alert("Ошибка файла."); }
+        fullRestart();
     }
 
-    function removeAsset(key, id) { assets[key][id] = null; renderAssetPreviews(key); fullRestart(); }
+    async function applyCompressionToSingle(key) {
+        if(!originalFiles[key]) return;
+        assets[key] = await compressImage(originalFiles[key], { maxDim: parseInt(document.getElementById('maxDim').value)||1920, quality: parseFloat(document.getElementById('jpegQuality').value)||0.5 });
+    }
+
+    function removeAsset(key, id) { 
+        originalFiles[key][id] = null;
+        assets[key][id] = null; 
+        renderAssetPreviews(key); 
+        fullRestart(); 
+    }
 
     function renderAssetPreviews(key) {
         let containerId = key === 'avatars' ? 'avatar-previews' : (key === 'creatures' ? 'creature-previews' : 'avatar-flight-previews');
@@ -417,16 +427,47 @@
     
     async function loadMultipleAssets(key) {
         const input = document.getElementById('f' + key.charAt(0).toUpperCase() + key.slice(1));
-        let count = assets[key].filter(a => a !== null).length;
+        let count = originalFiles[key].filter(a => a !== null).length;
         if (count >= 6) { alert(dict[currentLang].err_max_files); return; }
         const files = Array.from(input.files).slice(0, 6 - count);
-        const set = { maxDim: parseInt(document.getElementById('maxDim').value)||1920, quality: parseFloat(document.getElementById('jpegQuality').value)||0.5 };
+        
         for (const file of files) {
-            let idx = assets[key].indexOf(null);
-            if (idx === -1) { idx = assets[key].length; assets[key].push(null); }
-            assets[key][idx] = await compressImage(file, set);
+            let idx = originalFiles[key].indexOf(null);
+            if (idx === -1) { 
+                idx = originalFiles[key].length; 
+                originalFiles[key].push(null); 
+                assets[key].push(null); 
+            }
+            originalFiles[key][idx] = file;
         }
+        await applyCompressionToMultiple(key);
         renderAssetPreviews(key); input.value = ""; fullRestart();
+    }
+
+    async function applyCompressionToMultiple(key) {
+        const set = { maxDim: parseInt(document.getElementById('maxDim').value)||1920, quality: parseFloat(document.getElementById('jpegQuality').value)||0.5 };
+        for (let i = 0; i < originalFiles[key].length; i++) {
+            if (originalFiles[key][i]) {
+                assets[key][i] = await compressImage(originalFiles[key][i], set);
+            } else {
+                assets[key][i] = null;
+            }
+        }
+    }
+
+    async function recompressAll() {
+        const singleKeys = ['bg', 'obs', 'coin', 'frame', 'winImg', 'loseImg'];
+        for(let k of singleKeys) {
+            await applyCompressionToSingle(k);
+        }
+        const multiKeys = ['avatars', 'creatures', 'avatarsInFlight'];
+        for(let k of multiKeys) {
+            await applyCompressionToMultiple(k);
+        }
+        renderAssetPreviews('avatars');
+        renderAssetPreviews('creatures');
+        renderAssetPreviews('avatarsInFlight');
+        fullRestart();
     }
     
     function parseQuestions() {
@@ -436,7 +477,6 @@
         });
     }
 
-    // СБОРКА ОБЪЕКТА КОНФИГУРАЦИИ
     function getCFGData() {
         const langData = { lang: currentLang, dict: dict[currentLang] };
         const cleanAssets = { ...assets, avatars: assets.avatars.filter(a => a !== null), creatures: assets.creatures.filter(a => a !== null), avatarsInFlight: assets.avatarsInFlight.filter(a => a !== null) };
@@ -458,7 +498,7 @@
             c_play_txt: document.getElementById('cPlayTxt').value,
             c_quiz: document.getElementById('cQuiz').value, c_quiz_ans: document.getElementById('cQuizAns').value,
             c_quiz_glow: document.getElementById('cQuizGlow').value,
-            c_inp_bg: document.getElementById('cInpBg').value, c_inp_border: document.getElementById('cInpBorder').value, // ДОБАВЛЕНО
+            c_inp_bg: document.getElementById('cInpBg').value, c_inp_border: document.getElementById('cInpBorder').value,
             c_title: document.getElementById('cTitle').value, c_char: document.getElementById('cChar').value,
             c_winlose: document.getElementById('cWinLose').value,
             anim_title: document.getElementById('titleAnimation').value,
@@ -471,7 +511,6 @@
         };
     }
 
-    // ПОЛНЫЙ КОД ИГРЫ
     function getGameCode() {
         const CFG = getCFGData();
         const configJson = JSON.stringify(CFG);
@@ -498,7 +537,7 @@
         #game-box{position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;touch-action:none;}
         canvas{display:block;width:100%;height:100%;pointer-events:none;position:absolute;top:0;left:0;z-index:1}
         .hud{position:absolute;top:10px;color:var(--c-btn);font-size:clamp(20px,4vw,30px);font-weight:700;text-shadow:0 0 5px var(--c-btn), 2px 2px 0 #000;padding:5px 15px;background:rgba(0,0,0,.6);border-radius:10px;border:1px solid var(--c-btn);z-index:50}
-        .screen{position:absolute;top:0;left:0;width:100%;height:100%;background:var(--c-bg-rgba);backdrop-filter:blur(5px);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;pointer-events:auto;transition:opacity .5s}
+        .screen{position:absolute;top:0;left:0;width:100%;height:100%;background:var(--c-bg-rgba) !important;backdrop-filter:blur(5px);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;pointer-events:auto;transition:opacity .5s}
         .screen.hidden{opacity:0;pointer-events:none}
         
         #mt-title{color:var(--c-title);font-size:clamp(30px,6vw,60px);text-transform:uppercase;text-shadow:0 0 10px #000, 0 0 20px var(--c-title);margin:20px;text-align:center;position:relative;animation:${CFG.anim_title} 2s infinite ease-in-out;}
@@ -530,14 +569,15 @@
         </style></head><body><div id="game-box"><div class="hud" style="left:10px;display:none;z-index:50">⏱ <span id="ui-time">0</span></div><div class="hud" style="right:10px;display:none;z-index:50">🏆 <span id="ui-score">0</span></div><canvas id="cvs"></canvas><div id="char-select-screen" class="screen"><h1 id="mt-title"></h1><div class="selection-container"><div class="selection-group"><div class="selection-box" id="avatar-box"><img id="avatar-display"></div><div id="avatar-choices" class="choice-row"></div></div><div class="selection-group"><div class="selection-box" id="creature-box"><img id="creature-display"></div><div id="creature-choices" class="choice-row"></div></div></div><button id="btn-play-game" class="btn-play" disabled></button></div><div id="scr-end" class="screen hidden"><h1 id="mt-end"></h1><img id="end-img" src="" style="display:none; max-width:80%; max-height:30vh; object-fit:contain; border-radius:10px; margin: 10px 0;"><p style="font-size:30px; font-weight:bold; margin:10px;"><span id="lbl-score">Score:</span> <span id="end-score" style="color:#fff;">0</span></p><button id="btn-restart" class="btn-play"></button></div><div id="quiz-box"><h2 id="q-txt"></h2><div id="q-body"></div></div></div><script>
         const CFG=${configJson};
         const IMG=CFG.img,LANG=CFG.lang.dict;document.getElementById('mt-title').innerText=CFG.title;document.getElementById('btn-play-game').innerText=CFG.btn;document.getElementById('avatar-box').dataset.label=CFG.lblAvatar;document.getElementById('creature-box').dataset.label=CFG.lblCreature;const cvs=document.getElementById('cvs'),ctx=cvs.getContext('2d');let W,H;function resize(){W=cvs.width=window.innerWidth;H=cvs.height=window.innerHeight;if(!GM.run)GM.mx=W/2,GM.my=H*.8}
-        window.addEventListener('resize',resize);setTimeout(resize,100);const AC=new(window.AudioContext||window.webkitAudioContext);function sfx(type){if(!AC||AC.state==='suspended')AC.resume();const t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();o.connect(g),g.connect(AC.destination);if(type==='coin'){o.type='sine';o.frequency.setValueAtTime(1200,t);g.gain.setValueAtTime(.1,t);g.gain.exponentialRampToValueAtTime(.001,t+.5)}else if(type==='boom'){o.type='sawtooth';o.frequency.setValueAtTime(120,t);o.frequency.exponentialRampToValueAtTime(20,t+.4);g.gain.setValueAtTime(.2,t);g.gain.linearRampToValueAtTime(0,t+.4)}else if(type==='win'){o.type='triangle';const notes=[659,783,987];notes.forEach((n,i)=>{o.frequency.setValueAtTime(n,t+i*.1)});g.gain.setValueAtTime(.1,t);g.gain.linearRampToValueAtTime(0,t+.4)}else if(type==='lose'){o.type='square';o.frequency.setValueAtTime(200,t);o.frequency.exponentialRampToValueAtTime(50,t+.4);g.gain.setValueAtTime(.15,t);g.gain.linearRampToValueAtTime(0,t+.4)}o.start(t),o.stop(t+.6)}
+        window.addEventListener('resize',resize);setTimeout(resize,100);
+        let AC=null;function sfx(type){if(!AC){const AudioCtx=window.AudioContext||window.webkitAudioContext;if(AudioCtx)AC=new AudioCtx();}if(!AC)return;if(AC.state==='suspended')AC.resume();const t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();o.connect(g),g.connect(AC.destination);if(type==='coin'){o.type='sine';o.frequency.setValueAtTime(1200,t);g.gain.setValueAtTime(.1,t);g.gain.exponentialRampToValueAtTime(.001,t+.5)}else if(type==='boom'){o.type='sawtooth';o.frequency.setValueAtTime(120,t);o.frequency.exponentialRampToValueAtTime(20,t+.4);g.gain.setValueAtTime(.2,t);g.gain.linearRampToValueAtTime(0,t+.4)}else if(type==='win'){o.type='triangle';const notes=[659,783,987];notes.forEach((n,i)=>{o.frequency.setValueAtTime(n,t+i*.1)});g.gain.setValueAtTime(.1,t);g.gain.linearRampToValueAtTime(0,t+.4)}else if(type==='lose'){o.type='square';o.frequency.setValueAtTime(200,t);o.frequency.exponentialRampToValueAtTime(50,t+.4);g.gain.setValueAtTime(.15,t);g.gain.linearRampToValueAtTime(0,t+.4)}o.start(t),o.stop(t+.6)}
         const iBg=new Image(),iObs=new Image(),iCoin=new Image(),iAvatar=new Image(),iCreature=new Image();if(IMG.bg)iBg.src=IMG.bg;if(IMG.obs)iObs.src=IMG.obs;if(IMG.coin)iCoin.src=IMG.coin;let music=null;if(IMG.music){music=new Audio(IMG.music);music.loop=true;music.volume=.4}
         let selectedAvatar=null,selectedCreature=null,selectedAvatarIdx=-1;function setupChoices(){const avChoices=document.getElementById('avatar-choices'),crChoices=document.getElementById('creature-choices'),playBtn=document.getElementById('btn-play-game');function checkSelection(){if(selectedAvatar&&selectedCreature)playBtn.disabled=false}
         IMG.avatars.forEach((src,idx)=>{const i=new Image();i.src=src,i.className='choice-thumb',i.onclick=()=>{selectedAvatar=src;selectedAvatarIdx=idx;document.getElementById('avatar-display').src=src;avChoices.querySelectorAll('img').forEach(c=>c.classList.remove('active'));i.classList.add('active');checkSelection()},avChoices.appendChild(i)});IMG.creatures.forEach(src=>{const i=new Image();i.src=src,i.className='choice-thumb',i.onclick=()=>{selectedCreature=src;document.getElementById('creature-display').src=src;crChoices.querySelectorAll('img').forEach(c=>c.classList.remove('active'));i.classList.add('active');checkSelection()},crChoices.appendChild(i)})}
         ['avatar-box','creature-box'].forEach(id=>{document.getElementById(id).onclick=e=>{const t=e.currentTarget.querySelector('img');if(t.src&&!t.classList.contains("animate-3d")){t.classList.add("animate-3d");setTimeout(()=>t.classList.remove("animate-3d"),1e3)}}});setupChoices();
         const waveManager={timer:0,config:{},qIndex:0,wavePool:[],init:function(){const style=CFG.levelStyle;if(style==='sparse'){this.config={minTime:60,maxTime:100};this.wavePool=['single','double']}else if(style==='dense'){this.config={minTime:20,maxTime:40};this.wavePool=['wall','corridor','slalom','double']}else{this.config={minTime:40,maxTime:80};this.wavePool=['single','double','corridor','wall']}
         this.timer=10;this.qIndex=0;this.spawnWave('single', 2000);this.spawnWave('double', 4500);this.spawnWave(this.wavePool[Math.floor(Math.random()*this.wavePool.length)], 7000);this.setNextWaveTimer()},setNextWaveTimer:function(){this.timer=this.config.minTime+Math.random()*(this.config.maxTime-this.config.minTime)},update:function(){if(GM.pause)return;this.timer--;if(this.timer<=0){this.spawnWave(this.wavePool[Math.floor(Math.random()*this.wavePool.length)]);this.setNextWaveTimer()}},spawnWave:function(type, baseZ=8e3){const z=baseZ, y=(Math.random()-.5)*H*.7, placeCoin=this.qIndex<CFG.qs.length;const addObj=(t,x,y,z,qid=null)=>{const obj={t,x,y,z};if(qid!==null)obj.qid=qid;GM.objs.push(obj)};let coinX = CFG.coinPath === 'center' ? 0 : (Math.random()-.5)*W*.35;if(type==='single'){if(placeCoin){addObj('c',coinX,y,z,this.qIndex);this.qIndex++}else{addObj('o',(Math.random()-.5)*W*1.2,y,z)}}else if(type==='double'){const x1=(Math.random()-.5)*W*1.2;addObj('o',x1,y,z);if(placeCoin){addObj('c',coinX,y,z+500,this.qIndex);this.qIndex++}else{addObj('o',x1+(Math.random()>.5?W*.4:-W*.4),(Math.random()-.5)*H*.7,z+500)}}else if(type==='wall'){const gapIndex=Math.random()<0.6?2:(Math.random()<0.5?1:3);const gapX = (gapIndex-2)*W*.35;for(let i=0;i<5;i++){const x=(i-2)*W*.35;if(i===gapIndex){if(placeCoin){addObj('c', CFG.coinPath==='center' ? gapX : gapX+(Math.random()-.5)*W*.15, y, z, this.qIndex);this.qIndex++}}else{addObj('o',x,y,z)}}}else if(type==='corridor'){const pathX=(Math.random()-.5)*W*.25;const width=W*(.35+Math.random()*.2);for(let i=0;i<6;i++){addObj('o',pathX-width,y+i*H/5-H/2,z+i*200);addObj('o',pathX+width,y+i*H/5-H/2,z+i*200)}if(placeCoin){addObj('c', CFG.coinPath==='center' ? pathX : pathX+(Math.random()-.5)*W*.2, y, z-200, this.qIndex);this.qIndex++}}else if(type==='slalom'){const startX=(Math.random()-.5)*W*.25;for(let i=0;i<4;i++){addObj('o',startX+W*.4*(i%2===0?1:-1),y,z+i*800)}if(placeCoin){addObj('c', CFG.coinPath==='center' ? startX : startX+(Math.random()-.5)*W*.2, y, z+1200, this.qIndex);this.qIndex++}}}};
-        const GM={run:false,pause:false,frame:0,time:0,score:0,objs:[],mx:0,my:0,bgY:0,hurt:0,timerInt:null,start:()=>{if(!selectedAvatar||!selectedCreature)return;iAvatar.src=(IMG.avatarsInFlight&&IMG.avatarsInFlight[selectedAvatarIdx])?IMG.avatarsInFlight[selectedAvatarIdx]:selectedAvatar;iCreature.src=selectedCreature;document.getElementById('char-select-screen').classList.add('hidden');document.querySelectorAll('.hud').forEach(h=>h.style.display='block');resize();if(AC.state==='suspended')AC.resume();if(music)music.play().catch(e=>{});waveManager.init();GM.run=true;mainLoop();GM.timerInt=setInterval(()=>{if(GM.run&&!GM.pause){GM.time--;document.getElementById('ui-time').innerText=GM.time;if(GM.time<=0)GM.end(false)}},1e3);document.getElementById('ui-time').innerText=GM.time},end:reason=>{if(!GM.run)return;GM.run=false;clearInterval(GM.timerInt);const scr=document.getElementById('scr-end');scr.classList.remove('hidden');let titleEl=document.getElementById('mt-end');let btnEl=document.getElementById('btn-restart');let imgEl=document.getElementById('end-img');imgEl.style.display='none';document.getElementById('lbl-score').innerText=LANG.score_lbl+" ";if(reason===true){titleEl.innerText=CFG.win;sfx('win');btnEl.innerText="↺";if(CFG.winImg){imgEl.src=CFG.winImg;imgEl.style.display='block';}}else if(reason===false){titleEl.innerText=CFG.lose;sfx('lose');btnEl.innerText="↺";if(CFG.loseImg){imgEl.src=CFG.loseImg;imgEl.style.display='block';}}else if(reason==='out_of_coins'){titleEl.innerText=LANG.msg_out_of_coins;sfx('lose');btnEl.innerText=LANG.btn_try_again;if(CFG.loseImg){imgEl.src=CFG.loseImg;imgEl.style.display='block';}}document.getElementById('end-score').innerText=GM.score+(CFG.qs.length>0?" / "+CFG.qs.length:"");if(music)music.pause();},reset:()=>{const scr=document.getElementById('scr-end');scr.classList.add('hidden');document.getElementById('char-select-screen').classList.remove('hidden');document.querySelectorAll('.hud').forEach(h=>h.style.display='none');GM.time=parseInt(CFG.time);GM.score=0;document.getElementById('ui-time').innerText=GM.time;document.getElementById('ui-score').innerText=GM.score;GM.objs=[];GM.hurt=0;GM.run=false;if(music)music.currentTime=0;preGameLoop()}};
+        const GM={run:false,pause:false,frame:0,time:0,score:0,objs:[],mx:0,my:0,bgY:0,hurt:0,timerInt:null,start:()=>{if(!selectedAvatar||!selectedCreature)return;if(!AC){const AudioCtx=window.AudioContext||window.webkitAudioContext;if(AudioCtx)AC=new AudioCtx();}if(AC&&AC.state==='suspended')AC.resume();iAvatar.src=(IMG.avatarsInFlight&&IMG.avatarsInFlight[selectedAvatarIdx])?IMG.avatarsInFlight[selectedAvatarIdx]:selectedAvatar;iCreature.src=selectedCreature;document.getElementById('char-select-screen').classList.add('hidden');document.querySelectorAll('.hud').forEach(h=>h.style.display='block');resize();if(music)music.play().catch(e=>{});waveManager.init();GM.run=true;mainLoop();GM.timerInt=setInterval(()=>{if(GM.run&&!GM.pause){GM.time--;document.getElementById('ui-time').innerText=GM.time;if(GM.time<=0)GM.end(false)}},1e3);document.getElementById('ui-time').innerText=GM.time},end:reason=>{if(!GM.run)return;GM.run=false;clearInterval(GM.timerInt);const scr=document.getElementById('scr-end');scr.classList.remove('hidden');let titleEl=document.getElementById('mt-end');let btnEl=document.getElementById('btn-restart');let imgEl=document.getElementById('end-img');imgEl.style.display='none';document.getElementById('lbl-score').innerText=LANG.score_lbl+" ";if(reason===true){titleEl.innerText=CFG.win;sfx('win');btnEl.innerText="↺";if(CFG.winImg){imgEl.src=CFG.winImg;imgEl.style.display='block';}}else if(reason===false){titleEl.innerText=CFG.lose;sfx('lose');btnEl.innerText="↺";if(CFG.loseImg){imgEl.src=CFG.loseImg;imgEl.style.display='block';}}else if(reason==='out_of_coins'){titleEl.innerText=LANG.msg_out_of_coins;sfx('lose');btnEl.innerText=LANG.btn_try_again;if(CFG.loseImg){imgEl.src=CFG.loseImg;imgEl.style.display='block';}}document.getElementById('end-score').innerText=GM.score+(CFG.qs.length>0?" / "+CFG.qs.length:"");if(music)music.pause();},reset:()=>{const scr=document.getElementById('scr-end');scr.classList.add('hidden');document.getElementById('char-select-screen').classList.remove('hidden');document.querySelectorAll('.hud').forEach(h=>h.style.display='none');GM.time=parseInt(CFG.time);GM.score=0;document.getElementById('ui-time').innerText=GM.time;document.getElementById('ui-score').innerText=GM.score;GM.objs=[];GM.hurt=0;GM.run=false;if(music)music.currentTime=0;preGameLoop()}};
         document.getElementById('btn-play-game').addEventListener('click',GM.start);document.getElementById('btn-restart').addEventListener('click',GM.reset);window.addEventListener('mousemove',e=>{if(!GM.pause){GM.mx=e.clientX;GM.my=e.clientY}});window.addEventListener('touchmove',e=>{if(!GM.pause){e.preventDefault();GM.mx=e.touches[0].clientX;GM.my=e.touches[0].clientY}},{passive:false});
         function drawBg(){if(iBg.src&&iBg.complete){let sh=(W/iBg.width)*iBg.height;let yOff=GM.bgY%sh;for(let y=yOff-sh;y<H;y+=sh){ctx.drawImage(iBg,0,Math.floor(y),W,Math.ceil(sh)+1)}}else{ctx.fillStyle=CFG.c_bg;ctx.fillRect(0,0,W,H)}}
         function mainLoop(){if(!GM.run)return;requestAnimationFrame(mainLoop);ctx.clearRect(0,0,W,H);if(!GM.pause){let speed=parseInt(CFG.speed);let forwardSpeed=speed*4;GM.frame++;waveManager.update();GM.bgY+=forwardSpeed*.1;let pX=(W/2-GM.mx)*.3,pY=(H*.75-GM.my)*.3;for(let i=GM.objs.length-1;i>=0;i--){let o=GM.objs[i];o.z-=forwardSpeed;if(o.z<10){GM.objs.splice(i,1);continue}if(o.z<200&&o.z>20){let depthScale=.7+GM.my/H*.6,pSize=120*parseFloat(CFG.scale)*depthScale,scale=500/o.z,sx=W/2+(o.x+pX)*scale,sy=H/2+(o.y+pY)*scale,size=100*scale*parseFloat(CFG.objScale||1),dist=Math.hypot(sx-GM.mx,sy-GM.my),hitbox=size*.5+pSize*.4;if(dist<hitbox){let hitObject=GM.objs.splice(i,1)[0];hit(hitObject)}}}if(GM.hurt>0)GM.hurt--;if(!GM.pause&&CFG.qs.length>0&&waveManager.qIndex>=CFG.qs.length&&!GM.objs.some(o=>o.t==='c')){if(GM.score>=CFG.qs.length)GM.end(true);else GM.end('out_of_coins');return;}}
