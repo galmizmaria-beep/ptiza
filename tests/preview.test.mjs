@@ -40,4 +40,17 @@ cfg.timerEnabled=true;message({type:'LIVE_UPDATE',cfg});gr('GM.run=true;GM.time=
 handlers.message({source:{},data:{type:'PREVIEW_SCENE',scene:'title'}});assert.equal(gr('editorScene'),'tasks');
 // Timer ticks obey the checkbox during an actual test run.
 message({type:'PREVIEW_SCENE',scene:'play'});cfg.timerEnabled=false;message({type:'LIVE_UPDATE',cfg});gr('selectedAvatar="avatar";selectedCreature="creature";GM.start();GM.time=3');timers.at(-1)();assert.equal(gr('GM.time'),3);cfg.timerEnabled=true;message({type:'LIVE_UPDATE',cfg});timers.at(-1)();assert.equal(gr('GM.time'),2);timers.at(-1)();timers.at(-1)();assert.equal(gr('GM.run'),false);assert.equal(gameEls.get('mt-end').innerText,cfg.timeout);
+// Authoring preview uses gameplay scales and speed, while remaining non-interactive.
+message({type:'PREVIEW_SCENE',scene:'game'});
+gr('Object.assign(iCreature,{complete:true,naturalWidth:100,naturalHeight:100});Object.assign(iAvatar,{complete:true,naturalWidth:100,naturalHeight:200});Object.assign(iCoin,{complete:true,naturalWidth:100,naturalHeight:100});CFG.scale=1;CFG.objScale=1;previewTravel=0');
+draws.length=0;gr('drawEditorFlight()');const creatureWidth=draws[0][3],coinWidth=draws[2][3];
+gr('CFG.scale=2;CFG.objScale=2');draws.length=0;gr('drawEditorFlight()');assert.equal(draws[0][3],creatureWidth*2);assert.equal(draws[2][3],coinWidth*2);
+gr('CFG.speed=2;previewTravel=0;preGameLoop()');assert.equal(gr('previewTravel'),8);gr('CFG.speed=8;preGameLoop()');assert.equal(gr('previewTravel'),40);assert.equal(gr('GM.run'),false);
+els.get('frameFill').value='#123456';els.get('frameFillOpacity').value='40';els.get('frameLineColor').value='#abcdef';els.get('frameLineWidth').value='7';els.get('frameLineStyle').value='solid';els.get('choiceActiveFill').value='#654321';els.get('useFrame').checked=true;
+cfg=run('getCFGData()');message({type:'LIVE_UPDATE',cfg});assert.equal(styleVars['--frame-fill'],cfg.frameFill);assert.equal(styleVars['--frame-outline'],'7px solid #abcdef');assert.equal(styleVars['--choice-active-fill'],'#654321');
+cfg.frame_img='custom-frame';message({type:'LIVE_UPDATE',cfg});assert.equal(styleVars['--frame-fill'],'transparent');assert.equal(styleVars['--frame-outline'],'0px solid transparent');
+assert(!/#end-card[^{}]*:before/.test(game),'No built-in result icons');
+gr("CFG.winImg='win-art';CFG.loseImg='lose-art';CFG.timeoutImg=null;renderEnd('timeout')");assert.equal(gameEls.get('end-img').style.display,'none');gr("CFG.timeoutImg='timeout-art';renderEnd('timeout')");assert.equal(gameEls.get('end-img').src,'timeout-art');assert.equal(gameEls.get('end-img').style.display,'block');gr('renderEnd(true)');assert.equal(gameEls.get('end-img').src,'win-art');gr('renderEnd(false)');assert.equal(gameEls.get('end-img').src,'lose-art');
+run("selectPreviewScene('win')");env.schedulePreviewUpdate({target:{id:'sizeRange'},type:'input'});assert.equal(run('previewScene'),'game');env.schedulePreviewUpdate({target:{id:'frameLineStyle'},type:'input'});assert.equal(run('previewScene'),'title');
+console.log('PASS: live flight speed and scales, frame fill/line, choice colors, uploaded-only result artwork, automatic preview scene.');
 console.log('PASS: 11 languages, RTL, all six preview scenes, persistent scene and question, live result edits, optional frame, optional timer and penalties, checkbox round trip, legacy import defaults, export isolation, message origin.');
