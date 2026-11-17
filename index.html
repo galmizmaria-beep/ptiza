@@ -326,7 +326,7 @@ var ct=Object.create;var W=Object.defineProperty;var lt=Object.getOwnPropertyDes
 
     function readDataURL(file) { return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(file);}); }
     let pendingAssets = 0;
-    function assetWork(delta) { pendingAssets += delta; document.getElementById('assetStatus').textContent = pendingAssets ? 'Обработка изображений… дождитесь завершения перед экспортом.' : 'Изображения готовы. Анимация GIF сохранена.'; invalidateExport();updateHistoryButtons();if(pendingAssets===0)captureHistory(); }
+    function assetWork(delta) { pendingAssets += delta; document.getElementById('assetStatus').textContent = pendingAssets ? 'Обработка изображений… дождитесь завершения перед экспортом.' : 'Изображения готовы. Анимация GIF сохранена.'; invalidateExport();updateHistoryButtons();if(pendingAssets===0){captureHistory();scheduleDraftSave();} }
     async function compressImage(file, settings) {
         const original = await readDataURL(file);
         const isGif = /^data:image\/gif/i.test(original);
