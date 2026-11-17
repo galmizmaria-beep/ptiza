@@ -16,6 +16,9 @@ label{display:block;margin-top:13px;color:#63705f;font-size:11px;font-weight:550
 @media(max-width:1080px){body{padding:14px;gap:12px}.main-layout{grid-template-columns:290px minmax(0,1fr);gap:14px}.illustrated-welcome{min-height:124px}.illustrated-welcome>div{padding:18px 22px}.illustrated-welcome h2{font-size:26px}.card{padding:14px}.preview-tabs button{padding:8px;font-size:10px}.preview-header h2{font-size:15px}}
 @media(max-width:760px){body{height:auto;overflow:auto;display:block;padding:14px}header{flex-wrap:wrap;gap:12px;margin-bottom:16px}header h1{font-size:21px}.studio-caption{font-size:8px}.author-credit{font-size:9px}.lang-switch{width:100%;justify-content:space-between}.lang-switch select{width:170px}.illustrated-welcome{min-height:150px;margin-bottom:16px;background-position:center,60% center}.illustrated-welcome h2{max-width:75%;font-size:25px}.illustrated-welcome p{max-width:65%;font-size:11px}.main-layout{display:flex;flex-direction:column}.left-panel{max-height:460px;padding-right:4px}.right-panel{overflow:visible;padding:0}.preview-header{margin-top:6px}.preview-tabs{gap:2px}.preview-tabs button{flex:1;padding:8px 6px;font-size:10px}.preview-options{flex-wrap:wrap}.preview-options select{width:calc(100% - 70px)}.preview-note{flex-basis:100%}#previewContainer{flex:auto;height:460px;min-height:300px}.file-actions .btn-action{font-size:10px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+.header-tools{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:8px 18px;max-width:590px}.history-controls{display:flex;gap:5px;padding:4px;background:#e9eee2;border-radius:10px}.history-controls button{padding:7px 11px;border:0;border-radius:7px;background:transparent;color:#526b49;font-size:11px;font-weight:600}.history-controls button:hover:not(:disabled){background:#fff}.history-controls button:disabled{opacity:.35}.draft-status{flex-basis:100%;color:#85927c;text-align:right;font-size:10px;line-height:1.3}.draft-status[data-error=true]{color:#b16b4f}.resume-overlay{position:fixed;inset:0;display:grid;place-items:center;z-index:1000;padding:24px;background:#233c2c66;backdrop-filter:blur(7px)}.resume-dialog{width:min(100%,460px);padding:32px;border:1px solid #d9e2cf;border-radius:20px;background:#fffdf8;box-shadow:0 25px 90px #17302133;text-align:left}.resume-icon{display:grid;place-items:center;width:46px;height:46px;margin-bottom:20px;border-radius:14px;background:#e6eedc;color:#5f7d51;font-size:25px}.resume-dialog h2{margin:0 0 10px;color:#2d4c37;font-size:25px;line-height:1.2;letter-spacing:-.6px}.resume-dialog p{color:#7b8872;font-size:12px;line-height:1.6}.resume-details{margin:20px 0;padding:14px 16px;border:1px solid #e1e8d8;border-radius:11px;background:#f3f6ec}.resume-details strong{display:block;color:#49613c;font-size:14px;overflow-wrap:anywhere}.resume-details span{display:block;margin-top:5px;color:#8c967e;font-size:10px}.resume-actions{display:flex;flex-direction:column;gap:9px}.resume-actions .btn-main{background:#315e4c;color:#fff;border-color:#315e4c}.resume-actions .btn-action{padding:11px;font-size:12px}.resume-error{min-height:0;color:#b16b4f!important;font-size:11px!important}
+@media(max-width:760px){.header-tools{width:100%;max-width:none;justify-content:space-between;gap:9px}.header-tools .lang-switch{width:auto}.header-tools .lang-switch select{width:140px}.header-tools .lang-switch label{display:none}.draft-status{text-align:left}.resume-dialog{padding:25px}}
     </style>
 </head>
 <body>
@@ -25,7 +28,7 @@ label{display:block;margin-top:13px;color:#63705f;font-size:11px;font-weight:550
             <div class="studio-caption">AVATAR FLIGHT · ТВОРЧЕСКАЯ МАСТЕРСКАЯ</div><h1 data-key="title">Полет Аватара: Мастер</h1>
             <div class="author-credit">© Гальмиз Мария Александровна · Все права защищены</div>
         </div>
-        <div class="lang-switch"><label for="gameLanguage" style="margin:0">Язык игры</label><select id="gameLanguage" onchange="setLang(this.value)"><option value="ru">Русский</option><option value="en">English</option><option value="de">Deutsch</option><option value="fr">Français</option><option value="es">Español</option><option value="it">Italiano</option><option value="pt">Português</option><option value="tr">Türkçe</option><option value="zh">中文</option><option value="ja">日本語</option><option value="ar">العربية</option></select></div>
+        <div class="header-tools"><div class="history-controls" aria-label="История изменений"><button type="button" id="undoBtn" onclick="undoAction()" title="Отменить действие — Ctrl/⌘Z" disabled>↶ Отменить</button><button type="button" id="redoBtn" onclick="redoAction()" title="Повторить действие — Ctrl/⌘Shift+Z" disabled>↷ Повторить</button></div>        <div class="lang-switch"><label for="gameLanguage" style="margin:0">Язык игры</label><select id="gameLanguage" onchange="setLang(this.value)"><option value="ru">Русский</option><option value="en">English</option><option value="de">Deutsch</option><option value="fr">Français</option><option value="es">Español</option><option value="it">Italiano</option><option value="pt">Português</option><option value="tr">Türkçe</option><option value="zh">中文</option><option value="ja">日本語</option><option value="ar">العربية</option></select></div><span class="draft-status" id="draftStatus" role="status">Автосохранение</span></div>
     </header>
 
     <section class="illustrated-welcome" aria-label="Творческая мастерская"><div><span class="welcome-kicker">ОТ ИДЕИ ДО ПЕРВОЙ ИГРЫ</span><h2>Идеи становятся<br>приключениями<span>.</span></h2><p>Придумайте историю. Создайте свою игру.</p></div></section>
@@ -237,6 +240,8 @@ label{display:block;margin-top:13px;color:#63705f;font-size:11px;font-weight:550
         </div>
     </div>
 
+<div class="resume-overlay" id="resumeOverlay" hidden><div class="resume-dialog" role="dialog" aria-modal="true" aria-labelledby="resumeTitle" aria-describedby="resumeDescription"><div class="resume-icon" aria-hidden="true">↶</div><h2 id="resumeTitle">Продолжим вашу историю?</h2><p id="resumeDescription">На этом устройстве найден сохранённый проект. Можно вернуться к работе или начать с чистого листа.</p><div class="resume-details"><strong id="resumeProjectName"></strong><span id="resumeSavedAt"></span></div><div class="resume-actions"><button type="button" class="btn-main" id="continueBtn" onclick="continueEditing()">Продолжить редактирование</button><button type="button" class="btn-action" id="newProjectBtn" onclick="startNewProject()">Начать новый проект</button></div><p class="resume-error" id="resumeError" role="alert"></p></div></div>
+
 <script>
 window.gifuct=(()=>{/* esm.sh - gifuct-js@2.1.2 */
 var Q=Object.create;var R=Object.defineProperty;var V=Object.getOwnPropertyDescriptor;var W=Object.getOwnPropertyNames;var Y=Object.getPrototypeOf,$=Object.prototype.hasOwnProperty;var _=(a,e)=>()=>(e||a((e={exports:{}}).exports,e),e.exports);var ee=(a,e,r,t)=>{if(e&&typeof e=="object"||typeof e=="function")for(let n of W(e))!$.call(a,n)&&n!==r&&R(a,n,{get:()=>e[n],enumerable:!(t=V(e,n))||t.enumerable});return a};var re=(a,e,r)=>(r=a!=null?Q(Y(a)):{},ee(e||!a||!a.__esModule?R(r,"default",{value:a,enumerable:!0}):r,a));var D=_(y=>{"use strict";Object.defineProperty(y,"__esModule",{value:!0});y.loop=y.conditional=y.parse=void 0;var te=function a(e,r){var t=arguments.length>2&&arguments[2]!==void 0?arguments[2]:{},n=arguments.length>3&&arguments[3]!==void 0?arguments[3]:t;if(Array.isArray(r))r.forEach(function(s){return a(e,s,t,n)});else if(typeof r=="function")r(e,t,n,a);else{var i=Object.keys(r)[0];Array.isArray(r[i])?(n[i]={},a(e,r[i],t,n[i])):n[i]=r[i](e,t,n,a)}return t};y.parse=te;var ae=function(e,r){return function(t,n,i,s){r(t,n,i)&&s(t,e,n,i)}};y.conditional=ae;var ne=function(e,r){return function(t,n,i,s){for(var d=[],u=t.pos;r(t,n,i);){var l={};if(s(t,e,n,l),t.pos===u)break;u=t.pos,d.push(l)}return d}};y.loop=ne});var E=_(f=>{"use strict";Object.defineProperty(f,"__esModule",{value:!0});f.readBits=f.readArray=f.readUnsigned=f.readString=f.peekBytes=f.readBytes=f.peekByte=f.readByte=f.buildStream=void 0;var ie=function(e){return{data:e,pos:0}};f.buildStream=ie;var K=function(){return function(e){return e.data[e.pos++]}};f.readByte=K;var oe=function(){var e=arguments.length>0&&arguments[0]!==void 0?arguments[0]:0;return function(r){return r.data[r.pos+e]}};f.peekByte=oe;var F=function(e){return function(r){return r.data.subarray(r.pos,r.pos+=e)}};f.readBytes=F;var de=function(e){return function(r){return r.data.subarray(r.pos,r.pos+e)}};f.peekBytes=de;var se=function(e){return function(r){return Array.from(F(e)(r)).map(function(t){return String.fromCharCode(t)}).join("")}};f.readString=se;var ue=function(e){return function(r){var t=F(2)(r);return e?(t[1]<<8)+t[0]:(t[0]<<8)+t[1]}};f.readUnsigned=ue;var ce=function(e,r){return function(t,n,i){for(var s=typeof r=="function"?r(t,n,i):r,d=F(e),u=new Array(s),l=0;l<s;l++)u[l]=d(t);return u}};f.readArray=ce;var le=function(e,r,t){for(var n=0,i=0;i<t;i++)n+=e[r+i]&&Math.pow(2,t-i-1);return n},fe=function(e){return function(r){for(var t=K()(r),n=new Array(8),i=0;i<8;i++)n[7-i]=!!(t&1<<i);return Object.keys(e).reduce(function(s,d){var u=e[d];return u.length?s[d]=le(n,u.index,u.length):s[d]=n[u.index],s},{})}};f.readBits=fe});var X=_(I=>{"use strict";Object.defineProperty(I,"__esModule",{value:!0});I.default=void 0;var x=D(),o=E(),C={blocks:function(e){for(var r=0,t=[],n=e.data.length,i=0,s=(0,o.readByte)()(e);s!==r&&s;s=(0,o.readByte)()(e)){if(e.pos+s>=n){var d=n-e.pos;t.push((0,o.readBytes)(d)(e)),i+=d;break}t.push((0,o.readBytes)(s)(e)),i+=s}for(var u=new Uint8Array(i),l=0,p=0;p<t.length;p++)u.set(t[p],l),l+=t[p].length;return u}},pe=(0,x.conditional)({gce:[{codes:(0,o.readBytes)(2)},{byteSize:(0,o.readByte)()},{extras:(0,o.readBits)({future:{index:0,length:3},disposal:{index:3,length:3},userInput:{index:6},transparentColorGiven:{index:7}})},{delay:(0,o.readUnsigned)(!0)},{transparentColorIndex:(0,o.readByte)()},{terminator:(0,o.readByte)()}]},function(a){var e=(0,o.peekBytes)(2)(a);return e[0]===33&&e[1]===249}),ve=(0,x.conditional)({image:[{code:(0,o.readByte)()},{descriptor:[{left:(0,o.readUnsigned)(!0)},{top:(0,o.readUnsigned)(!0)},{width:(0,o.readUnsigned)(!0)},{height:(0,o.readUnsigned)(!0)},{lct:(0,o.readBits)({exists:{index:0},interlaced:{index:1},sort:{index:2},future:{index:3,length:2},size:{index:5,length:3}})}]},(0,x.conditional)({lct:(0,o.readArray)(3,function(a,e,r){return Math.pow(2,r.descriptor.lct.size+1)})},function(a,e,r){return r.descriptor.lct.exists}),{data:[{minCodeSize:(0,o.readByte)()},C]}]},function(a){return(0,o.peekByte)()(a)===44}),ge=(0,x.conditional)({text:[{codes:(0,o.readBytes)(2)},{blockSize:(0,o.readByte)()},{preData:function(e,r,t){return(0,o.readBytes)(t.text.blockSize)(e)}},C]},function(a){var e=(0,o.peekBytes)(2)(a);return e[0]===33&&e[1]===1}),ye=(0,x.conditional)({application:[{codes:(0,o.readBytes)(2)},{blockSize:(0,o.readByte)()},{id:function(e,r,t){return(0,o.readString)(t.blockSize)(e)}},C]},function(a){var e=(0,o.peekBytes)(2)(a);return e[0]===33&&e[1]===255}),xe=(0,x.conditional)({comment:[{codes:(0,o.readBytes)(2)},C]},function(a){var e=(0,o.peekBytes)(2)(a);return e[0]===33&&e[1]===254}),Be=[{header:[{signature:(0,o.readString)(3)},{version:(0,o.readString)(3)}]},{lsd:[{width:(0,o.readUnsigned)(!0)},{height:(0,o.readUnsigned)(!0)},{gct:(0,o.readBits)({exists:{index:0},resolution:{index:1,length:3},sort:{index:4},size:{index:5,length:3}})},{backgroundColorIndex:(0,o.readByte)()},{pixelAspectRatio:(0,o.readByte)()}]},(0,x.conditional)({gct:(0,o.readArray)(3,function(a,e){return Math.pow(2,e.lsd.gct.size+1)})},function(a,e){return e.lsd.gct.exists}),{frames:(0,x.loop)([pe,ye,xe,ve,ge],function(a){var e=(0,o.peekByte)()(a);return e===33||e===44})}],he=Be;I.default=he});var Z=_(M=>{"use strict";Object.defineProperty(M,"__esModule",{value:!0});M.deinterlace=void 0;var me=function(e,r){for(var t=new Array(e.length),n=e.length/r,i=function(A,v){var c=e.slice(v*r,(v+1)*r);t.splice.apply(t,[A*r,r].concat(c))},s=[0,4,2,1],d=[8,8,4,2],u=0,l=0;l<4;l++)for(var p=s[l];p<n;p+=d[l])i(p,u),u++;return t};M.deinterlace=me});var H=_(j=>{"use strict";Object.defineProperty(j,"__esModule",{value:!0});j.lzw=void 0;var be=function(e,r,t){var n=4096,i=-1,s=t,d,u,l,p,T,A,v,b,c,h,w,z,m,g,U,P,G=new Array(t),O=new Array(n),S=new Array(n),k=new Array(n+1);for(z=e,u=1<<z,T=u+1,d=u+2,v=i,p=z+1,l=(1<<p)-1,c=0;c<u;c++)O[c]=0,S[c]=c;var w,b,N,m,g,P,U;for(w=b=N=m=g=P=U=0,h=0;h<s;){if(g===0){if(b<p){w+=r[U]<<b,b+=8,U++;continue}if(c=w&l,w>>=p,b-=p,c>d||c==T)break;if(c==u){p=z+1,l=(1<<p)-1,d=u+2,v=i;continue}if(v==i){k[g++]=S[c],v=c,m=c;continue}for(A=c,c==d&&(k[g++]=m,c=v);c>u;)k[g++]=S[c],c=O[c];m=S[c]&255,k[g++]=m,d<n&&(O[d]=v,S[d]=m,d++,(d&l)===0&&d<n&&(p++,l+=d)),v=A}g--,G[P++]=k[g],h++}for(h=P;h<s;h++)G[h]=0;return G};j.lzw=be});var L=_(B=>{"use strict";Object.defineProperty(B,"__esModule",{value:!0});B.decompressFrames=B.decompressFrame=B.parseGIF=void 0;var _e=ze(X()),Se=D(),ke=E(),we=Z(),Ae=H();function ze(a){return a&&a.__esModule?a:{default:a}}var Pe=function(e){var r=new Uint8Array(e);return(0,Se.parse)((0,ke.buildStream)(r),_e.default)};B.parseGIF=Pe;var Ue=function(e){for(var r=e.pixels.length,t=new Uint8ClampedArray(r*4),n=0;n<r;n++){var i=n*4,s=e.pixels[n],d=e.colorTable[s]||[0,0,0];t[i]=d[0],t[i+1]=d[1],t[i+2]=d[2],t[i+3]=s!==e.transparentIndex?255:0}return t},J=function(e,r,t){if(!e.image){console.warn("gif frame does not have associated image.");return}var n=e.image,i=n.descriptor.width*n.descriptor.height,s=(0,Ae.lzw)(n.data.minCodeSize,n.data.blocks,i);n.descriptor.lct.interlaced&&(s=(0,we.deinterlace)(s,n.descriptor.width));var d={pixels:s,dims:{top:e.image.descriptor.top,left:e.image.descriptor.left,width:e.image.descriptor.width,height:e.image.descriptor.height}};return n.descriptor.lct&&n.descriptor.lct.exists?d.colorTable=n.lct:d.colorTable=r,e.gce&&(d.delay=(e.gce.delay||10)*10,d.disposalType=e.gce.extras.disposal,e.gce.extras.transparentColorGiven&&(d.transparentIndex=e.gce.transparentColorIndex)),t&&(d.patch=Ue(d)),d};B.decompressFrame=J;var Fe=function(e,r){return e.frames.filter(function(t){return t.image}).map(function(t){return J(t,e.gct,r)})};B.decompressFrames=Fe});var q=re(L()),{__esModule:Oe,decompressFrames:De,decompressFrame:Ee,parseGIF:Re}=q,Ke=q.default??q;return {parseGIF:Re,decompressFrames:De,decompressFrame:Ee};
@@ -321,7 +326,7 @@ var ct=Object.create;var W=Object.defineProperty;var lt=Object.getOwnPropertyDes
 
     function readDataURL(file) { return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(file);}); }
     let pendingAssets = 0;
-    function assetWork(delta) { pendingAssets += delta; document.getElementById('assetStatus').textContent = pendingAssets ? 'Обработка изображений… дождитесь завершения перед экспортом.' : 'Изображения готовы. Анимация GIF сохранена.'; invalidateExport(); }
+    function assetWork(delta) { pendingAssets += delta; document.getElementById('assetStatus').textContent = pendingAssets ? 'Обработка изображений… дождитесь завершения перед экспортом.' : 'Изображения готовы. Анимация GIF сохранена.'; invalidateExport();updateHistoryButtons();if(pendingAssets===0)captureHistory(); }
     async function compressImage(file, settings) {
         const original = await readDataURL(file);
         const isGif = /^data:image\/gif/i.test(original);
@@ -713,7 +718,9 @@ var ct=Object.create;var W=Object.defineProperty;var lt=Object.getOwnPropertyDes
     }
 
     let previewTimeout;
-    function schedulePreviewUpdate() { 
+    function schedulePreviewUpdate(event) {
+        const id=event?.target?.id;
+        if(!event || (id && Object.hasOwn(projectSettings(),id)))captureHistory(event?.type==='input'?id:null); 
         invalidateExport();
         clearTimeout(previewTimeout); 
         previewTimeout = setTimeout(() => {
@@ -726,6 +733,7 @@ var ct=Object.create;var W=Object.defineProperty;var lt=Object.getOwnPropertyDes
 
     // ПОЛНАЯ ПЕРЕЗАГРУЗКА (Нужна только при загрузке новых картинок)
     function fullRestart() {
+        captureHistory();
         invalidateExport();
         try { refreshPreviewQuestions(); document.getElementById('gamePreview').srcdoc = getGameCode(true); } catch(e) { document.getElementById('questionStatus').textContent=e.message; }
     }
@@ -734,31 +742,14 @@ var ct=Object.create;var W=Object.defineProperty;var lt=Object.getOwnPropertyDes
     function invalidateExport(){exportRevision++;document.getElementById('copyBtn').disabled=true;document.getElementById('finalCode').value='';document.getElementById('copySection').style.display='none';document.getElementById('exportStatus').textContent='Сначала сожмите код, затем скопируйте готовый результат.';}
     function download(data,name,type){const url=URL.createObjectURL(new Blob([data],{type}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),5000);}
     function projectSettings(){return Object.fromEntries([...document.querySelectorAll('.left-panel input:not([type=file]), .left-panel select, .left-panel textarea')].map(el=>[el.id,el.type==='checkbox'?String(el.checked):el.value]));}
-    function saveProject(){if(pendingAssets)return alert('Дождитесь обработки изображений.');download(JSON.stringify({format:'ptiza-project',version:1,lang:currentLang,settings:projectSettings(),assets}),'ptiza-project.json','application/json');}
+    function saveProject(){if(pendingAssets)return alert('Дождитесь обработки изображений.');download(JSON.stringify(currentProject()),'ptiza-project.json','application/json');}
     async function loadProject(input){
         if(!input.files[0])return;
         if(pendingAssets){input.value='';return alert('Дождитесь обработки изображений.');}
         try{
             const file=input.files[0];if(file.size>100*1024*1024)throw Error('Проект больше 100 МБ.');
             const p=JSON.parse(await file.text());
-            if(p.format!=='ptiza-project'||p.version!==1||!p.settings||!p.assets||!Object.hasOwn(gameTranslations,p.lang))throw Error('Это не проект редактора Птица версии 1.');
-            const fields=[...document.querySelectorAll('.left-panel input:not([type=file]), .left-panel select, .left-panel textarea')];
-            for(const el of fields) if(p.settings[el.id]!==undefined && typeof p.settings[el.id]!=='string')throw Error('Некорректные настройки.');
-            const valid=(v,key)=>v===null || (typeof v==='string' && (key==='music'?/^data:audio\//i:/^data:image\/(png|jpe?g|webp|gif|svg\+xml|avif);/i).test(v));
-            for(const key of Object.keys(assets)){const value=p.assets[key];if(Array.isArray(assets[key])){if(!Array.isArray(value)||value.length>6||!value.every(v=>valid(v,key)))throw Error('Некорректные изображения.');}else if(!valid(value,key))throw Error('Некорректный ресурс: '+key);}
-            const restored={};
-            for(const key of Object.keys(originalFiles))restored[key]=Array.isArray(p.assets[key])?p.assets[key].map(v=>v?dataFile(v):null):p.assets[key]?dataFile(p.assets[key]):null;
-            parseQuestionText(p.settings.bulkQuestions || '');
-            // All validation completes before changing the current project.
-            setLang(p.lang);
-            for(const el of fields)if(p.settings[el.id]!==undefined){if(el.type==='checkbox')el.checked=p.settings[el.id]==='true';else el.value=p.settings[el.id];}
-            // Projects from the first version used both frame and timer by default.
-            if(p.settings.useFrame===undefined)document.getElementById('useFrame').checked=true;
-            if(p.settings.useTimer===undefined)document.getElementById('useTimer').checked=true;
-            for(const [id,value] of Object.entries(typeSizeDefaults))if(p.settings[id]===undefined)document.getElementById(id).value=String(value);
-            for(const key of Object.keys(assets))assets[key]=p.assets[key];
-            Object.assign(originalFiles,restored);
-            ['avatars','creatures','avatarsInFlight'].forEach(renderAssetPreviews);fullRestart();document.getElementById('exportStatus').textContent='Проект загружен. Перед копированием снова сожмите код.';
+            const state=projectSnapshot(p);captureHistory();applySnapshot(state);captureHistory();document.getElementById('exportStatus').textContent='Проект загружен. Перед копированием снова сожмите код.';
         }catch(e){alert('Не удалось загрузить проект: '+e.message);}finally{input.value='';}
     }
     function dataFile(url){const [head,body]=url.split(',');if(!/;base64$/.test(head)||!body)throw Error('Повреждённый ресурс проекта.');const bytes=Uint8Array.from(atob(body),c=>c.charCodeAt(0));return new Blob([bytes],{type:head.slice(5).split(';')[0]});}
@@ -787,6 +778,131 @@ var ct=Object.create;var W=Object.defineProperty;var lt=Object.getOwnPropertyDes
         try{if(navigator.clipboard && window.isSecureContext)await navigator.clipboard.writeText(field.value);else{field.select();if(!document.execCommand('copy'))throw Error('Копирование недоступно');}document.getElementById('exportStatus').textContent='Код скопирован. Вставьте его в Genially: Вставка → Другие.';}catch(e){field.classList.remove('hidden-code');field.style.width='100%';field.select();document.getElementById('exportStatus').textContent='Выделенный код можно скопировать вручную: Ctrl+C / ⌘C.';}
     }
 
+    const DRAFT_KEY='ptiza-editor-draft-v1';
+    const HISTORY_LIMIT=40;
+    let historyReady=false,historyRestoring=false,historyEntries=[],historyIndex=-1;
+    let historyMergeKey=null,historyMergeTime=0,initialSnapshot=null,startupDraft=null;
+    let draftTimer=null,draftWriteChain=Promise.resolve(),draftDB=null,draftBackend=null;
+    const cloneResources=value=>Object.fromEntries(Object.entries(value).map(([key,v])=>[key,Array.isArray(v)?v.slice():v]));
+    function captureState(){return {lang:currentLang,settings:projectSettings(),assets:cloneResources(assets),originals:cloneResources(originalFiles)};}
+    function sameResources(a,b){return Object.keys(a).every(key=>Array.isArray(a[key])?Array.isArray(b[key])&&a[key].length===b[key].length&&a[key].every((v,i)=>v===b[key][i]):a[key]===b[key]);}
+    function sameState(a,b){return a&&b&&a.lang===b.lang&&JSON.stringify(a.settings)===JSON.stringify(b.settings)&&sameResources(a.assets,b.assets)&&sameResources(a.originals,b.originals);}
+    function updateHistoryButtons(){const blocked=!historyReady||historyRestoring||pendingAssets>0;document.getElementById('undoBtn').disabled=blocked||historyIndex<=0;document.getElementById('redoBtn').disabled=blocked||historyIndex>=historyEntries.length-1;}
+    function historyResourceBytes(){const seen=new Set();let bytes=0;for(const entry of historyEntries)for(const group of [entry.assets,entry.originals])for(const v of Object.values(group).flat()){if(v&&!seen.has(v)){seen.add(v);bytes+=typeof v==='string'?v.length*2:(v.size||0);}}return bytes;}
+    function captureHistory(mergeKey=null){
+        if(!historyReady||historyRestoring||pendingAssets)return;
+        const state=captureState(),now=Date.now();
+        if(sameState(state,historyEntries[historyIndex])){if(!mergeKey)historyMergeKey=null;updateHistoryButtons();return;}
+        const canMerge=mergeKey&&historyMergeKey===mergeKey&&now-historyMergeTime<700&&historyIndex===historyEntries.length-1&&historyIndex>0;
+        historyEntries=historyEntries.slice(0,historyIndex+1);
+        if(canMerge)historyEntries[historyIndex]=state;else{historyEntries.push(state);historyIndex++;}
+        while(historyEntries.length>HISTORY_LIMIT || (historyEntries.length>2&&historyResourceBytes()>64*1024*1024)){historyEntries.shift();historyIndex--;}
+        historyMergeKey=mergeKey;historyMergeTime=now;updateHistoryButtons();scheduleDraftSave();
+    }
+    function applySnapshot(state){
+        historyRestoring=true;
+        try{
+            setLang(state.lang);
+            for(const field of document.querySelectorAll('.left-panel input:not([type=file]), .left-panel select, .left-panel textarea'))if(state.settings[field.id]!==undefined){if(field.type==='checkbox')field.checked=state.settings[field.id]==='true';else field.value=state.settings[field.id];}
+            Object.assign(assets,cloneResources(state.assets));Object.assign(originalFiles,cloneResources(state.originals));
+            ['avatars','creatures','avatarsInFlight'].forEach(renderAssetPreviews);fullRestart();
+        }finally{historyRestoring=false;historyMergeKey=null;updateHistoryButtons();}
+    }
+    function undoAction(){if(!historyReady||pendingAssets)return;captureHistory();if(historyIndex<=0)return;applySnapshot(historyEntries[--historyIndex]);scheduleDraftSave();}
+    function redoAction(){if(!historyReady||pendingAssets)return;captureHistory();if(historyIndex>=historyEntries.length-1)return;applySnapshot(historyEntries[++historyIndex]);scheduleDraftSave();}
+    function currentProject(){return {format:'ptiza-project',version:1,lang:currentLang,settings:projectSettings(),assets:cloneResources(assets)};}
+    function projectSnapshot(p,allowIncomplete=false){
+        if(p.format!=='ptiza-project'||p.version!==1||!p.settings||!p.assets||!Object.hasOwn(gameTranslations,p.lang))throw Error('Это не проект редактора Птица версии 1.');
+        const fields=[...document.querySelectorAll('.left-panel input:not([type=file]), .left-panel select, .left-panel textarea')];
+        for(const field of fields)if(p.settings[field.id]!==undefined&&typeof p.settings[field.id]!=='string')throw Error('Некорректные настройки.');
+        const valid=(v,key)=>v===null||(typeof v==='string'&&(key==='music'?/^data:audio\//i:/^data:image\/(png|jpe?g|webp|gif|svg\+xml|avif);/i).test(v));
+        for(const key of Object.keys(assets)){const value=p.assets[key];if(Array.isArray(assets[key])){if(!Array.isArray(value)||value.length>6||!value.every(v=>valid(v,key)))throw Error('Некорректные изображения.');}else if(!valid(value,key))throw Error('Некорректный ресурс: '+key);}
+        const originals={};for(const key of Object.keys(originalFiles))originals[key]=Array.isArray(p.assets[key])?p.assets[key].map(v=>v?dataFile(v):null):p.assets[key]?dataFile(p.assets[key]):null;
+        if(!allowIncomplete)parseQuestionText(p.settings.bulkQuestions||'');
+        const d=dict[p.lang],settings={...initialSnapshot.settings,txtTitle:d.val_title,txtStart:d.val_start,txtWin:d.val_win,txtLose:d.val_lose,txtTimeout:d.val_timeout,txtAvatarLbl:d.val_avatar,txtCreatureLbl:d.val_creature,useFrame:'true',useTimer:'true'};
+        for(const [key,value] of Object.entries(typeSizeDefaults))settings[key]=String(value);
+        for(const field of fields)if(p.settings[field.id]!==undefined)settings[field.id]=p.settings[field.id];
+        return {lang:p.lang,settings,assets:cloneResources(p.assets),originals};
+    }
+    function setDraftStatus(text,error=false){const el=document.getElementById('draftStatus');el.textContent=text;el.dataset.error=String(error);}
+    async function openDraftDB(){
+        if(draftDB)return draftDB;
+        draftDB=await new Promise((resolve,reject)=>{
+            const request=window.indexedDB.open('ptiza-editor',1);
+            request.onupgradeneeded=()=>{if(!request.result.objectStoreNames.contains('drafts'))request.result.createObjectStore('drafts');};
+            request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);request.onblocked=()=>reject(Error('Хранилище занято другой вкладкой.'));
+        });
+        draftDB.onversionchange=()=>{draftDB.close();draftDB=null;};return draftDB;
+    }
+    async function draftTransaction(action,value){
+        const db=await openDraftDB();return new Promise((resolve,reject)=>{
+            const transaction=db.transaction('drafts',action==='get'?'readonly':'readwrite'),store=transaction.objectStore('drafts');
+            const request=action==='get'?store.get(DRAFT_KEY):action==='put'?store.put(value,DRAFT_KEY):store.delete(DRAFT_KEY);
+            transaction.oncomplete=()=>resolve(request.result);transaction.onerror=()=>reject(transaction.error||request.error);transaction.onabort=()=>reject(transaction.error||Error('Сохранение прервано.'));
+        });
+    }
+    async function readDraft(){
+        if(window.indexedDB){try{const draft=await draftTransaction('get');if(draft){draftBackend='indexeddb';return draft;}}catch{}}
+        try{const data=window.localStorage?.getItem(DRAFT_KEY);if(data){draftBackend='local';return JSON.parse(data);}return null;}catch{return null;}
+    }
+    async function writeDraft(record){
+        if(window.indexedDB){try{await draftTransaction('put',record);draftBackend='indexeddb';try{window.localStorage?.removeItem(DRAFT_KEY);}catch{}return;}catch{}}
+        if(!window.localStorage)throw Error('Локальное хранилище недоступно.');
+        window.localStorage.setItem(DRAFT_KEY,JSON.stringify(record));draftBackend='local';
+    }
+    async function deleteDraft(){
+        let indexDeleted=false,localDeleted=false,storageError=null;
+        if(window.indexedDB){try{await draftTransaction('delete');indexDeleted=true;}catch(e){storageError=e;}}
+        try{if(window.localStorage){window.localStorage.removeItem(DRAFT_KEY);localDeleted=true;}}catch(e){storageError=e;}
+        if((draftBackend==='indexeddb'&&!indexDeleted)||(draftBackend==='local'&&!localDeleted)||(!indexDeleted&&!localDeleted))throw storageError||Error('Local storage is unavailable.');
+        draftBackend=null;
+    }
+    function enqueueDraftWrite(action){const operation=draftWriteChain.then(action);draftWriteChain=operation.catch(()=>{});return operation;}
+    function scheduleDraftSave(){if(!historyReady||historyRestoring)return;clearTimeout(draftTimer);setDraftStatus('Сохраняем черновик…');draftTimer=setTimeout(flushDraft,400);}
+    async function flushDraft(){
+        clearTimeout(draftTimer);draftTimer=null;
+        if(!historyReady||historyRestoring||pendingAssets)return;
+        const record={format:'ptiza-draft',version:1,updatedAt:Date.now(),project:currentProject(),scene:previewScene,question:Number(document.getElementById('previewQuestion').value)||0};
+        try{await enqueueDraftWrite(()=>writeDraft(record));setDraftStatus('Черновик сохранён на этом устройстве');return record;}catch{setDraftStatus('Не удалось сохранить черновик — скачайте проект',true);}
+    }
+    function lockEditor(locked){document.getElementById('settingsPanel').inert=locked;document.getElementById('gameLanguage').disabled=locked;}
+    function finishSessionStart(state){
+        historyEntries=[state];historyIndex=0;historyReady=true;historyMergeKey=null;startupDraft=null;
+        document.getElementById('resumeOverlay').hidden=true;lockEditor(false);updateHistoryButtons();
+    }
+    async function initializeSession(){
+        initialSnapshot=captureState();historyEntries=[initialSnapshot];historyIndex=0;historyReady=false;lockEditor(true);updateHistoryButtons();
+        const draft=await readDraft();
+        if(draft?.format==='ptiza-draft'&&draft.version===1&&draft.project){
+            startupDraft=draft;const title=draft.project.settings?.txtTitle||'Без названия';document.getElementById('resumeProjectName').textContent=String(title);
+            const saved=new Date(draft.updatedAt);document.getElementById('resumeSavedAt').textContent=Number.isNaN(saved.getTime())?'Сохранённый черновик':'Последнее сохранение: '+saved.toLocaleString('ru-RU');
+            document.getElementById('resumeOverlay').hidden=false;document.getElementById('continueBtn').focus();setDraftStatus('Найден сохранённый черновик');
+        }else{finishSessionStart(initialSnapshot);setDraftStatus('Автосохранение включено');}
+    }
+    function continueEditing(){
+        if(!startupDraft)return;
+        try{
+            const draft=startupDraft,state=projectSnapshot(draft.project,true);
+            previewScene=['title','game','tasks','win','lose','timeout'].includes(draft.scene)?draft.scene:'title';document.getElementById('previewQuestion').value=String(draft.question||0);
+            applySnapshot(state);selectPreviewScene(previewScene);finishSessionStart(captureState());setDraftStatus('Черновик восстановлен');document.getElementById('tab-'+previewScene).focus();
+        }catch(e){document.getElementById('resumeError').textContent='Не удалось открыть черновик: '+e.message;}
+    }
+    async function startNewProject(){
+        document.getElementById('newProjectBtn').disabled=true;document.getElementById('continueBtn').disabled=true;
+        try{
+            clearTimeout(draftTimer);await enqueueDraftWrite(deleteDraft);
+            previewScene='title';document.getElementById('previewQuestion').value='0';applySnapshot(initialSnapshot);selectPreviewScene('title');finishSessionStart(captureState());setDraftStatus('Новый проект — автосохранение включено');document.getElementById('txtTitle').focus();
+        }catch(e){document.getElementById('resumeError').textContent='Не удалось начать новый проект: '+e.message;}
+        finally{document.getElementById('newProjectBtn').disabled=false;document.getElementById('continueBtn').disabled=false;}
+    }
+    window.addEventListener('keydown',event=>{
+        if(!document.getElementById('resumeOverlay').hidden){if(event.key==='Tab'){const first=document.getElementById('continueBtn'),last=document.getElementById('newProjectBtn');if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}}return;}
+        if(!historyReady||pendingAssets||event.isComposing||event.altKey||!(event.metaKey||event.ctrlKey))return;
+        const key=event.key.toLowerCase();if(key==='z'||key==='y'){event.preventDefault();if(key==='y'||event.shiftKey)redoAction();else undoAction();}
+    });
+    window.addEventListener('pagehide',()=>{if(historyReady)flushDraft();});
+    document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&historyReady)flushDraft();});
+
     // Слушатели для авто-обновления игры "на лету" без дергания экрана
     document.getElementById('settingsPanel').addEventListener('input', schedulePreviewUpdate);
     document.getElementById('settingsPanel').addEventListener('change', schedulePreviewUpdate);
@@ -794,6 +910,7 @@ var ct=Object.create;var W=Object.defineProperty;var lt=Object.getOwnPropertyDes
     document.documentElement.style.setProperty('--studio-art','url("'+storybookArt+'")');
     setLang('ru');
     fullRestart(); // Инициализация игры при загрузке страницы
+    window.sessionReady=initializeSession();
 </script>
 </body>
 </html>

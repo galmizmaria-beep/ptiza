@@ -12,7 +12,7 @@ class Response {
 }
 
 
-export async function createEditor(){
+export async function createEditor(options={}){
 const source=await fs.readFile(new URL('../index.html',import.meta.url),'utf8');
 const scripts=[...source.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]);
 function element(tag='div',id=''){
@@ -21,18 +21,23 @@ function element(tag='div',id=''){
     addEventListener(){},querySelectorAll(){return []},focus(){},select(){},click(){},remove(){},contentWindow:{postMessage(){}}};
 }
 const els=new Map();
-for(const m of source.matchAll(/<(input|select|textarea|button|div|p|span|iframe)[^>]*\bid="([^"]+)"[^>]*>/g)){
+for(const m of source.matchAll(/<(input|select|textarea|button|div|p|span|strong|iframe)[^>]*\bid="([^"]+)"[^>]*>/g)){
  const el=element(m[1],m[2]);el.value=m[0].match(/\bvalue="([^"]*)"/)?.[1]||'';el.checked=/\bchecked\b/.test(m[0]);el.type=m[0].match(/\btype="([^"]*)"/)?.[1]||'';els.set(el.id,el);
 }
 for(const m of source.matchAll(/<select id="([^"]+)">([\s\S]*?)<\/select>/g)){
  const options=[...m[2].matchAll(/<option value="([^"]+)"([^>]*)>/g)];els.get(m[1]).value=(options.find(o=>o[2].includes('selected'))||options[0])[1];
 }
-const fields=[...els.values()].filter(el=>['INPUT','SELECT','TEXTAREA'].includes(el.tagName)&&el.type!=='file'&&!['finalCode'].includes(el.id));
+const leftStart=source.indexOf('<div class="left-panel">');
+const leftHTML=source.slice(leftStart,source.indexOf('<div class="right-panel">',leftStart));
+const leftIds=new Set([...leftHTML.matchAll(/\bid="([^"]+)"/g)].map(m=>m[1]));
+const fields=[...els.values()].filter(el=>leftIds.has(el.id)&&['INPUT','SELECT','TEXTAREA'].includes(el.tagName)&&el.type!=='file');
 const errors=[];
-const document={getElementById:id=>{assert(els.has(id),'Missing editor element '+id);return els.get(id)},querySelectorAll:selector=>selector.startsWith('.left-panel')?fields:[],createElement:tag=>element(tag),documentElement:{style:{setProperty(){}}}};
-const env={document,console,Blob,Response,CompressionStream,DecompressionStream,TextEncoder,Uint8Array,Uint8ClampedArray,atob,btoa,URL,Image:class{},navigator:{},setTimeout:()=>0,clearTimeout(){},alert:m=>errors.push(m)};env.window=env;
+const listeners={};
+const document={getElementById:id=>{assert(els.has(id),'Missing editor element '+id);return els.get(id)},querySelectorAll:selector=>selector.startsWith('.left-panel')?fields:[],createElement:tag=>element(tag),documentElement:{style:{setProperty(){}}},addEventListener:(type,fn)=>listeners['document:'+type]=fn};
+const env={document,console,Blob,Response,CompressionStream,DecompressionStream,TextEncoder,Uint8Array,Uint8ClampedArray,atob,btoa,URL,Image:class{},navigator:{},setTimeout:()=>0,clearTimeout(){},alert:m=>errors.push(m),localStorage:options.localStorage,indexedDB:options.indexedDB,addEventListener:(type,fn)=>listeners[type]=fn};env.window=env;
 vm.createContext(env);for(const script of scripts)new vm.Script(script).runInContext(env);
+await env.sessionReady;
 const run=code=>vm.runInContext(code,env);
-return {env,run,els,errors,element,source};
+return {env,run,els,errors,element,source,listeners};
 }
 export {Response};
