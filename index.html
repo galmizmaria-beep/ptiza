@@ -121,19 +121,41 @@
         .right-panel{min-width:0;min-height:0} #previewContainer{min-height:260px} .help-text{color:#a9b3c9} #copySection{padding:8px} .left-panel .btn-action{font-size:12px}
         @media(max-width:1000px){.main-layout{grid-template-columns:360px 1fr;gap:12px}body{padding:12px}.card{padding:14px}}
         @media(max-width:760px){body{height:auto;overflow:auto}header{height:auto;gap:10px}h1{font-size:18px}.main-layout{display:flex;flex-direction:column;height:auto}.left-panel{overflow:visible;padding:0}.right-panel{height:720px}.file-actions .btn-action{flex:1;font-size:12px}}
+    
+        /* Parchment workshop, inspired by the supplied reference. */
+        :root{--primary:#dfc08b;--bg:#242b20;--panel:#344331;--text:#f3e7cf;--accent:#d0aa6e;--success:#c7d7a3;--border-glow:#9f83534d;--shadow-glow-soft:transparent;--shadow-glow-hard:transparent}
+        body{padding:22px 28px;background:radial-gradient(ellipse at 75% 0%,#66704a55,transparent 65%),repeating-linear-gradient(90deg,#ffffff02 0 1px,transparent 1px 90px),#242b20;color:var(--text);font-family:'Segoe UI',Arial,sans-serif}
+        header{height:62px;border-bottom:1px solid #b69b6555;margin-bottom:18px;text-shadow:none;padding-bottom:15px}
+        header h1{font-family:Georgia,'Times New Roman',serif;font-weight:400;font-size:29px;color:#ecd09b;text-transform:none;letter-spacing:.3px}
+        header>div>div{color:#bdbb9f!important}.lang-switch{display:flex;align-items:center;gap:10px}.lang-switch select{margin:0;min-width:140px;background:#354231;border-color:#9a8050;color:#f4e6cc}
+        .studio-caption{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#b5bf99;margin-bottom:5px}
+        .main-layout{grid-template-columns:380px minmax(0,1fr);height:calc(100dvh - 150px);gap:22px}.left-panel{gap:14px;padding-right:10px}
+        .card{background:linear-gradient(135deg,#3f4d37,#303e2e);border:1px solid #9f895c66;border-radius:8px;padding:19px;box-shadow:0 5px 18px #10190e22;backdrop-filter:none}
+        .card:hover{border-color:#b49a65}.card h2{font-family:Georgia,serif;font-size:20px;font-weight:400;border-color:#af955e55;color:#e6c998;text-shadow:none;letter-spacing:.3px}
+        h3{color:#e6c998;border-color:#af955e55}label{color:#d9d7bf;font-weight:500;font-size:12px;letter-spacing:.2px}
+        input[type=text],input[type=number],textarea.bulk-input,select,input[type=color]{background:#253123;border:1px solid #8d805b88;color:#f4ead6;border-radius:4px;padding:10px}
+        input:focus,textarea:focus,select:focus{border-color:#dfc08b;box-shadow:0 0 0 2px #dfc08b22}input[type=range],input[type=checkbox]{accent-color:#d5b476}input[type=file]{font-size:12px;color:#c8c9ac;max-width:100%}input[type=file]::file-selector-button{padding:7px 10px;background:#4a583e;color:#f5e8cd;border:1px solid #95835c;border-radius:4px;margin-right:8px}
+        .check-row{display:flex;gap:10px;align-items:center;padding:11px 12px;background:#202d2166;border:1px solid #a18b5544;border-radius:5px;margin-top:12px;cursor:pointer}.check-row input{width:17px;height:17px;margin:0;cursor:pointer}.help-text{color:#bfc6aa;line-height:1.6}
+        .right-panel{gap:10px;overflow-y:auto;padding:1px 2px 8px}.preview-header h2{font-family:Georgia,serif;font-weight:400;font-size:23px;color:#e3c492}.preview-tabs{display:flex;gap:6px;flex-wrap:wrap;padding:8px;background:#1b251b66;border:1px solid #9c875a44;border-radius:7px}
+        .preview-tabs button{font:12px 'Segoe UI',sans-serif;padding:9px 12px;color:#cbd0b6;background:transparent;border:1px solid transparent;border-radius:4px;cursor:pointer}.preview-tabs button[aria-selected=true]{background:#dcc18e;color:#293122;border-color:#edd6ad}.preview-tabs button:hover{border-color:#9d8e64}
+        .preview-options{display:flex;gap:12px;align-items:center;color:#bbc5a4;font-size:12px}.preview-options select{max-width:240px;margin:0;padding:6px}.preview-options label{margin:0}.preview-note{flex:1;line-height:1.4}
+        #previewContainer{border:7px solid #705437;border-radius:9px;outline:1px solid #b79963;box-shadow:0 12px 35px #0d160c55,inset 0 0 0 1px #d6b875;background:#344430;min-height:240px}
+        .btn-main,.btn-action,.btn-copy{background:linear-gradient(#80603f,#62452e);border:1px solid #bd9966;color:#fae4b9;text-shadow:none;box-shadow:inset 0 0 0 2px #3d2a1b55;border-radius:5px;text-transform:none;font-size:13px;font-weight:500;letter-spacing:.2px}
+        .btn-main{font-family:Georgia,serif;font-size:18px;padding:12px}.btn-main:hover,.btn-action:hover,.btn-copy:hover{transform:none;background:#8c6944;border-color:#e3c38d;box-shadow:none}.btn-copy.success{background:#58704b;color:#fff}.btn-remove{background:#805346}
+        .char-previews,.preview-item{background:#1e2d2255}.preview-item img{border-color:#a68e5c}.status-text{color:#d2dcb6}#copySection{background:#263323;border-color:#a69b72}.left-panel::-webkit-scrollbar-thumb{background:#8c956a}
+        .export-panel{background:linear-gradient(120deg,#3b4933,#303e2b)!important;border-color:#a18a5755!important}.file-actions .btn-action{flex:1;white-space:nowrap;padding:8px 10px;font-size:12px}
+        @media(max-width:1100px){body{padding:16px}.main-layout{grid-template-columns:330px minmax(0,1fr);gap:16px;height:calc(100dvh - 134px)}.preview-tabs button{padding:8px;font-size:11px}header h1{font-size:24px}}
+        @media(max-width:760px){body{height:auto;overflow:auto;padding:14px}header{height:auto;flex-wrap:wrap;gap:14px}header h1{font-size:25px}.main-layout{display:flex;height:auto}.right-panel{height:auto;min-height:800px}#previewContainer{height:480px;flex-grow:0}.left-panel{padding-right:0}.preview-options{flex-wrap:wrap}.preview-header h2{font-size:20px}.preview-tabs button{flex:1}.lang-switch{width:100%}}
     </style>
 </head>
 <body>
 
     <header>
         <div>
-            <h1 data-key="title">Полет Аватара: Мастер</h1>
+            <div class="studio-caption">Мастерская интерактивных историй</div><h1 data-key="title">Полет Аватара: Мастер</h1>
             <div style="font-size: 11px; color: #888; margin-top: 5px;">Все права защищены и принадлежат Гальмиз Марии Александровне</div>
         </div>
-        <div class="lang-switch">
-            <button onclick="setLang('ru')" id="btn-ru" class="active">RU</button>
-            <button onclick="setLang('en')" id="btn-en">EN</button>
-        </div>
+        <div class="lang-switch"><label for="gameLanguage" style="margin:0">Язык игры</label><select id="gameLanguage" onchange="setLang(this.value)"><option value="ru">Русский</option><option value="en">English</option><option value="de">Deutsch</option><option value="fr">Français</option><option value="es">Español</option><option value="it">Italiano</option><option value="pt">Português</option><option value="tr">Türkçe</option><option value="zh">中文</option><option value="ja">日本語</option><option value="ar">العربية</option></select></div>
     </header>
 
     <div class="main-layout" id="settingsPanel">
@@ -153,23 +175,48 @@
                     <div><label data-key="lbl_time">Время (с):</label><input type="number" id="valTime" value="60"></div>
                     
                     <div><label data-key="lbl_win">Текст победы:</label><input type="text" id="txtWin" value="ТЫ ПОБЕДИЛ!"></div>
-                    <div><label data-key="lbl_lose">Текст поражения:</label><input type="text" id="txtLose" value="ВРЕМЯ ВЫШЛО"></div>
+                    <div><label data-key="lbl_lose">Текст поражения:</label><input type="text" id="txtLose" value="ПОПРОБУЙ ЕЩЁ РАЗ"></div>
                 </div>
 
+                <label class="check-row"><input type="checkbox" id="useTimer" checked> Использовать таймер</label>
+                <label for="txtTimeout">Текст «Время вышло»:</label><input type="text" id="txtTimeout" value="ВРЕМЯ ВЫШЛО">
                 <label>Шрифт:</label>
                 <select id="fontFamily">
+                    <option value="Georgia, 'Times New Roman', serif">Georgia — книжный</option>
                     <option value="'Segoe UI', Tahoma, sans-serif">Segoe UI</option>
                     <option value="Arial, sans-serif">Arial</option>
                     <option value="'Times New Roman', serif">Times New Roman</option>
                     <option value="'Courier New', monospace">Courier New</option>
                     <option value="'Comic Sans MS', cursive, sans-serif">Comic Sans</option>
                     <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+                    <option value="'Palatino Linotype', serif">Palatino Linotype</option>
+                    <option value="'Book Antiqua', serif">Book Antiqua</option>
+                    <option value="'Baskerville', serif">Baskerville</option>
+                    <option value="'Garamond', serif">Garamond</option>
+                    <option value="'Didot', serif">Didot</option>
+                    <option value="'Cambria', serif">Cambria</option>
+                    <option value="'Constantia', serif">Constantia</option>
+                    <option value="'Verdana', sans-serif">Verdana</option>
+                    <option value="'Tahoma', sans-serif">Tahoma</option>
+                    <option value="'Calibri', sans-serif">Calibri</option>
+                    <option value="'Helvetica Neue', sans-serif">Helvetica Neue</option>
+                    <option value="'Gill Sans', sans-serif">Gill Sans</option>
+                    <option value="'Optima', sans-serif">Optima</option>
+                    <option value="'Lucida Grande', sans-serif">Lucida Grande</option>
+                    <option value="'American Typewriter', serif">American Typewriter</option>
+                    <option value="'Menlo', monospace">Menlo</option>
+                    <option value="'Consolas', monospace">Consolas</option>
+                    <option value="'Bradley Hand', cursive">Bradley Hand</option>
+                    <option value="'Chalkboard SE', cursive">Chalkboard SE</option>
+                    <option value="'Papyrus', fantasy">Papyrus</option>
+
                 </select>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                     <div><label>Размер вопроса (px):</label><input type="number" id="qSize" value="28"></div>
                     <div><label>Размер ответа (px):</label><input type="number" id="aSize" value="18"></div>
                 </div>
 
+<p class="help-text">Шрифты берутся с вашего устройства; если выбранного шрифта нет, используется запасной. Язык переводит интерфейс игры, тексты заданий остаются вашими.</p>
                 <label data-key="lbl_level_style">Стиль уровня:</label>
                 <select id="levelStyle">
                    <option value="balanced" data-key="opt_balanced">Сбалансированный</option>
@@ -206,29 +253,30 @@
                 <input type="range" id="cBgOp" min="0.1" max="1.0" step="0.1" value="0.7">
 
                 <div class="color-grid">
-                    <div><label data-key="lbl_c_title">Цвет заголовка:</label><input type="color" id="cTitle" value="#ffffff"></div>
-                    <div><label data-key="lbl_c_char">Цвет 'Аватар/Существо':</label><input type="color" id="cChar" value="#ffffff"></div>
+                    <div><label data-key="lbl_c_title">Цвет заголовка:</label><input type="color" id="cTitle" value="#ead2a3"></div>
+                    <div><label data-key="lbl_c_char">Цвет 'Аватар/Существо':</label><input type="color" id="cChar" value="#e0c38f"></div>
                     
-                    <div><label data-key="lbl_c_bg">Цвет фона игры:</label><input type="color" id="cBg" value="#040a18"></div>
-                    <div><label data-key="lbl_c_btn">Цвет кнопок:</label><input type="color" id="cBtn" value="#00d2ff"></div>
+                    <div><label data-key="lbl_c_bg">Цвет фона игры:</label><input type="color" id="cBg" value="#34442f"></div>
+                    <div><label data-key="lbl_c_btn">Цвет кнопок:</label><input type="color" id="cBtn" value="#80603f"></div>
                     
-                    <div><label data-key="lbl_c_btn_glow">Свечение кнопок:</label><input type="color" id="cBtnGlow" value="#00d2ff"></div>
-                    <div><label data-key="lbl_c_play">Текст на кнопках:</label><input type="color" id="cPlayTxt" value="#ffffff"></div>
+                    <div><label data-key="lbl_c_btn_glow">Свечение кнопок:</label><input type="color" id="cBtnGlow" value="#b2915a"></div>
+                    <div><label data-key="lbl_c_play">Текст на кнопках:</label><input type="color" id="cPlayTxt" value="#fae7c5"></div>
 
-                    <div><label data-key="lbl_c_quiz">Цвет окна вопроса:</label><input type="color" id="cQuiz" value="#040a18"></div>
-                    <div><label data-key="lbl_c_quiz_ans">Цвет вариантов ответа:</label><input type="color" id="cQuizAns" value="#1a1a2d"></div>
+                    <div><label data-key="lbl_c_quiz">Цвет окна вопроса:</label><input type="color" id="cQuiz" value="#edd2a0"></div>
+                    <div><label data-key="lbl_c_quiz_ans">Цвет вариантов ответа:</label><input type="color" id="cQuizAns" value="#6d4f34"></div>
                     
-                    <div><label data-key="lbl_c_quiz_glow">Свечение вопроса:</label><input type="color" id="cQuizGlow" value="#00d2ff"></div>
-                    <div><label data-key="lbl_c_winlose">Текст победы/поражения:</label><input type="color" id="cWinLose" value="#ffffff"></div>
+                    <div><label data-key="lbl_c_quiz_glow">Свечение вопроса:</label><input type="color" id="cQuizGlow" value="#9b7545"></div>
+                    <div><label data-key="lbl_c_winlose">Текст победы/поражения:</label><input type="color" id="cWinLose" value="#5b3f27"></div>
 
-                    <div><label data-key="lbl_c_inp_bg">Фон поля ввода:</label><input type="color" id="cInpBg" value="#ffffff"></div>
-                    <div><label data-key="lbl_c_inp_border">Рамка поля ввода:</label><input type="color" id="cInpBorder" value="#555555"></div>
+                    <div><label data-key="lbl_c_inp_bg">Фон поля ввода:</label><input type="color" id="cInpBg" value="#fff1d5"></div>
+                    <div><label data-key="lbl_c_inp_border">Рамка поля ввода:</label><input type="color" id="cInpBorder" value="#a68350"></div>
                 </div>
             </div>
 
             <div class="card">
                 <h2 data-key="sec_visual">🖼️ Картинки и Ресурсы</h2>
                 
+                <label class="check-row"><input type="checkbox" id="useFrame" checked> Использовать круг / рамку для героя</label>
                 <label data-key="lbl_frame">Свой круг/рамка для выбора:</label>
                 <input type="file" id="fFrame" accept="image/*" onchange="loadSingleAsset('frame');">
 
@@ -292,14 +340,16 @@
         <div class="right-panel">
             <div class="preview-header">
                 <h2 style="margin:0; border:none;" data-key="sec_preview">🎮 Тест-Драйв Игры</h2>
-                <button class="btn-action" onclick="fullRestart()" data-key="btn_restart">🔄 Перезапустить игру</button>
+                <button class="btn-action" onclick="selectPreviewScene('play')">▶ Тестировать игру</button>
             </div>
             
+            <nav class="preview-tabs" role="tablist" aria-label="Экраны игры"><button type="button" role="tab" id="tab-title" aria-selected="true" onclick="selectPreviewScene('title')">Титульный лист</button><button type="button" role="tab" id="tab-game" aria-selected="false" onclick="selectPreviewScene('game')">Игра</button><button type="button" role="tab" id="tab-tasks" aria-selected="false" onclick="selectPreviewScene('tasks')">Задания</button><button type="button" role="tab" id="tab-win" aria-selected="false" onclick="selectPreviewScene('win')">Победа</button><button type="button" role="tab" id="tab-lose" aria-selected="false" onclick="selectPreviewScene('lose')">Поражение</button><button type="button" role="tab" id="tab-timeout" aria-selected="false" onclick="selectPreviewScene('timeout')">Время вышло</button></nav>
+            <div class="preview-options"><label for="previewQuestion">Задание:</label><select id="previewQuestion" onchange="sendPreviewScene()"><option value="0">1</option></select><span class="preview-note" id="previewNote">Выбранный экран обновляется при изменении настроек.</span></div>
             <div id="previewContainer">
                 <iframe id="gamePreview" title="Game Preview"></iframe>
             </div>
 
-            <div style="background: var(--panel); padding: 15px; border-radius: 10px; border: 1px solid var(--border-glow);">
+            <div class="export-panel" style="background: var(--panel); padding: 15px; border-radius: 10px; border: 1px solid var(--border-glow);">
                 <div class="file-actions"><button class="btn-action" onclick="saveProject()">Сохранить проект</button><button class="btn-action" onclick="document.getElementById('projectFile').click()">Загрузить проект</button><button class="btn-action" onclick="downloadGame()">HTML файл игры</button></div>
                 <input id="projectFile" type="file" accept=".json,application/json" hidden onchange="loadProject(this)">
                 <button id="generateBtn" class="btn-main" onclick="generate()">1. Сжать код для Genially</button>
@@ -366,7 +416,10 @@ var ct=Object.create;var W=Object.defineProperty;var lt=Object.getOwnPropertyDes
         }
     };
     
+    const gameTranslations = {"ru": {"val_title": "ПОЛЁТ АВАТАРА", "val_start": "ИГРАТЬ", "val_win": "ПОБЕДА!", "val_lose": "ПОПРОБУЙ ЕЩЁ РАЗ", "val_timeout": "ВРЕМЯ ВЫШЛО", "val_avatar": "АВАТАР", "val_creature": "СУЩЕСТВО", "msg_out_of_coins": "МОНЕТЫ ЗАКОНЧИЛИСЬ!", "btn_try_again": "ПОПРОБОВАТЬ СНОВА", "score_lbl": "Собрано:", "oral_hint": "Ответьте вслух. Учитель проверяет ответ.", "sample": "Показать эталон", "assess": "Оцените ответ ученика.", "correct": "Верно — продолжить", "again": "Нужно повторить", "up": "Выше: ", "down": "Ниже: ", "check_order": "Проверить порядок", "your_answer": "Ваш ответ", "submit": "Ответить", "sample_question": "Сколько будет 2 + 2?", "sample_answer": "4", "no_questions": "Добавьте задания в редакторе."}, "en": {"val_title": "AVATAR FLIGHT", "val_start": "PLAY", "val_win": "YOU WON!", "val_lose": "TRY AGAIN", "val_timeout": "TIME IS UP", "val_avatar": "AVATAR", "val_creature": "CREATURE", "msg_out_of_coins": "OUT OF COINS!", "btn_try_again": "TRY AGAIN", "score_lbl": "Collected:", "oral_hint": "Answer aloud. Your teacher checks the answer.", "sample": "Show sample answer", "assess": "Assess the answer.", "correct": "Correct — continue", "again": "Try again", "up": "Move up: ", "down": "Move down: ", "check_order": "Check order", "your_answer": "Your answer", "submit": "Submit", "sample_question": "What is 2 + 2?", "sample_answer": "4", "no_questions": "Add tasks in the editor."}, "de": {"val_title": "AVATARFLUG", "val_start": "SPIELEN", "val_win": "GEWONNEN!", "val_lose": "VERSUCH ES NOCH EINMAL", "val_timeout": "ZEIT ABGELAUFEN", "val_avatar": "AVATAR", "val_creature": "WESEN", "msg_out_of_coins": "KEINE MÜNZEN MEHR!", "btn_try_again": "NOCH EINMAL", "score_lbl": "Gesammelt:", "oral_hint": "Antworte laut. Die Lehrkraft prüft deine Antwort.", "sample": "Musterantwort zeigen", "assess": "Bewerte die Antwort.", "correct": "Richtig — weiter", "again": "Noch einmal", "up": "Nach oben: ", "down": "Nach unten: ", "check_order": "Reihenfolge prüfen", "your_answer": "Deine Antwort", "submit": "Antworten", "sample_question": "Was ist 2 + 2?", "sample_answer": "4", "no_questions": "Füge Aufgaben im Editor hinzu."}, "fr": {"val_title": "LE VOL DE L’AVATAR", "val_start": "JOUER", "val_win": "VICTOIRE !", "val_lose": "RÉESSAYEZ", "val_timeout": "TEMPS ÉCOULÉ", "val_avatar": "AVATAR", "val_creature": "CRÉATURE", "msg_out_of_coins": "PLUS DE PIÈCES !", "btn_try_again": "RÉESSAYER", "score_lbl": "Collecté :", "oral_hint": "Répondez à voix haute. Votre professeur vérifie la réponse.", "sample": "Voir la réponse modèle", "assess": "Évaluez la réponse.", "correct": "Correct — continuer", "again": "Réessayer", "up": "Monter : ", "down": "Descendre : ", "check_order": "Vérifier l’ordre", "your_answer": "Votre réponse", "submit": "Répondre", "sample_question": "Combien font 2 + 2 ?", "sample_answer": "4", "no_questions": "Ajoutez des exercices dans l’éditeur."}, "es": {"val_title": "EL VUELO DEL AVATAR", "val_start": "JUGAR", "val_win": "¡VICTORIA!", "val_lose": "INTÉNTALO DE NUEVO", "val_timeout": "SE ACABÓ EL TIEMPO", "val_avatar": "AVATAR", "val_creature": "CRIATURA", "msg_out_of_coins": "¡NO QUEDAN MONEDAS!", "btn_try_again": "REINTENTAR", "score_lbl": "Recogido:", "oral_hint": "Responde en voz alta. Tu profesor comprueba la respuesta.", "sample": "Mostrar respuesta modelo", "assess": "Evalúa la respuesta.", "correct": "Correcto — continuar", "again": "Intentar de nuevo", "up": "Subir: ", "down": "Bajar: ", "check_order": "Comprobar el orden", "your_answer": "Tu respuesta", "submit": "Responder", "sample_question": "¿Cuánto es 2 + 2?", "sample_answer": "4", "no_questions": "Añade tareas en el editor."}, "it": {"val_title": "IL VOLO DELL’AVATAR", "val_start": "GIOCA", "val_win": "VITTORIA!", "val_lose": "RIPROVA", "val_timeout": "TEMPO SCADUTO", "val_avatar": "AVATAR", "val_creature": "CREATURA", "msg_out_of_coins": "MONETE ESAURITE!", "btn_try_again": "RIPROVA", "score_lbl": "Raccolto:", "oral_hint": "Rispondi ad alta voce. L’insegnante controlla la risposta.", "sample": "Mostra la risposta modello", "assess": "Valuta la risposta.", "correct": "Corretto — continua", "again": "Riprova", "up": "Sposta su: ", "down": "Sposta giù: ", "check_order": "Controlla l’ordine", "your_answer": "La tua risposta", "submit": "Rispondi", "sample_question": "Quanto fa 2 + 2?", "sample_answer": "4", "no_questions": "Aggiungi attività nell’editor."}, "pt": {"val_title": "O VOO DO AVATAR", "val_start": "JOGAR", "val_win": "VITÓRIA!", "val_lose": "TENTA NOVAMENTE", "val_timeout": "TEMPO ESGOTADO", "val_avatar": "AVATAR", "val_creature": "CRIATURA", "msg_out_of_coins": "ACABARAM AS MOEDAS!", "btn_try_again": "TENTAR NOVAMENTE", "score_lbl": "Recolhido:", "oral_hint": "Responde em voz alta. O professor verifica a resposta.", "sample": "Mostrar resposta modelo", "assess": "Avalia a resposta.", "correct": "Correto — continuar", "again": "Tentar novamente", "up": "Mover para cima: ", "down": "Mover para baixo: ", "check_order": "Verificar a ordem", "your_answer": "A tua resposta", "submit": "Responder", "sample_question": "Quanto é 2 + 2?", "sample_answer": "4", "no_questions": "Adiciona tarefas no editor."}, "tr": {"val_title": "AVATAR UÇUŞU", "val_start": "OYNA", "val_win": "KAZANDIN!", "val_lose": "TEKRAR DENE", "val_timeout": "SÜRE DOLDU", "val_avatar": "AVATAR", "val_creature": "YARATIK", "msg_out_of_coins": "PARALAR BİTTİ!", "btn_try_again": "TEKRAR DENE", "score_lbl": "Toplanan:", "oral_hint": "Sesli cevap ver. Öğretmenin cevabı kontrol eder.", "sample": "Örnek cevabı göster", "assess": "Cevabı değerlendir.", "correct": "Doğru — devam et", "again": "Tekrar dene", "up": "Yukarı taşı: ", "down": "Aşağı taşı: ", "check_order": "Sıralamayı kontrol et", "your_answer": "Cevabın", "submit": "Cevapla", "sample_question": "2 + 2 kaç eder?", "sample_answer": "4", "no_questions": "Düzenleyicide görev ekle."}, "zh": {"val_title": "化身飞行", "val_start": "开始游戏", "val_win": "胜利！", "val_lose": "再试一次", "val_timeout": "时间到", "val_avatar": "化身", "val_creature": "生物", "msg_out_of_coins": "金币用完了！", "btn_try_again": "再试一次", "score_lbl": "已收集：", "oral_hint": "请口头回答，由老师检查答案。", "sample": "显示参考答案", "assess": "请评价答案。", "correct": "正确，继续", "again": "再试一次", "up": "上移：", "down": "下移：", "check_order": "检查顺序", "your_answer": "你的答案", "submit": "提交", "sample_question": "2 + 2 等于多少？", "sample_answer": "4", "no_questions": "请在编辑器中添加题目。"}, "ja": {"val_title": "アバターの飛行", "val_start": "プレイ", "val_win": "勝利！", "val_lose": "もう一度挑戦", "val_timeout": "時間切れ", "val_avatar": "アバター", "val_creature": "生き物", "msg_out_of_coins": "コインがなくなりました！", "btn_try_again": "もう一度", "score_lbl": "獲得：", "oral_hint": "声に出して答えてください。先生が確認します。", "sample": "解答例を表示", "assess": "答えを評価してください。", "correct": "正解・続ける", "again": "もう一度", "up": "上へ：", "down": "下へ：", "check_order": "順序を確認", "your_answer": "あなたの答え", "submit": "回答", "sample_question": "2 + 2 はいくつ？", "sample_answer": "4", "no_questions": "エディターで問題を追加してください。"}, "ar": {"val_title": "رحلة الأفاتار", "val_start": "العب", "val_win": "لقد فزت!", "val_lose": "حاول مرة أخرى", "val_timeout": "انتهى الوقت", "val_avatar": "الأفاتار", "val_creature": "المخلوق", "msg_out_of_coins": "نفدت العملات!", "btn_try_again": "حاول مرة أخرى", "score_lbl": "تم جمع:", "oral_hint": "أجب بصوت مسموع. يتحقق المعلم من الإجابة.", "sample": "عرض الإجابة النموذجية", "assess": "قيّم الإجابة.", "correct": "صحيح — تابع", "again": "حاول مرة أخرى", "up": "إلى الأعلى: ", "down": "إلى الأسفل: ", "check_order": "تحقق من الترتيب", "your_answer": "إجابتك", "submit": "أجب", "sample_question": "كم يساوي 2 + 2؟", "sample_answer": "4", "no_questions": "أضف أسئلة في المحرر."}};
+    for(const [lang,strings] of Object.entries(gameTranslations)) dict[lang]={...dict.en,...(dict[lang]||{}),...strings};
     function setLang(lang) {
+        if(!dict[lang])return;
         currentLang = lang;
         document.querySelectorAll('[data-key]').forEach(el => {
             const key = el.dataset.key;
@@ -375,13 +428,13 @@ var ct=Object.create;var W=Object.defineProperty;var lt=Object.getOwnPropertyDes
                  else el.innerHTML = dict[lang][key];
             }
         });
-        document.getElementById('btn-ru').className = lang === 'ru' ? 'active' : '';
-        document.getElementById('btn-en').className = lang === 'en' ? 'active' : '';
+        document.getElementById('gameLanguage').value=lang;
         const d = dict[lang];
         document.getElementById('txtTitle').value = d.val_title;
         document.getElementById('txtStart').value = d.val_start;
         document.getElementById('txtWin').value = d.val_win;
         document.getElementById('txtLose').value = d.val_lose;
+        document.getElementById('txtTimeout').value = d.val_timeout;
         document.getElementById('txtAvatarLbl').value = d.val_avatar;
         document.getElementById('txtCreatureLbl').value = d.val_creature;
         document.getElementById('bulkQuestions').placeholder = d.ph_bulk;
@@ -560,13 +613,14 @@ var ct=Object.create;var W=Object.defineProperty;var lt=Object.getOwnPropertyDes
         
         return {
             title: document.getElementById('txtTitle').value, btn: document.getElementById('txtStart').value,
+            timerEnabled:document.getElementById('useTimer').checked, useFrame:document.getElementById('useFrame').checked, timeout:document.getElementById('txtTimeout').value,
             win: document.getElementById('txtWin').value, lose: document.getElementById('txtLose').value,
             lblAvatar: document.getElementById('txtAvatarLbl').value, lblCreature: document.getElementById('txtCreatureLbl').value,
             time: document.getElementById('valTime').value, speed: document.getElementById('speedRange').value,
             scale: document.getElementById('sizeRange').value, objScale: document.getElementById('objSizeRange').value,
             levelStyle: document.getElementById('levelStyle').value,
             coinPath: document.getElementById('coinPath').value,
-            frame_img: assets.frame || frameImgUrl,
+            frame_img: document.getElementById('useFrame').checked ? (assets.frame || frameImgUrl) : '',
             winImg: assets.winImg, loseImg: assets.loseImg,
             
             c_bg: document.getElementById('cBg').value, 
@@ -588,11 +642,12 @@ var ct=Object.create;var W=Object.defineProperty;var lt=Object.getOwnPropertyDes
         };
     }
 
-    function getGameCode() {
+    function getGameCode(editorPreview = false) {
         const CFG = getCFGData();
+        if(editorPreview)Object.assign(CFG,{editorPreview:true,previewScene,previewQuestion:Number(document.getElementById('previewQuestion').value)||0});
         const configJson = JSON.stringify(CFG).replace(/</g, '\\u003c');
 
-        return `<!DOCTYPE html><html><head><meta charset="UTF-8">
+        return `<!DOCTYPE html><html lang="${currentLang}" dir="${currentLang==='ar'?'rtl':'ltr'}"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
         <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"><\/script>
         <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"><\/script>
@@ -603,6 +658,7 @@ var ct=Object.create;var W=Object.defineProperty;var lt=Object.getOwnPropertyDes
             --c-quiz: ${CFG.c_quiz}; --c-quiz-ans: ${CFG.c_quiz_ans}; --c-quiz-glow: ${CFG.c_quiz_glow};
             --c-inp-bg: ${CFG.c_inp_bg}; --c-inp-border: ${CFG.c_inp_border};
             --c-title: ${CFG.c_title}; --c-char: ${CFG.c_char}; --c-winlose: ${CFG.c_winlose};
+            --selection-frame:${CFG.useFrame?"url('"+CFG.frame_img+"')":"none"};--hero-size:${CFG.useFrame?"70%":"90%"};
             --font-fam: ${CFG.fontFam}; --q-size: ${CFG.qSize}px; --a-size: ${CFG.aSize}px;
         }
         @keyframes anim-pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.05);}}
@@ -643,9 +699,22 @@ var ct=Object.create;var W=Object.defineProperty;var lt=Object.getOwnPropertyDes
         .choice-thumb{width:50px;height:50px;object-fit:cover;border:3px solid #555;border-radius:5px;cursor:pointer;transition:all .2s;flex-shrink:0}
         .choice-thumb:hover{transform:scale(1.1);border-color:#fff}
         .choice-thumb.active{border-color:var(--c-btn);box-shadow:0 0 10px var(--c-btn-glow)}
-        </style></head><body><div id="game-box"><div class="hud" style="left:10px;display:none;z-index:50">⏱ <span id="ui-time">0</span></div><div class="hud" style="right:10px;display:none;z-index:50">🏆 <span id="ui-score">0</span></div><canvas id="cvs"></canvas><div id="char-select-screen" class="screen"><h1 id="mt-title"></h1><div class="selection-container"><div class="selection-group"><div class="selection-box" id="avatar-box"><img id="avatar-display"></div><div id="avatar-choices" class="choice-row"></div></div><div class="selection-group"><div class="selection-box" id="creature-box"><img id="creature-display"></div><div id="creature-choices" class="choice-row"></div></div></div><button id="btn-play-game" class="btn-play" disabled></button></div><div id="scr-end" class="screen hidden"><h1 id="mt-end"></h1><img id="end-img" src="" style="display:none; max-width:80%; max-height:30vh; object-fit:contain; border-radius:10px; margin: 10px 0;"><p style="font-size:30px; font-weight:bold; margin:10px;"><span id="lbl-score">Score:</span> <span id="end-score" style="color:#fff;">0</span></p><button id="btn-restart" class="btn-play"></button></div><div id="quiz-box"><h2 id="q-txt"></h2><div id="q-body"></div></div></div><script>
+        #end-card{box-sizing:border-box;width:min(86%,580px);max-height:90vh;overflow:auto;text-align:center;background:linear-gradient(100deg,#96673622,transparent 50%,#96673611),var(--c-quiz);border:9px solid #755236;outline:1px solid #c19b62;border-radius:10px;padding:34px 22px;box-shadow:0 15px 45px #14200f66,inset 0 0 22px #97703444}#end-card:before{content:'✦';display:block;color:#9a7549;font-size:32px}
+        .screen{background:radial-gradient(ellipse at top,#87926733,transparent 70%),var(--c-bg-rgba)!important;backdrop-filter:blur(3px)}
+        #mt-title{font-weight:400;letter-spacing:2px;text-shadow:0 2px 3px #17221288}#mt-end{font-family:var(--font-fam);font-weight:400;font-size:clamp(26px,5vw,50px);text-align:center;max-width:90%}
+        button.btn-play{background:linear-gradient(#ffffff12,transparent),var(--c-btn);border:1px solid var(--c-btn-glow);border-radius:7px;box-shadow:inset 0 0 0 4px #2d201c33,0 5px 18px #14200f55;font-size:clamp(18px,3vw,30px);padding:15px 44px;text-shadow:none;letter-spacing:1px}
+        button.btn-play:hover:not(:disabled){box-shadow:0 6px 20px #14200f66;transform:translateY(-2px)}
+        #quiz-box{background:linear-gradient(100deg,#8d542317,transparent 47%,#8d54231f 50%,transparent 53%),var(--c-quiz);border:8px solid #745135;outline:1px solid var(--c-quiz-glow);border-radius:12px;box-shadow:0 15px 50px #14200f88,inset 0 0 28px #b68d4c55;padding:24px;color:#382a1c}
+        #quiz-box:before{content:'✦';display:block;color:#8d693f;font-size:24px}#q-txt{color:#3f2d1a;text-shadow:none;font-weight:400;line-height:1.3;margin-top:8px}
+        .q-btn{border:1px solid var(--c-quiz-glow);border-radius:4px;box-shadow:inset 0 0 0 2px #21170e22}.q-btn:hover{background:var(--c-btn);color:var(--c-play-txt);box-shadow:0 3px 8px #4a311f33}.q-inp{box-sizing:border-box}
+        .choice-row{background:#1e2b1d44;border:1px solid #c4ac7555;border-radius:5px}.choice-thumb{border-radius:4px}.hud{font-family:var(--font-fam);font-size:clamp(16px,3vw,25px);border-radius:5px;border-color:#9b825144;background:#263621cc;color:#ead2a3;text-shadow:none}
+        .selection-box{background-image:var(--selection-frame);background-color:transparent}.selection-box img{max-width:var(--hero-size,70%);max-height:var(--hero-size,70%)}
+        .selection-box::before{text-shadow:0 1px 3px #142212;font-weight:400;letter-spacing:1px}
+        @media(max-height:520px){#char-select-screen h1{margin:10px 0 38px}.selection-container{margin-bottom:5px}.selection-box{width:120px;height:120px}.choice-thumb{width:32px;height:32px}.choice-row{min-height:38px}.selection-group{gap:5px}.selection-box::before{top:-27px;font-size:16px}button.btn-play{margin-top:8px;padding:8px 30px}}
+
+        </style></head><body><div id="game-box"><div id="hud-time" class="hud" style="left:10px;display:none;z-index:50">⏱ <span id="ui-time">0</span></div><div id="hud-score" class="hud" style="right:10px;display:none;z-index:50">🏆 <span id="ui-score">0</span></div><canvas id="cvs"></canvas><div id="char-select-screen" class="screen"><h1 id="mt-title"></h1><div class="selection-container"><div class="selection-group"><div class="selection-box" id="avatar-box"><img id="avatar-display"></div><div id="avatar-choices" class="choice-row"></div></div><div class="selection-group"><div class="selection-box" id="creature-box"><img id="creature-display"></div><div id="creature-choices" class="choice-row"></div></div></div><button id="btn-play-game" class="btn-play" disabled></button></div><div id="scr-end" class="screen hidden"><div id="end-card"><h1 id="mt-end"></h1><img id="end-img" src="" style="display:none; max-width:80%; max-height:30vh; object-fit:contain; border-radius:10px; margin: 10px 0;"><p style="font-size:30px; font-weight:bold; margin:10px;"><span id="lbl-score">Score:</span> <span id="end-score" style="color:var(--c-winlose);">0</span></p><button id="btn-restart" class="btn-play"></button></div></div><div id="quiz-box"><h2 id="q-txt"></h2><div id="q-body"></div></div></div><script>
         const CFG=${configJson};
-        const IMG=CFG.img,LANG=CFG.lang.dict;document.getElementById('mt-title').innerText=CFG.title;document.getElementById('btn-play-game').innerText=CFG.btn;document.getElementById('avatar-box').dataset.label=CFG.lblAvatar;document.getElementById('creature-box').dataset.label=CFG.lblCreature;const cvs=document.getElementById('cvs'),ctx=cvs.getContext('2d');let W,H;function resize(){W=cvs.width=window.innerWidth;H=cvs.height=window.innerHeight;if(!GM.run)GM.mx=W/2,GM.my=H*.8}
+        const IMG=CFG.img;let LANG=CFG.lang.dict;document.getElementById('mt-title').innerText=CFG.title;document.getElementById('btn-play-game').innerText=CFG.btn;document.getElementById('avatar-box').dataset.label=CFG.lblAvatar;document.getElementById('creature-box').dataset.label=CFG.lblCreature;const cvs=document.getElementById('cvs'),ctx=cvs.getContext('2d');let W,H;function resize(){W=cvs.width=window.innerWidth;H=cvs.height=window.innerHeight;if(!GM.run)GM.mx=W/2,GM.my=H*.8}
         window.addEventListener('resize',resize);setTimeout(resize,100);
         let AC=null;function sfx(type){if(!AC){const AudioCtx=window.AudioContext||window.webkitAudioContext;if(AudioCtx)AC=new AudioCtx();}if(!AC)return;if(AC.state==='suspended')AC.resume();const t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();o.connect(g),g.connect(AC.destination);if(type==='coin'){o.type='sine';o.frequency.setValueAtTime(1200,t);g.gain.setValueAtTime(.1,t);g.gain.exponentialRampToValueAtTime(.001,t+.5)}else if(type==='boom'){o.type='sawtooth';o.frequency.setValueAtTime(120,t);o.frequency.exponentialRampToValueAtTime(20,t+.4);g.gain.setValueAtTime(.2,t);g.gain.linearRampToValueAtTime(0,t+.4)}else if(type==='win'){o.type='triangle';const notes=[659,783,987];notes.forEach((n,i)=>{o.frequency.setValueAtTime(n,t+i*.1)});g.gain.setValueAtTime(.1,t);g.gain.linearRampToValueAtTime(0,t+.4)}else if(type==='lose'){o.type='square';o.frequency.setValueAtTime(200,t);o.frequency.exponentialRampToValueAtTime(50,t+.4);g.gain.setValueAtTime(.15,t);g.gain.linearRampToValueAtTime(0,t+.4)}o.start(t),o.stop(t+.6)}
         const iBg=new Image(),iObs=new Image(),iCoin=new Image(),iAvatar=new Image(),iCreature=new Image();if(IMG.bg)iBg.src=IMG.bg;if(IMG.obs)iObs.src=IMG.obs;if(IMG.coin)iCoin.src=IMG.coin;let music=null;if(IMG.music){music=new Audio(IMG.music);music.loop=true;music.volume=.4}
@@ -654,45 +723,99 @@ var ct=Object.create;var W=Object.defineProperty;var lt=Object.getOwnPropertyDes
         ['avatar-box','creature-box'].forEach(id=>{document.getElementById(id).onclick=e=>{const t=e.currentTarget.querySelector('img');if(t.src&&!t.classList.contains("animate-3d")){t.classList.add("animate-3d");setTimeout(()=>t.classList.remove("animate-3d"),1e3)}}});setupChoices();
         const waveManager={timer:0,config:{},qIndex:0,wavePool:[],init:function(){const style=CFG.levelStyle;if(style==='sparse'){this.config={minTime:60,maxTime:100};this.wavePool=['single','double']}else if(style==='dense'){this.config={minTime:20,maxTime:40};this.wavePool=['wall','corridor','slalom','double']}else{this.config={minTime:40,maxTime:80};this.wavePool=['single','double','corridor','wall']}
         this.timer=10;this.qIndex=0;this.spawnWave('single', 2000);this.spawnWave('double', 4500);this.spawnWave(this.wavePool[Math.floor(Math.random()*this.wavePool.length)], 7000);this.setNextWaveTimer()},setNextWaveTimer:function(){this.timer=this.config.minTime+Math.random()*(this.config.maxTime-this.config.minTime)},update:function(){if(GM.pause)return;this.timer--;if(this.timer<=0){this.spawnWave(this.wavePool[Math.floor(Math.random()*this.wavePool.length)]);this.setNextWaveTimer()}},spawnWave:function(type, baseZ=8e3){const z=baseZ, y=(Math.random()-.5)*H*.7, placeCoin=this.qIndex<CFG.qs.length;const addObj=(t,x,y,z,qid=null)=>{const obj={t,x,y,z};if(qid!==null)obj.qid=qid;GM.objs.push(obj)};let coinX = CFG.coinPath === 'center' ? 0 : (Math.random()-.5)*W*.35;if(type==='single'){if(placeCoin){addObj('c',coinX,y,z,this.qIndex);this.qIndex++}else{addObj('o',(Math.random()-.5)*W*1.2,y,z)}}else if(type==='double'){const x1=(Math.random()-.5)*W*1.2;addObj('o',x1,y,z);if(placeCoin){addObj('c',coinX,y,z+500,this.qIndex);this.qIndex++}else{addObj('o',x1+(Math.random()>.5?W*.4:-W*.4),(Math.random()-.5)*H*.7,z+500)}}else if(type==='wall'){const gapIndex=Math.random()<0.6?2:(Math.random()<0.5?1:3);const gapX = (gapIndex-2)*W*.35;for(let i=0;i<5;i++){const x=(i-2)*W*.35;if(i===gapIndex){if(placeCoin){addObj('c', CFG.coinPath==='center' ? gapX : gapX+(Math.random()-.5)*W*.15, y, z, this.qIndex);this.qIndex++}}else{addObj('o',x,y,z)}}}else if(type==='corridor'){const pathX=(Math.random()-.5)*W*.25;const width=W*(.35+Math.random()*.2);for(let i=0;i<6;i++){addObj('o',pathX-width,y+i*H/5-H/2,z+i*200);addObj('o',pathX+width,y+i*H/5-H/2,z+i*200)}if(placeCoin){addObj('c', CFG.coinPath==='center' ? pathX : pathX+(Math.random()-.5)*W*.2, y, z-200, this.qIndex);this.qIndex++}}else if(type==='slalom'){const startX=(Math.random()-.5)*W*.25;for(let i=0;i<4;i++){addObj('o',startX+W*.4*(i%2===0?1:-1),y,z+i*800)}if(placeCoin){addObj('c', CFG.coinPath==='center' ? startX : startX+(Math.random()-.5)*W*.2, y, z+1200, this.qIndex);this.qIndex++}}}};
-        const GM={run:false,pause:false,frame:0,time:0,score:0,objs:[],mx:0,my:0,bgY:0,hurt:0,timerInt:null,start:()=>{if(!selectedAvatar||!selectedCreature)return;if(!AC){const AudioCtx=window.AudioContext||window.webkitAudioContext;if(AudioCtx)AC=new AudioCtx();}if(AC&&AC.state==='suspended')AC.resume();iAvatar.src=(IMG.avatarsInFlight&&IMG.avatarsInFlight[selectedAvatarIdx])?IMG.avatarsInFlight[selectedAvatarIdx]:selectedAvatar;iCreature.src=selectedCreature;document.getElementById('char-select-screen').classList.add('hidden');document.querySelectorAll('.hud').forEach(h=>h.style.display='block');resize();if(music)music.play().catch(e=>{});waveManager.init();GM.run=true;mainLoop();GM.timerInt=setInterval(()=>{if(GM.run&&!GM.pause){GM.time--;document.getElementById('ui-time').innerText=GM.time;if(GM.time<=0)GM.end(false)}},1e3);document.getElementById('ui-time').innerText=GM.time},end:reason=>{if(!GM.run)return;GM.run=false;clearInterval(GM.timerInt);const scr=document.getElementById('scr-end');scr.classList.remove('hidden');let titleEl=document.getElementById('mt-end');let btnEl=document.getElementById('btn-restart');let imgEl=document.getElementById('end-img');imgEl.style.display='none';document.getElementById('lbl-score').innerText=LANG.score_lbl+" ";if(reason===true){titleEl.innerText=CFG.win;sfx('win');btnEl.innerText="↺";if(CFG.winImg){imgEl.src=CFG.winImg;imgEl.style.display='block';}}else if(reason===false){titleEl.innerText=CFG.lose;sfx('lose');btnEl.innerText="↺";if(CFG.loseImg){imgEl.src=CFG.loseImg;imgEl.style.display='block';}}else if(reason==='out_of_coins'){titleEl.innerText=LANG.msg_out_of_coins;sfx('lose');btnEl.innerText=LANG.btn_try_again;if(CFG.loseImg){imgEl.src=CFG.loseImg;imgEl.style.display='block';}}document.getElementById('end-score').innerText=GM.score+(CFG.qs.length>0?" / "+CFG.qs.length:"");if(music)music.pause();},reset:()=>{const scr=document.getElementById('scr-end');scr.classList.add('hidden');document.getElementById('char-select-screen').classList.remove('hidden');document.querySelectorAll('.hud').forEach(h=>h.style.display='none');GM.pause=false;GM.time=parseInt(CFG.time);GM.score=0;document.getElementById('ui-time').innerText=GM.time;document.getElementById('ui-score').innerText=GM.score;GM.objs=[];GM.hurt=0;GM.run=false;if(music)music.currentTime=0;preGameLoop()}};
+        function updateHUD(){
+            document.getElementById('hud-time').style.display=GM.run||editorScene==='game'||editorScene==='tasks' ? (CFG.timerEnabled?'block':'none') : 'none';
+            document.getElementById('hud-score').style.display=GM.run||editorScene==='game'||editorScene==='tasks'?'block':'none';
+            document.getElementById('ui-time').innerText=GM.time;document.getElementById('ui-score').innerText=GM.score;
+        }
+        function renderEnd(reason){
+            document.getElementById('scr-end').classList.remove('hidden');
+            document.getElementById('mt-end').innerText=reason===true?CFG.win:reason==='timeout'?CFG.timeout:CFG.lose;
+            document.getElementById('btn-restart').innerText=LANG.btn_try_again;
+            document.getElementById('lbl-score').innerText=LANG.score_lbl+' ';
+            document.getElementById('end-score').innerText=GM.score+(CFG.qs.length?' / '+CFG.qs.length:'');
+            const img=document.getElementById('end-img'),src=reason===true?CFG.winImg:CFG.loseImg;
+            img.style.display=src?'block':'none';if(src)img.src=src;
+        }
+        const GM={run:false,pause:false,frame:0,time:0,score:0,objs:[],mx:0,my:0,bgY:0,hurt:0,timerInt:null,
+            start:()=>{
+                if(GM.run||!selectedAvatar||!selectedCreature)return;
+                if(!AC){const AudioCtx=window.AudioContext||window.webkitAudioContext;if(AudioCtx)AC=new AudioCtx();}if(AC&&AC.state==='suspended')AC.resume();
+                iAvatar.src=(IMG.avatarsInFlight&&IMG.avatarsInFlight[selectedAvatarIdx])?IMG.avatarsInFlight[selectedAvatarIdx]:selectedAvatar;iCreature.src=selectedCreature;
+                document.getElementById('char-select-screen').classList.add('hidden');resize();GM.time=Math.max(1,parseInt(CFG.time)||60);GM.pause=false;GM.run=true;
+                if(music)music.play().catch(()=>{});waveManager.init();mainLoop();clearInterval(GM.timerInt);
+                GM.timerInt=setInterval(()=>{if(GM.run&&!GM.pause&&CFG.timerEnabled){GM.time--;updateHUD();if(GM.time<=0)GM.end('timeout')}},1000);updateHUD();
+            },
+            end:reason=>{if(!GM.run)return;GM.run=false;GM.pause=false;clearInterval(GM.timerInt);renderEnd(reason);sfx(reason===true?'win':'lose');if(music)music.pause();},
+            reset:()=>{
+                document.getElementById('scr-end').classList.add('hidden');document.getElementById('quiz-box').style.display='none';document.getElementById('char-select-screen').classList.remove('hidden');
+                clearInterval(GM.timerInt);GM.pause=false;GM.time=Math.max(1,parseInt(CFG.time)||60);GM.score=0;GM.objs=[];GM.hurt=0;GM.run=false;
+                if(music){music.pause();music.currentTime=0;}updateHUD();preGameLoop();
+            }
+        };
         document.getElementById('btn-play-game').addEventListener('click',GM.start);document.getElementById('btn-restart').addEventListener('click',GM.reset);window.addEventListener('mousemove',e=>{if(!GM.pause){GM.mx=e.clientX;GM.my=e.clientY}});window.addEventListener('touchmove',e=>{if(!GM.pause){e.preventDefault();GM.mx=e.touches[0].clientX;GM.my=e.touches[0].clientY}},{passive:false});
         function drawBg(){if(iBg.src&&iBg.complete&&iBg.naturalWidth){let sh=(W/iBg.width)*iBg.height;let yOff=GM.bgY%sh;for(let y=yOff-sh;y<H;y+=sh){ctx.drawImage(iBg,0,Math.floor(y),W,Math.ceil(sh)+1)}}else{ctx.fillStyle=CFG.c_bg;ctx.fillRect(0,0,W,H)}}
         function mainLoop(){if(!GM.run)return;requestAnimationFrame(mainLoop);ctx.clearRect(0,0,W,H);if(!GM.pause){let speed=parseInt(CFG.speed);let forwardSpeed=speed*4;GM.frame++;waveManager.update();GM.bgY+=forwardSpeed*.1;let pX=(W/2-GM.mx)*.3,pY=(H*.75-GM.my)*.3;for(let i=GM.objs.length-1;i>=0;i--){let o=GM.objs[i];o.z-=forwardSpeed;if(o.z<10){GM.objs.splice(i,1);continue}if(o.z<200&&o.z>20){let depthScale=.7+GM.my/H*.6,pSize=120*parseFloat(CFG.scale)*depthScale,scale=500/o.z,sx=W/2+(o.x+pX)*scale,sy=H/2+(o.y+pY)*scale,size=100*scale*parseFloat(CFG.objScale||1),dist=Math.hypot(sx-GM.mx,sy-GM.my),hitbox=size*.5+pSize*.4;if(dist<hitbox){let hitObject=GM.objs.splice(i,1)[0];hit(hitObject)}}}if(GM.hurt>0)GM.hurt--;if(!GM.pause&&CFG.qs.length>0&&waveManager.qIndex>=CFG.qs.length&&!GM.objs.some(o=>o.t==='c')){if(GM.score>=CFG.qs.length)GM.end(true);else GM.end('out_of_coins');return;}}
         drawBg();GM.objs.sort((a,b)=>b.z-a.z);let objScaleUser=parseFloat(CFG.objScale||1);let pX=(W/2-GM.mx)*.3,pY=(H*.75-GM.my)*.3;for(let o of GM.objs){let scale=500/o.z,sx=W/2+(o.x+pX)*scale,sy=H/2+(o.y+pY)*scale,size=100*scale*objScaleUser;let img=o.t==='c'?iCoin:iObs;if(img.src&&img.complete&&img.naturalWidth)ctx.drawImage(img,sx-size/2,sy-size/2,size,size)}
         if(!(GM.hurt>0&&Math.floor(GM.hurt/4)%2===0)){let depthScale=.7+GM.my/H*.6,pSize=120*parseFloat(CFG.scale)*depthScale,tilt=(GM.mx-W/2)*.05,avatarSize=pSize*.5;ctx.save();ctx.translate(GM.mx,GM.my);ctx.rotate(tilt*Math.PI/180);if(iCreature.src&&iCreature.complete&&iCreature.naturalWidth)ctx.drawImage(iCreature,-pSize/2,-pSize/2,pSize,pSize);if(iAvatar.src&&iAvatar.complete&&iAvatar.naturalWidth)ctx.drawImage(iAvatar,-avatarSize/2,-pSize*.4,avatarSize,avatarSize);ctx.restore()}}
-        function preGameLoop(){if(GM.run)return;requestAnimationFrame(preGameLoop);GM.bgY+=.5;ctx.clearRect(0,0,W,H);drawBg()}
-        function hit(obj){if(obj.t==='o'){sfx('boom');GM.hurt=30;let f=document.createElement('div');f.style="position:absolute;top:0;left:0;width:100%;height:100%;background:radial-gradient(circle at center, rgba(255,0,0,0.5) 0%, rgba(255,0,0,0) 70%);pointer-events:none;z-index:99";document.body.appendChild(f);setTimeout(()=>f.remove(),150);GM.time-=5;if(GM.time<=0)GM.end(false)}else if(obj.t==='c'){sfx('coin');if(CFG.qs.length>0&&obj.qid!==undefined){GM.pause=true;quiz(obj.qid)}}document.getElementById('ui-time').innerText=GM.time;document.getElementById('ui-score').innerText=GM.score}
+        function preGameLoop(){if(GM.run)return;requestAnimationFrame(preGameLoop);GM.bgY+=.5;ctx.clearRect(0,0,W,H);drawBg();if(CFG.editorPreview && ['game','tasks'].includes(editorScene))drawEditorFlight()}
+        function hit(obj){if(obj.t==='o'){sfx('boom');GM.hurt=30;let f=document.createElement('div');f.style="position:absolute;top:0;left:0;width:100%;height:100%;background:radial-gradient(circle at center, rgba(255,0,0,0.5) 0%, rgba(255,0,0,0) 70%);pointer-events:none;z-index:99";document.body.appendChild(f);setTimeout(()=>f.remove(),150);if(CFG.timerEnabled){GM.time-=5;if(GM.time<=0)GM.end('timeout')}}else if(obj.t==='c'){sfx('coin');if(CFG.qs.length>0&&obj.qid!==undefined){GM.pause=true;quiz(obj.qid)}}document.getElementById('ui-time').innerText=GM.time;document.getElementById('ui-score').innerText=GM.score}
         function shuffled(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
         function quiz(q_idx){
-            const q=CFG.qs[q_idx];if(!q){GM.pause=false;return}
+            const q=CFG.qs[q_idx] || (CFG.editorPreview?{t:LANG.sample_question,type:'choice',c:LANG.sample_answer,w:['3','5']}:null);if(!q){GM.pause=false;return}
             const box=document.getElementById('quiz-box'),body=document.getElementById('q-body');
-            const en=CFG.lang.lang==='en';const tr=(ru,english)=>en?english:ru;
+
             document.getElementById('q-txt').textContent=q.t;body.replaceChildren();box.style.display='block';
             let answered=false;
             const normalize=t=>t.normalize('NFKC').trim().toLocaleLowerCase().replace(/\\s+/g,' ');
-            const finish=correct=>{if(answered)return;answered=true;box.style.display='none';if(correct){sfx('win');GM.score++}else{sfx('lose');GM.time-=10}document.getElementById('ui-score').textContent=GM.score;document.getElementById('ui-time').textContent=GM.time;if(GM.time<=0)GM.end(false);setTimeout(()=>GM.pause=false,200)};
+            const finish=correct=>{if(answered)return;answered=true;box.style.display='none';if(correct){sfx('win');GM.score++}else{sfx('lose');if(CFG.timerEnabled)GM.time-=10}document.getElementById('ui-score').textContent=GM.score;document.getElementById('ui-time').textContent=GM.time;if(CFG.timerEnabled&&GM.time<=0)GM.end('timeout');setTimeout(()=>GM.pause=false,200)};
             const button=(text,action,container=body)=>{const b=document.createElement('button');b.type='button';b.className='q-btn';b.textContent=text;b.onclick=e=>{e.stopPropagation();action()};container.appendChild(b);return b};
             if(q.type==='choice') shuffled([q.c,...q.w]).forEach(t=>button(t,()=>finish(t===q.c)));
             else if(q.type==='oral'){
-                const hint=document.createElement('p');hint.textContent=tr('Ответьте вслух. Учитель проверяет ответ.','Answer aloud. Your teacher checks the answer.');body.appendChild(hint);
-                button(tr('Показать эталон','Show sample answer'),()=>{hint.textContent=q.c||tr('Оцените ответ ученика.','Assess the answer.');});
-                button(tr('Верно — продолжить','Correct — continue'),()=>finish(true));button(tr('Нужно повторить','Try again'),()=>finish(false));
+                const hint=document.createElement('p');hint.textContent=LANG.oral_hint;body.appendChild(hint);
+                button(LANG.sample,()=>{hint.textContent=q.c||LANG.assess;});
+                button(LANG.correct,()=>finish(true));button(LANG.again,()=>finish(false));
             }else if(q.type==='order'){
                 let order=shuffled(q.items.map((text,id)=>({text,id})));
                 if(order.every((v,i)=>v.id===i)) order.push(order.shift());
                 const list=document.createElement('div');body.appendChild(list);
-                const render=()=>{list.replaceChildren();order.forEach((v,i)=>{const row=document.createElement('div');row.style='display:flex;align-items:center;gap:8px';const label=document.createElement('span');label.style='flex:1';label.textContent=(i+1)+'. '+v.text;row.appendChild(label);const move=d=>{[order[i],order[i+d]]=[order[i+d],order[i]];render()};const up=button('↑',()=>move(-1),row);up.style.width='44px';up.disabled=i===0;up.setAttribute('aria-label',tr('Выше: ','Move up: ')+v.text);const down=button('↓',()=>move(1),row);down.style.width='44px';down.disabled=i===order.length-1;down.setAttribute('aria-label',tr('Ниже: ','Move down: ')+v.text);list.appendChild(row)});};render();
-                button(tr('Проверить порядок','Check order'),()=>finish(order.every((v,i)=>v.text===q.items[i])));
+                const render=()=>{list.replaceChildren();order.forEach((v,i)=>{const row=document.createElement('div');row.style='display:flex;align-items:center;gap:8px';const label=document.createElement('span');label.style='flex:1';label.textContent=(i+1)+'. '+v.text;row.appendChild(label);const move=d=>{[order[i],order[i+d]]=[order[i+d],order[i]];render()};const up=button('↑',()=>move(-1),row);up.style.width='44px';up.disabled=i===0;up.setAttribute('aria-label',LANG.up+v.text);const down=button('↓',()=>move(1),row);down.style.width='44px';down.disabled=i===order.length-1;down.setAttribute('aria-label',LANG.down+v.text);list.appendChild(row)});};render();
+                button(LANG.check_order,()=>finish(order.every((v,i)=>v.text===q.items[i])));
             }else{
-                const inp=document.createElement('input');inp.className='q-inp';inp.setAttribute('aria-label',tr('Ваш ответ','Your answer'));body.appendChild(inp);
+                const inp=document.createElement('input');inp.className='q-inp';inp.setAttribute('aria-label',LANG.your_answer);body.appendChild(inp);
                 const submit=()=>finish(q.c.split('~').some(a=>normalize(a)===normalize(inp.value)));
-                button(tr('Ответить','Submit'),submit);inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();submit()}};inp.focus();
+                button(LANG.submit,submit);inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();submit()}};inp.focus();
             }
             if(window.renderMathInElement)renderMathInElement(box,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});
         }
 
+        let editorScene=CFG.previewScene||'title',editorQuestion=CFG.previewQuestion||0;
+        function drawEditorFlight(){
+            // A quiet composition for layout editing; no timer or collision runs here.
+            const cx=W*.5,cy=H*.66,size=Math.min(W,H)*.24;
+            if(iCreature.complete&&iCreature.naturalWidth)ctx.drawImage(iCreature,cx-size/2,cy-size/2,size,size);
+            else{ctx.save();ctx.fillStyle='#c4ad71';ctx.beginPath();ctx.moveTo(cx,cy-size*.2);ctx.lineTo(cx-size*.75,cy+size*.25);ctx.lineTo(cx,cy+size*.05);ctx.lineTo(cx+size*.75,cy+size*.25);ctx.closePath();ctx.fill();ctx.restore();}
+            if(iAvatar.complete&&iAvatar.naturalWidth)ctx.drawImage(iAvatar,cx-size*.23,cy-size*.45,size*.46,size*.46);
+            for(let i=0;i<5;i++){const x=W*(.15+i*.17),y=H*(.22+(i%2)*.12),r=12+i*2;if(iCoin.complete&&iCoin.naturalWidth)ctx.drawImage(iCoin,x-r,y-r,r*2,r*2);else{ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle='#d4b368';ctx.fill();}}
+        }
+        function showEditorScene(scene,question=0){
+            if(!CFG.editorPreview)return;
+            const wasRunning=GM.run;GM.run=false;GM.pause=false;clearInterval(GM.timerInt);if(music)music.pause();
+            editorScene=['title','game','tasks','win','lose','timeout','play'].includes(scene)?scene:'title';editorQuestion=Math.max(0,Math.min(Number(question)||0,Math.max(0,CFG.qs.length-1)));
+            document.getElementById('char-select-screen').classList.add('hidden');document.getElementById('scr-end').classList.add('hidden');document.getElementById('quiz-box').style.display='none';
+            if(editorScene==='title'||editorScene==='play')document.getElementById('char-select-screen').classList.remove('hidden');
+            if(editorScene==='tasks'){GM.pause=true;quiz(editorQuestion);}
+            if(['win','lose','timeout'].includes(editorScene))renderEnd(editorScene==='win'?true:editorScene==='timeout'?'timeout':false);
+            if(editorScene==='game'||editorScene==='tasks'){
+                if(IMG.avatars[0])iAvatar.src=IMG.avatarsInFlight?.[0]||IMG.avatars[0];if(IMG.creatures[0])iCreature.src=IMG.creatures[0];
+            }
+            if(!['play','title'].includes(editorScene))GM.time=Math.max(1,parseInt(CFG.time)||60);
+            updateHUD();if(wasRunning)preGameLoop();
+        }
+
         // ЛАЙВ-СИНХРОНИЗАЦИЯ БЕЗ ПЕРЕЗАГРУЗКИ
         window.addEventListener('message', e => {
+            if(e.source===parent && e.data && e.data.type==='PREVIEW_SCENE' && CFG.editorPreview){showEditorScene(e.data.scene,e.data.question);return;}
             if(e.source === parent && e.data && e.data.type === 'LIVE_UPDATE') {
                 const c = e.data.cfg;
                 const root = document.documentElement;
@@ -719,15 +842,33 @@ var ct=Object.create;var W=Object.defineProperty;var lt=Object.getOwnPropertyDes
                 document.getElementById('creature-box').dataset.label = c.lblCreature;
                 document.getElementById('mt-title').style.animationName = c.anim_title;
 
-                Object.assign(CFG, c);
+                Object.assign(CFG, c);LANG=CFG.lang.dict;
+                document.documentElement.lang=CFG.lang.lang;document.documentElement.dir=CFG.lang.lang==='ar'?'rtl':'ltr';
+                root.style.setProperty('--selection-frame',CFG.useFrame?'url("'+CFG.frame_img+'")':'none');root.style.setProperty('--hero-size',CFG.useFrame?'70%':'90%');
+                updateHUD();if(CFG.editorPreview && editorScene!=='play')showEditorScene(editorScene,editorQuestion);
+
             }
         });
 
-        GM.reset();
+        GM.reset();if(CFG.editorPreview)showEditorScene(CFG.previewScene,CFG.previewQuestion);
         <\/script></body></html>`;
     }
 
     // ЛАЙВ ПРЕДПРОСМОТР (БЕЗ МЕРЦАНИЯ)
+    let previewScene='title';
+    function refreshPreviewQuestions(){
+        const select=document.getElementById('previewQuestion'),previous=Number(select.value)||0,qs=parseQuestions();select.replaceChildren();
+        (qs.length?qs:[{t:dict[currentLang].sample_question}]).forEach((q,i)=>{const option=document.createElement('option');option.value=String(i);option.textContent=(i+1)+'. '+q.t.slice(0,55);select.appendChild(option);});select.value=String(Math.min(previous,Math.max(0,qs.length-1)));
+        select.disabled=previewScene!=='tasks';document.getElementById('valTime').disabled=!document.getElementById('useTimer').checked;
+    }
+    function sendPreviewScene(){const f=document.getElementById('gamePreview');if(f.contentWindow)f.contentWindow.postMessage({type:'PREVIEW_SCENE',scene:previewScene,question:Number(document.getElementById('previewQuestion').value)||0},'*');}
+    function selectPreviewScene(scene){
+        previewScene=scene;
+        ['title','game','tasks','win','lose','timeout'].forEach(key=>document.getElementById('tab-'+key).setAttribute('aria-selected',String(key===scene)));
+        document.getElementById('previewNote').textContent=scene==='play'?'Тестовый запуск: выберите героев и начните игру.':'Выбранный экран обновляется при изменении настроек.';
+        try{refreshPreviewQuestions();sendPreviewScene();}catch(e){document.getElementById('questionStatus').textContent=e.message;}
+    }
+
     let previewTimeout;
     function schedulePreviewUpdate() { 
         invalidateExport();
@@ -735,7 +876,7 @@ var ct=Object.create;var W=Object.defineProperty;var lt=Object.getOwnPropertyDes
         previewTimeout = setTimeout(() => {
             let iframe = document.getElementById('gamePreview');
             if (iframe.contentWindow) {
-                try { iframe.contentWindow.postMessage({ type: 'LIVE_UPDATE', cfg: getCFGData() }, '*'); document.getElementById('questionStatus').textContent=''; } catch(e) { document.getElementById('questionStatus').textContent=e.message; }
+                try { refreshPreviewQuestions(); iframe.contentWindow.postMessage({ type: 'LIVE_UPDATE', cfg: getCFGData() }, '*'); document.getElementById('questionStatus').textContent=''; } catch(e) { document.getElementById('questionStatus').textContent=e.message; }
             }
         }, 300); 
     }
@@ -743,13 +884,13 @@ var ct=Object.create;var W=Object.defineProperty;var lt=Object.getOwnPropertyDes
     // ПОЛНАЯ ПЕРЕЗАГРУЗКА (Нужна только при загрузке новых картинок)
     function fullRestart() {
         invalidateExport();
-        try { document.getElementById('gamePreview').srcdoc = getGameCode(); } catch(e) { document.getElementById('questionStatus').textContent=e.message; }
+        try { refreshPreviewQuestions(); document.getElementById('gamePreview').srcdoc = getGameCode(true); } catch(e) { document.getElementById('questionStatus').textContent=e.message; }
     }
 
     let exportRevision=0;
     function invalidateExport(){exportRevision++;document.getElementById('copyBtn').disabled=true;document.getElementById('finalCode').value='';document.getElementById('copySection').style.display='none';document.getElementById('exportStatus').textContent='Сначала сожмите код, затем скопируйте готовый результат.';}
     function download(data,name,type){const url=URL.createObjectURL(new Blob([data],{type}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),5000);}
-    function projectSettings(){return Object.fromEntries([...document.querySelectorAll('.left-panel input:not([type=file]), .left-panel select, .left-panel textarea')].map(el=>[el.id,el.value]));}
+    function projectSettings(){return Object.fromEntries([...document.querySelectorAll('.left-panel input:not([type=file]), .left-panel select, .left-panel textarea')].map(el=>[el.id,el.type==='checkbox'?String(el.checked):el.value]));}
     function saveProject(){if(pendingAssets)return alert('Дождитесь обработки изображений.');download(JSON.stringify({format:'ptiza-project',version:1,lang:currentLang,settings:projectSettings(),assets}),'ptiza-project.json','application/json');}
     async function loadProject(input){
         if(!input.files[0])return;
@@ -757,7 +898,7 @@ var ct=Object.create;var W=Object.defineProperty;var lt=Object.getOwnPropertyDes
         try{
             const file=input.files[0];if(file.size>100*1024*1024)throw Error('Проект больше 100 МБ.');
             const p=JSON.parse(await file.text());
-            if(p.format!=='ptiza-project'||p.version!==1||!p.settings||!p.assets||!['ru','en'].includes(p.lang))throw Error('Это не проект редактора Птица версии 1.');
+            if(p.format!=='ptiza-project'||p.version!==1||!p.settings||!p.assets||!Object.hasOwn(gameTranslations,p.lang))throw Error('Это не проект редактора Птица версии 1.');
             const fields=[...document.querySelectorAll('.left-panel input:not([type=file]), .left-panel select, .left-panel textarea')];
             for(const el of fields) if(p.settings[el.id]!==undefined && typeof p.settings[el.id]!=='string')throw Error('Некорректные настройки.');
             const valid=(v,key)=>v===null || (typeof v==='string' && (key==='music'?/^data:audio\//i:/^data:image\/(png|jpe?g|webp|gif|svg\+xml|avif);/i).test(v));
@@ -767,7 +908,10 @@ var ct=Object.create;var W=Object.defineProperty;var lt=Object.getOwnPropertyDes
             parseQuestionText(p.settings.bulkQuestions || '');
             // All validation completes before changing the current project.
             setLang(p.lang);
-            for(const el of fields)if(p.settings[el.id]!==undefined)el.value=p.settings[el.id];
+            for(const el of fields)if(p.settings[el.id]!==undefined){if(el.type==='checkbox')el.checked=p.settings[el.id]==='true';else el.value=p.settings[el.id];}
+            // Projects from the first version used both frame and timer by default.
+            if(p.settings.useFrame===undefined)document.getElementById('useFrame').checked=true;
+            if(p.settings.useTimer===undefined)document.getElementById('useTimer').checked=true;
             for(const key of Object.keys(assets))assets[key]=p.assets[key];
             Object.assign(originalFiles,restored);
             ['avatars','creatures','avatarsInFlight'].forEach(renderAssetPreviews);fullRestart();document.getElementById('exportStatus').textContent='Проект загружен. Перед копированием снова сожмите код.';

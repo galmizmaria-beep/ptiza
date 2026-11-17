@@ -22,7 +22,7 @@ function element(tag='div',id=''){
 }
 const els=new Map();
 for(const m of source.matchAll(/<(input|select|textarea|button|div|p|span|iframe)[^>]*\bid="([^"]+)"[^>]*>/g)){
- const el=element(m[1],m[2]);el.value=m[0].match(/\bvalue="([^"]*)"/)?.[1]||'';el.type=m[0].match(/\btype="([^"]*)"/)?.[1]||'';els.set(el.id,el);
+ const el=element(m[1],m[2]);el.value=m[0].match(/\bvalue="([^"]*)"/)?.[1]||'';el.checked=/\bchecked\b/.test(m[0]);el.type=m[0].match(/\btype="([^"]*)"/)?.[1]||'';els.set(el.id,el);
 }
 for(const m of source.matchAll(/<select id="([^"]+)">([\s\S]*?)<\/select>/g)){
  const options=[...m[2].matchAll(/<option value="([^"]+)"([^>]*)>/g)];els.get(m[1]).value=(options.find(o=>o[2].includes('selected'))||options[0])[1];
