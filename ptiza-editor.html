@@ -857,13 +857,20 @@ var ct=Object.create;var W=Object.defineProperty;var lt=Object.getOwnPropertyDes
         const fields=[...document.querySelectorAll('.left-panel input:not([type=file]), .left-panel select, .left-panel textarea')];
         for(const field of fields)if(p.settings[field.id]!==undefined&&typeof p.settings[field.id]!=='string')throw Error('Некорректные настройки.');
         const valid=(v,key)=>v===null||(typeof v==='string'&&(key==='music'?/^data:audio\//i:/^data:image\/(png|jpe?g|webp|gif|svg\+xml|avif);/i).test(v));
-        for(const key of Object.keys(assets)){const value=p.assets[key];if(Array.isArray(assets[key])){if(!Array.isArray(value)||value.length>6||!value.every(v=>valid(v,key)))throw Error('Некорректные изображения.');}else if(!valid(value,key))throw Error('Некорректный ресурс: '+key);}
-        const originals={};for(const key of Object.keys(originalFiles))originals[key]=Array.isArray(p.assets[key])?p.assets[key].map(v=>v?dataFile(v):null):p.assets[key]?dataFile(p.assets[key]):null;
+        const restoredAssets={};
+        for(const key of Object.keys(initialSnapshot.assets)){
+            const multiple=Array.isArray(initialSnapshot.assets[key]);
+            const value=Object.hasOwn(p.assets,key)?p.assets[key]:(multiple?[]:null);
+            if(multiple){if(!Array.isArray(value)||value.length>6||!value.every(v=>valid(v,key)))throw Error('Некорректные изображения.');}
+            else if(!valid(value,key))throw Error('Некорректный ресурс: '+key);
+            restoredAssets[key]=multiple?[...value]:value;
+        }
+        const originals={};for(const key of Object.keys(originalFiles))originals[key]=Array.isArray(restoredAssets[key])?restoredAssets[key].map(v=>v?dataFile(v):null):restoredAssets[key]?dataFile(restoredAssets[key]):null;
         if(!allowIncomplete)parseQuestionText(p.settings.bulkQuestions||'');
         const d=dict[p.lang],settings={...initialSnapshot.settings,txtTitle:d.val_title,txtStart:d.val_start,txtWin:d.val_win,txtLose:d.val_lose,txtTimeout:d.val_timeout,txtAvatarLbl:d.val_avatar,txtCreatureLbl:d.val_creature,useFrame:'true',useTimer:'true'};
         for(const [key,value] of Object.entries(typeSizeDefaults))settings[key]=String(value);
         for(const field of fields)if(p.settings[field.id]!==undefined)settings[field.id]=p.settings[field.id];
-        return {lang:p.lang,settings,assets:cloneResources(p.assets),originals};
+        return {lang:p.lang,settings,assets:restoredAssets,originals};
     }
     function setDraftStatus(text,error=false){const el=document.getElementById('draftStatus');el.textContent=text;el.dataset.error=String(error);}
     async function openDraftDB(){

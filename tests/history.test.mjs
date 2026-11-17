@@ -47,3 +47,12 @@ console.log('PASS: IndexedDB asset persistence, IndexedDB recovery/deletion, loc
 // An autosave delayed by image processing must retry even when the image bytes do not change.
 const delayedStorage=memoryStorage(),delayed=await createEditor({localStorage:delayedStorage});let scheduled,scheduledCount=0;delayed.env.setTimeout=fn=>{scheduled=fn;scheduledCount++;return scheduledCount};delayed.els.get('txtTitle').value='Save after processing';delayed.run('captureHistory()');delayed.run('assetWork(1)');await scheduled();assert.equal(delayedStorage.values.size,0);const beforeRetry=scheduledCount;delayed.run('assetWork(-1)');assert(scheduledCount>beforeRetry);await scheduled();assert.equal(JSON.parse(delayedStorage.getItem('ptiza-editor-draft-v1')).project.settings.txtTitle,'Save after processing');
 console.log('PASS: deferred autosave retries after resource processing without requiring another edit.');
+
+// Older drafts predate optional resources such as timeoutImg.
+const oldDraft=JSON.parse(saved);delete oldDraft.project.assets.timeoutImg;delete oldDraft.project.assets.avatarsInFlight;
+const oldStorage=memoryStorage();oldStorage.setItem('ptiza-editor-draft-v1',JSON.stringify(oldDraft));
+const oldEditor=await createEditor({localStorage:oldStorage});const beforeRecovery=oldStorage.getItem('ptiza-editor-draft-v1');oldEditor.run('continueEditing()');
+assert.equal(oldEditor.els.get('resumeOverlay').hidden,true);assert.equal(oldEditor.els.get('txtTitle').value,'Imported');assert.equal(oldEditor.run('assets.timeoutImg'),null);assert.equal(oldEditor.run('assets.avatarsInFlight.length'),0);assert.equal(oldEditor.run('assets.avatars[0]'),'data:image/png;base64,YQ==');assert.equal(oldStorage.getItem('ptiza-editor-draft-v1'),beforeRecovery,'Migration must not overwrite the saved draft before recovery');
+const oldProject=JSON.parse(JSON.stringify(oldDraft.project));oldProject.settings.bulkQuestions='2 + 2 | 4 | 5';await oldEditor.env.loadProject({files:[new Blob([JSON.stringify(oldProject)])],value:''});assert.equal(oldEditor.errors.length,0);assert.equal(oldEditor.run('assets.timeoutImg'),null);
+const invalidProject=JSON.parse(JSON.stringify(oldProject));invalidProject.assets.timeoutImg='broken';oldEditor.env.invalidProject=invalidProject;assert.throws(()=>oldEditor.run('projectSnapshot(invalidProject)'),/timeoutImg/);
+console.log('PASS: pre-timeout drafts and JSON projects restore missing optional resources without losing existing assets; malformed present resources remain rejected.');
