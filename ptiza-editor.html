@@ -617,7 +617,7 @@ var ct=Object.create;var W=Object.defineProperty;var lt=Object.getOwnPropertyDes
                 if(GM.run||!selectedAvatar||!selectedCreature)return;
                 if(!AC){const AudioCtx=window.AudioContext||window.webkitAudioContext;if(AudioCtx)AC=new AudioCtx();}if(AC&&AC.state==='suspended')AC.resume();
                 iAvatar.src=(IMG.avatarsInFlight&&IMG.avatarsInFlight[selectedAvatarIdx])?IMG.avatarsInFlight[selectedAvatarIdx]:selectedAvatar;iCreature.src=selectedCreature;
-                document.getElementById('char-select-screen').classList.add('hidden');resize();GM.time=Math.max(1,parseInt(CFG.time)||60);GM.pause=false;GM.run=true;
+                document.getElementById('char-select-screen').classList.add('hidden');resize();GM.score=0;GM.objs=[];GM.hurt=0;GM.frame=0;GM.bgY=0;GM.time=Math.max(1,parseInt(CFG.time)||60);GM.pause=false;GM.run=true;
                 if(music)music.play().catch(()=>{});waveManager.init();mainLoop();clearInterval(GM.timerInt);
                 GM.timerInt=setInterval(()=>{if(GM.run&&!GM.pause&&CFG.timerEnabled){GM.time--;updateHUD();if(GM.time<=0)GM.end('timeout')}},1000);updateHUD();
             },
@@ -630,8 +630,16 @@ var ct=Object.create;var W=Object.defineProperty;var lt=Object.getOwnPropertyDes
         };
         document.getElementById('btn-play-game').addEventListener('click',GM.start);document.getElementById('btn-restart').addEventListener('click',GM.reset);window.addEventListener('mousemove',e=>{if(!GM.pause){GM.mx=e.clientX;GM.my=e.clientY}});window.addEventListener('touchmove',e=>{if(!GM.pause){e.preventDefault();GM.mx=e.touches[0].clientX;GM.my=e.touches[0].clientY}},{passive:false});
         function drawBg(){ctx.save();ctx.globalAlpha=1;ctx.fillStyle=CFG.c_bg;ctx.fillRect(0,0,W,H);if(iBg.src&&iBg.complete&&iBg.naturalWidth){ctx.globalAlpha=CFG.bgImageOpacity??1;let sh=(W/iBg.width)*iBg.height;let yOff=GM.bgY%sh;for(let y=yOff-sh;y<H;y+=sh){ctx.drawImage(iBg,0,Math.floor(y),W,Math.ceil(sh)+1)}}if(CFG.bgOverlayOpacity>0){ctx.globalAlpha=CFG.bgOverlayOpacity;ctx.fillStyle=CFG.bgOverlayColor||'#000000';ctx.fillRect(0,0,W,H)}ctx.restore()}
+        function drawFlightObject(type,x,y,size){
+            const img=type==='c'?iCoin:iObs;
+            if(img.src&&img.complete&&img.naturalWidth){drawContained(img,x-size/2,y-size/2,size,size);return;}
+            ctx.save();const r=size/2;
+            if(type==='c'){ctx.fillStyle='#d79524';ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.fillStyle='#ffdc68';ctx.beginPath();ctx.arc(x,y,r*.76,0,Math.PI*2);ctx.fill();ctx.fillStyle='#bf8422';ctx.fillRect(x-r*.12,y-r*.45,r*.24,r*.9);}
+            else{ctx.fillStyle='#81718e';ctx.beginPath();ctx.moveTo(x-r*.65,y-r);ctx.lineTo(x+r*.45,y-r*.9);ctx.lineTo(x+r,y-r*.2);ctx.lineTo(x+r*.7,y+r*.7);ctx.lineTo(x-r*.3,y+r);ctx.lineTo(x-r,y+r*.25);ctx.closePath();ctx.fill();ctx.fillStyle='#a295ac';ctx.beginPath();ctx.arc(x-r*.2,y-r*.2,r*.28,0,Math.PI*2);ctx.fill();}
+            ctx.restore();
+        }
         function mainLoop(){if(!GM.run)return;requestAnimationFrame(mainLoop);ctx.clearRect(0,0,W,H);if(!GM.pause){let speed=parseInt(CFG.speed);let forwardSpeed=speed*4;GM.frame++;waveManager.update();GM.bgY+=forwardSpeed*.1;let pX=(W/2-GM.mx)*.3,pY=(H*.75-GM.my)*.3;for(let i=GM.objs.length-1;i>=0;i--){let o=GM.objs[i];o.z-=forwardSpeed;if(o.z<10){GM.objs.splice(i,1);continue}if(o.z<200&&o.z>20){let depthScale=.7+GM.my/H*.6,pSize=120*parseFloat(CFG.scale)*depthScale,scale=500/o.z,sx=W/2+(o.x+pX)*scale,sy=H/2+(o.y+pY)*scale,size=100*scale*parseFloat(CFG.objScale||1),dist=Math.hypot(sx-GM.mx,sy-GM.my),hitbox=size*.5+pSize*.4;if(dist<hitbox){let hitObject=GM.objs.splice(i,1)[0];hit(hitObject)}}}if(GM.hurt>0)GM.hurt--;if(!GM.pause&&CFG.qs.length>0&&waveManager.qIndex>=CFG.qs.length&&!GM.objs.some(o=>o.t==='c')){if(GM.score>=CFG.qs.length)GM.end(true);else GM.end('out_of_coins');return;}}
-        drawBg();GM.objs.sort((a,b)=>b.z-a.z);let objScaleUser=parseFloat(CFG.objScale||1);let pX=(W/2-GM.mx)*.3,pY=(H*.75-GM.my)*.3;for(let o of GM.objs){let scale=500/o.z,sx=W/2+(o.x+pX)*scale,sy=H/2+(o.y+pY)*scale,size=100*scale*objScaleUser;let img=o.t==='c'?iCoin:iObs;if(img.src&&img.complete&&img.naturalWidth)ctx.drawImage(img,sx-size/2,sy-size/2,size,size)}
+        drawBg();GM.objs.sort((a,b)=>b.z-a.z);let objScaleUser=parseFloat(CFG.objScale||1);let pX=(W/2-GM.mx)*.3,pY=(H*.75-GM.my)*.3;for(let o of GM.objs){let scale=500/o.z,sx=W/2+(o.x+pX)*scale,sy=H/2+(o.y+pY)*scale,size=100*scale*objScaleUser;drawFlightObject(o.t,sx,sy,size)}
         if(!(GM.hurt>0&&Math.floor(GM.hurt/4)%2===0)){let depthScale=.7+GM.my/H*.6,pSize=120*parseFloat(CFG.scale)*depthScale,tilt=(GM.mx-W/2)*.05,avatarSize=pSize*.5;ctx.save();ctx.translate(GM.mx,GM.my);ctx.rotate(tilt*Math.PI/180);if(iCreature.src&&iCreature.complete&&iCreature.naturalWidth)drawContained(iCreature,-pSize/2,-pSize/2,pSize,pSize);if(iAvatar.src&&iAvatar.complete&&iAvatar.naturalWidth)drawContained(iAvatar,-avatarSize/2,-pSize*.4,avatarSize,avatarSize);ctx.restore()}}
         function preGameLoop(){if(GM.run)return;requestAnimationFrame(preGameLoop);const previewFlying=CFG.editorPreview&&['game','tasks'].includes(editorScene);const step=previewFlying?Number(CFG.speed)*4:5;GM.bgY+=step*.1;if(previewFlying)previewTravel+=step;ctx.clearRect(0,0,W,H);drawBg();if(CFG.editorPreview && ['game','tasks'].includes(editorScene))drawEditorFlight()}
         function hit(obj){if(obj.t==='o'){sfx('boom');GM.hurt=30;let f=document.createElement('div');f.style="position:absolute;top:0;left:0;width:100%;height:100%;background:radial-gradient(circle at center, rgba(255,0,0,0.5) 0%, rgba(255,0,0,0) 70%);pointer-events:none;z-index:99";document.body.appendChild(f);setTimeout(()=>f.remove(),150);if(CFG.timerEnabled){GM.time-=5;if(GM.time<=0)GM.end('timeout')}}else if(obj.t==='c'){sfx('coin');if(CFG.qs.length>0&&obj.qid!==undefined){GM.pause=true;quiz(obj.qid)}}document.getElementById('ui-time').innerText=GM.time;document.getElementById('ui-score').innerText=GM.score}
@@ -671,7 +679,7 @@ var ct=Object.create;var W=Object.defineProperty;var lt=Object.getOwnPropertyDes
             if(iCreature.complete&&iCreature.naturalWidth)drawContained(iCreature,cx-size/2,cy-size/2,size,size);
             else{ctx.save();ctx.fillStyle='#c4ad71';ctx.beginPath();ctx.moveTo(cx,cy-size*.2);ctx.lineTo(cx-size*.75,cy+size*.25);ctx.lineTo(cx,cy+size*.05);ctx.lineTo(cx+size*.75,cy+size*.25);ctx.closePath();ctx.fill();ctx.restore();}
             if(iAvatar.complete&&iAvatar.naturalWidth)drawContained(iAvatar,cx-size*.25,cy-size*.4,size*.5,size*.5);
-            for(let i=0;i<5;i++){const z=1800-((previewTravel+i*340)%1600),perspective=500/z,x=W/2+(i-2)*W*.18*perspective,y=H/2+H*.16*perspective,r=50*perspective*Number(CFG.objScale||1),img=i%2?iObs:iCoin;if(img.complete&&img.naturalWidth)drawContained(img,x-r,y-r,r*2,r*2);else{ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=i%2?'#8c8496':'#d4b368';ctx.fill();}}
+            for(let i=0;i<5;i++){const z=1800-((previewTravel+i*340)%1600),perspective=500/z,x=W/2+(i-2)*W*.18*perspective,y=H/2+H*.16*perspective,size=100*perspective*Number(CFG.objScale||1);drawFlightObject(i%2?'o':'c',x,y,size);}
         }
         function showEditorScene(scene,question=0){
             if(!CFG.editorPreview)return;
@@ -753,7 +761,7 @@ var ct=Object.create;var W=Object.defineProperty;var lt=Object.getOwnPropertyDes
         document.getElementById('previewOptions').hidden=scene!=='tasks';
         ['title','game','tasks','win','lose','timeout'].forEach(key=>document.getElementById('tab-'+key).setAttribute('aria-selected',String(key===scene)));
         document.getElementById('previewNote').textContent=scene==='play'?'Тестовый запуск: выберите героев и начните игру.':'Выбранный экран обновляется при изменении настроек.';
-        try{refreshPreviewQuestions();sendPreviewScene();}catch(e){document.getElementById('questionStatus').textContent=e.message;}
+        try{refreshPreviewQuestions();if(scene==='play')fullRestart();else sendPreviewScene();}catch(e){document.getElementById('questionStatus').textContent=e.message;}
     }
 
     let previewTimeout;

@@ -42,7 +42,7 @@ handlers.message({source:{},data:{type:'PREVIEW_SCENE',scene:'title'}});assert.e
 message({type:'PREVIEW_SCENE',scene:'play'});cfg.timerEnabled=false;message({type:'LIVE_UPDATE',cfg});gr('selectedAvatar="avatar";selectedCreature="creature";GM.start();GM.time=3');timers.at(-1)();assert.equal(gr('GM.time'),3);cfg.timerEnabled=true;message({type:'LIVE_UPDATE',cfg});timers.at(-1)();assert.equal(gr('GM.time'),2);timers.at(-1)();timers.at(-1)();assert.equal(gr('GM.run'),false);assert.equal(gameEls.get('mt-end').innerText,cfg.timeout);
 // Authoring preview uses gameplay scales and speed, while remaining non-interactive.
 message({type:'PREVIEW_SCENE',scene:'game'});
-gr('Object.assign(iCreature,{complete:true,naturalWidth:100,naturalHeight:100});Object.assign(iAvatar,{complete:true,naturalWidth:100,naturalHeight:200});Object.assign(iCoin,{complete:true,naturalWidth:100,naturalHeight:100});CFG.scale=1;CFG.objScale=1;previewTravel=0');
+gr('Object.assign(iCreature,{complete:true,naturalWidth:100,naturalHeight:100});Object.assign(iAvatar,{complete:true,naturalWidth:100,naturalHeight:200});Object.assign(iCoin,{src:"coin",complete:true,naturalWidth:100,naturalHeight:100});CFG.scale=1;CFG.objScale=1;previewTravel=0');
 draws.length=0;gr('drawEditorFlight()');const creatureWidth=draws[0][3],coinWidth=draws[2][3];
 gr('CFG.scale=2;CFG.objScale=2');draws.length=0;gr('drawEditorFlight()');assert.equal(draws[0][3],creatureWidth*2);assert.equal(draws[2][3],coinWidth*2);
 gr('CFG.speed=2;previewTravel=0;preGameLoop()');assert.equal(gr('previewTravel'),8);gr('CFG.speed=8;preGameLoop()');assert.equal(gr('previewTravel'),40);assert.equal(gr('GM.run'),false);
@@ -52,5 +52,14 @@ cfg.frame_img='custom-frame';message({type:'LIVE_UPDATE',cfg});assert.equal(styl
 assert(!/#end-card[^{}]*:before/.test(game),'No built-in result icons');
 gr("CFG.winImg='win-art';CFG.loseImg='lose-art';CFG.timeoutImg=null;renderEnd('timeout')");assert.equal(gameEls.get('end-img').style.display,'none');gr("CFG.timeoutImg='timeout-art';renderEnd('timeout')");assert.equal(gameEls.get('end-img').src,'timeout-art');assert.equal(gameEls.get('end-img').style.display,'block');gr('renderEnd(true)');assert.equal(gameEls.get('end-img').src,'win-art');gr('renderEnd(false)');assert.equal(gameEls.get('end-img').src,'lose-art');
 run("selectPreviewScene('win')");env.schedulePreviewUpdate({target:{id:'sizeRange'},type:'input'});assert.equal(run('previewScene'),'game');env.schedulePreviewUpdate({target:{id:'frameLineStyle'},type:'input'});assert.equal(run('previewScene'),'title');
+// Test mode uses the actual game loop, spawning and drawing both object types.
+message({type:'PREVIEW_SCENE',scene:'play'});
+gr("selectedAvatar='avatar';selectedCreature='creature';CFG.qs=[{t:'2+2',type:'choice',c:'4',w:['5']}];CFG.timerEnabled=false;GM.score=7;GM.objs=[{t:'o',z:99999}];Object.assign(iObs,{src:'obstacle',complete:true,naturalWidth:100,naturalHeight:100});GM.start()");
+assert.equal(gr('GM.score'),0);assert(gr("GM.objs.some(o=>o.t==='c')"));assert(gr("GM.objs.some(o=>o.t==='o')"));assert(!gr('GM.objs.some(o=>o.z===99999)'));
+draws.length=0;gr('mainLoop()');assert(draws.some(d=>d[0]===gr('iCoin')));assert(draws.some(d=>d[0]===gr('iObs')));
+gr("iCoin.src='';iObs.src='';GM.pause=true");const fillCount=fills.length;gr('mainLoop()');assert(fills.length>fillCount+1,'Missing object uploads have visible fallback sprites');
+gr('hit({t:"c",qid:0})');assert.equal(gameEls.get('quiz-box').style.display,'block');assert.equal(gr('GM.pause'),true);
+run("selectPreviewScene('play')");assert(els.get('gamePreview').srcdoc.includes('"previewScene":"play"'),'Test starts a fresh real-game session');
+console.log('PASS: real test loop draws obstacles and coins, visible missing-asset fallbacks, fresh score/waves, coin opens question.');
 console.log('PASS: live flight speed and scales, frame fill/line, choice colors, uploaded-only result artwork, automatic preview scene.');
 console.log('PASS: 11 languages, RTL, all six preview scenes, persistent scene and question, live result edits, optional frame, optional timer and penalties, checkbox round trip, legacy import defaults, export isolation, message origin.');
