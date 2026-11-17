@@ -32,7 +32,7 @@ body.children[1].onclick({stopPropagation(){}});assert.equal(gr('GM.score'),3,'C
 gr('quiz(2)');body.children[0].children[1].children[1].onclick({stopPropagation(){}});
 // Force a known wrong arrangement through the controls.
 while(body.children[0].children[0].children[0].textContent.endsWith('А')){const bidx=body.children[0].children.findIndex(r=>r.children[0].textContent.endsWith('Б'));body.children[0].children[bidx].children[1].onclick({stopPropagation(){}});}
-const timeBefore=gr('GM.time');body.children[1].onclick({stopPropagation(){}});assert.equal(gr('GM.time'),timeBefore-10);assert.equal(gr('GM.score'),3);
+const timeBefore=gr('GM.time'),livesBefore=gr('GM.lives');body.children[1].onclick({stopPropagation(){}});assert.equal(gr('GM.time'),timeBefore);assert.equal(gr('GM.lives'),livesBefore-1);assert.equal(gr('GM.score'),3);
 await run('generate()');const embed=els.get('finalCode').value;assert(embed.startsWith('<iframe'));assert.equal(els.get('copyBtn').disabled,false);
 const loader=embed.match(/srcdoc="([\s\S]*)"><\/iframe>/)[1].replace(/&quot;/g,'"').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&');
 const payload=loader.match(/atob\("([A-Za-z0-9+/=]+)"\)/)[1];
