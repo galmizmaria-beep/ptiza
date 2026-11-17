@@ -16,7 +16,7 @@ q.value='[ввод] Вопрос | Москва~московский\n[устн�
 const liveGame=run('getGameCode()');
 const gameScript=[...liveGame.matchAll(/<script>([\s\S]*?)<\/script>/g)][0][1];
 const gameEls=new Map([...liveGame.matchAll(/\bid="([^"]+)"/g)].map(m=>[m[1],element('div',m[1])]));
-gameEls.get('cvs').getContext=()=>({clearRect(){},fillRect(){}});
+gameEls.get('cvs').getContext=()=>({setTransform(){},clearRect(){},fillRect(){}});
 let gameEnv={document:{getElementById:id=>gameEls.get(id),querySelectorAll:()=>[],createElement:tag=>element(tag),documentElement:{style:{setProperty(){}}}},window:null,parent:{},Image:class{},setTimeout:()=>0,setInterval:()=>0,clearInterval(){},requestAnimationFrame(){},console};gameEnv.window=gameEnv;gameEnv.addEventListener=()=>{};vm.createContext(gameEnv);new vm.Script(gameScript).runInContext(gameEnv);
 const gr=code=>vm.runInContext(code,gameEnv);gr("sfx=()=>{}; GM.time=60; GM.pause=true; quiz(0)");
 let body=gameEls.get('q-body');body.children[0].value='  МОСКВА  ';body.children[1].onclick({stopPropagation(){}});assert.equal(gr('GM.score'),1);body.children[1].onclick({stopPropagation(){}});assert.equal(gr('GM.score'),1,'Double click does not award twice');

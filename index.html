@@ -182,7 +182,7 @@ label{display:block;margin-top:13px;color:#63705f;font-size:11px;font-weight:550
                 <p id="assetStatus" role="status" class="help-text">Изображения сжимаются автоматически. GIF сохраняют анимацию; если результат больше, сохраняется исходник.</p><h3 data-key="sec_compress">Сжатие картинок</h3>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                     <div><label data-key="lbl_max_dim">Макс. (px):</label><input type="number" id="maxDim" value="1920" onchange="recompressAll()"></div>
-                    <div><label data-key="lbl_quality">Качество:</label><input type="range" id="jpegQuality" min="0.1" max="1.0" step="0.1" value="0.5" onchange="recompressAll()"></div>
+                    <div><label data-key="lbl_quality">Качество:</label><input type="range" id="jpegQuality" min="0.1" max="1.0" step="0.1" value="0.9" onchange="recompressAll()"></div>
                 </div>
             </div>
 
@@ -334,7 +334,7 @@ var ct=Object.create;var W=Object.defineProperty;var lt=Object.getOwnPropertyDes
             const img = new Image(); img.src = original; await img.decode();
             const ratio = Math.min(1, settings.maxDim / Math.max(img.width,img.height));
             const canvas = document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.width*ratio));canvas.height=Math.max(1,Math.round(img.height*ratio));
-            canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+            const imageCtx=canvas.getContext('2d');imageCtx.imageSmoothingEnabled=true;imageCtx.imageSmoothingQuality='high';imageCtx.drawImage(img,0,0,canvas.width,canvas.height);
             result=canvas.toDataURL('image/webp',settings.quality);
         }
         return result.length < original.length ? result : original;
@@ -390,7 +390,7 @@ var ct=Object.create;var W=Object.defineProperty;var lt=Object.getOwnPropertyDes
 
     async function applyCompressionToSingle(key) {
         if(!originalFiles[key]) return;
-        assets[key] = await compressImage(originalFiles[key], { maxDim: parseInt(document.getElementById('maxDim').value)||1920, quality: parseFloat(document.getElementById('jpegQuality').value)||0.5 });
+        assets[key] = await compressImage(originalFiles[key], { maxDim: parseInt(document.getElementById('maxDim').value)||1920, quality: parseFloat(document.getElementById('jpegQuality').value)||0.9 });
     }
 
     function removeAsset(key, id) { 
@@ -434,7 +434,7 @@ var ct=Object.create;var W=Object.defineProperty;var lt=Object.getOwnPropertyDes
     }
 
     async function applyCompressionToMultiple(key) {
-        const set = { maxDim: parseInt(document.getElementById('maxDim').value)||1920, quality: parseFloat(document.getElementById('jpegQuality').value)||0.5 };
+        const set = { maxDim: parseInt(document.getElementById('maxDim').value)||1920, quality: parseFloat(document.getElementById('jpegQuality').value)||0.9 };
         for (let i = 0; i < originalFiles[key].length; i++) {
             if (originalFiles[key][i]) {
                 assets[key][i] = await compressImage(originalFiles[key][i], set);
@@ -553,7 +553,7 @@ var ct=Object.create;var W=Object.defineProperty;var lt=Object.getOwnPropertyDes
         @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
         </style></head><body><div id="game-box"><div id="hud-time" class="hud" style="left:10px;display:none;z-index:50">⏱ <span id="ui-time">0</span></div><div id="hud-score" class="hud" style="right:10px;display:none;z-index:50">🏆 <span id="ui-score">0</span></div><canvas id="cvs"></canvas><div id="char-select-screen" class="screen"><h1 id="mt-title"></h1><div class="selection-container"><div class="selection-group"><div class="selection-box" id="avatar-box"><img id="avatar-display"></div><div id="avatar-choices" class="choice-row"></div></div><div class="selection-group"><div class="selection-box" id="creature-box"><img id="creature-display"></div><div id="creature-choices" class="choice-row"></div></div></div><button id="btn-play-game" class="btn-play" disabled></button></div><div id="scr-end" class="screen hidden"><div id="end-card"><h1 id="mt-end"></h1><img id="end-img" src="" style="display:none; max-width:80%; max-height:30vh; object-fit:contain; border-radius:10px; margin: 10px 0;"><p class="end-score-line"><span id="lbl-score">Score:</span> <span id="end-score" style="color:var(--c-winlose);">0</span></p><button id="btn-restart" class="btn-play"></button></div></div><div id="quiz-box"><h2 id="q-txt"></h2><div id="q-body"></div></div></div><script>
         const CFG=${configJson};
-        const IMG=CFG.img;let LANG=CFG.lang.dict;document.getElementById('mt-title').innerText=CFG.title;document.getElementById('btn-play-game').innerText=CFG.btn;document.getElementById('avatar-box').dataset.label=CFG.lblAvatar;document.getElementById('creature-box').dataset.label=CFG.lblCreature;const cvs=document.getElementById('cvs'),ctx=cvs.getContext('2d');let W,H;function resize(){W=cvs.width=window.innerWidth;H=cvs.height=window.innerHeight;if(!GM.run)GM.mx=W/2,GM.my=H*.8}
+        const IMG=CFG.img;let LANG=CFG.lang.dict;document.getElementById('mt-title').innerText=CFG.title;document.getElementById('btn-play-game').innerText=CFG.btn;document.getElementById('avatar-box').dataset.label=CFG.lblAvatar;document.getElementById('creature-box').dataset.label=CFG.lblCreature;const cvs=document.getElementById('cvs'),ctx=cvs.getContext('2d');let W,H;function resize(){W=window.innerWidth;H=window.innerHeight;const dpr=window.devicePixelRatio||1;cvs.width=Math.round(W*dpr);cvs.height=Math.round(H*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';if(!GM.run)GM.mx=W/2,GM.my=H*.8}function drawContained(img,x,y,w,h){const scale=Math.min(w/img.naturalWidth,h/img.naturalHeight),dw=img.naturalWidth*scale,dh=img.naturalHeight*scale;ctx.drawImage(img,x+(w-dw)/2,y+(h-dh)/2,dw,dh)}
         window.addEventListener('resize',resize);setTimeout(resize,100);
         let AC=null;function sfx(type){if(!AC){const AudioCtx=window.AudioContext||window.webkitAudioContext;if(AudioCtx)AC=new AudioCtx();}if(!AC)return;if(AC.state==='suspended')AC.resume();const t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();o.connect(g),g.connect(AC.destination);if(type==='coin'){o.type='sine';o.frequency.setValueAtTime(1200,t);g.gain.setValueAtTime(.1,t);g.gain.exponentialRampToValueAtTime(.001,t+.5)}else if(type==='boom'){o.type='sawtooth';o.frequency.setValueAtTime(120,t);o.frequency.exponentialRampToValueAtTime(20,t+.4);g.gain.setValueAtTime(.2,t);g.gain.linearRampToValueAtTime(0,t+.4)}else if(type==='win'){o.type='triangle';const notes=[659,783,987];notes.forEach((n,i)=>{o.frequency.setValueAtTime(n,t+i*.1)});g.gain.setValueAtTime(.1,t);g.gain.linearRampToValueAtTime(0,t+.4)}else if(type==='lose'){o.type='square';o.frequency.setValueAtTime(200,t);o.frequency.exponentialRampToValueAtTime(50,t+.4);g.gain.setValueAtTime(.15,t);g.gain.linearRampToValueAtTime(0,t+.4)}o.start(t),o.stop(t+.6)}
         const iBg=new Image(),iObs=new Image(),iCoin=new Image(),iAvatar=new Image(),iCreature=new Image();if(IMG.bg)iBg.src=IMG.bg;if(IMG.obs)iObs.src=IMG.obs;if(IMG.coin)iCoin.src=IMG.coin;let music=null;if(IMG.music){music=new Audio(IMG.music);music.loop=true;music.volume=.4}
@@ -598,7 +598,7 @@ var ct=Object.create;var W=Object.defineProperty;var lt=Object.getOwnPropertyDes
         function drawBg(){if(iBg.src&&iBg.complete&&iBg.naturalWidth){let sh=(W/iBg.width)*iBg.height;let yOff=GM.bgY%sh;for(let y=yOff-sh;y<H;y+=sh){ctx.drawImage(iBg,0,Math.floor(y),W,Math.ceil(sh)+1)}}else{ctx.fillStyle=CFG.c_bg;ctx.fillRect(0,0,W,H)}}
         function mainLoop(){if(!GM.run)return;requestAnimationFrame(mainLoop);ctx.clearRect(0,0,W,H);if(!GM.pause){let speed=parseInt(CFG.speed);let forwardSpeed=speed*4;GM.frame++;waveManager.update();GM.bgY+=forwardSpeed*.1;let pX=(W/2-GM.mx)*.3,pY=(H*.75-GM.my)*.3;for(let i=GM.objs.length-1;i>=0;i--){let o=GM.objs[i];o.z-=forwardSpeed;if(o.z<10){GM.objs.splice(i,1);continue}if(o.z<200&&o.z>20){let depthScale=.7+GM.my/H*.6,pSize=120*parseFloat(CFG.scale)*depthScale,scale=500/o.z,sx=W/2+(o.x+pX)*scale,sy=H/2+(o.y+pY)*scale,size=100*scale*parseFloat(CFG.objScale||1),dist=Math.hypot(sx-GM.mx,sy-GM.my),hitbox=size*.5+pSize*.4;if(dist<hitbox){let hitObject=GM.objs.splice(i,1)[0];hit(hitObject)}}}if(GM.hurt>0)GM.hurt--;if(!GM.pause&&CFG.qs.length>0&&waveManager.qIndex>=CFG.qs.length&&!GM.objs.some(o=>o.t==='c')){if(GM.score>=CFG.qs.length)GM.end(true);else GM.end('out_of_coins');return;}}
         drawBg();GM.objs.sort((a,b)=>b.z-a.z);let objScaleUser=parseFloat(CFG.objScale||1);let pX=(W/2-GM.mx)*.3,pY=(H*.75-GM.my)*.3;for(let o of GM.objs){let scale=500/o.z,sx=W/2+(o.x+pX)*scale,sy=H/2+(o.y+pY)*scale,size=100*scale*objScaleUser;let img=o.t==='c'?iCoin:iObs;if(img.src&&img.complete&&img.naturalWidth)ctx.drawImage(img,sx-size/2,sy-size/2,size,size)}
-        if(!(GM.hurt>0&&Math.floor(GM.hurt/4)%2===0)){let depthScale=.7+GM.my/H*.6,pSize=120*parseFloat(CFG.scale)*depthScale,tilt=(GM.mx-W/2)*.05,avatarSize=pSize*.5;ctx.save();ctx.translate(GM.mx,GM.my);ctx.rotate(tilt*Math.PI/180);if(iCreature.src&&iCreature.complete&&iCreature.naturalWidth)ctx.drawImage(iCreature,-pSize/2,-pSize/2,pSize,pSize);if(iAvatar.src&&iAvatar.complete&&iAvatar.naturalWidth)ctx.drawImage(iAvatar,-avatarSize/2,-pSize*.4,avatarSize,avatarSize);ctx.restore()}}
+        if(!(GM.hurt>0&&Math.floor(GM.hurt/4)%2===0)){let depthScale=.7+GM.my/H*.6,pSize=120*parseFloat(CFG.scale)*depthScale,tilt=(GM.mx-W/2)*.05,avatarSize=pSize*.5;ctx.save();ctx.translate(GM.mx,GM.my);ctx.rotate(tilt*Math.PI/180);if(iCreature.src&&iCreature.complete&&iCreature.naturalWidth)drawContained(iCreature,-pSize/2,-pSize/2,pSize,pSize);if(iAvatar.src&&iAvatar.complete&&iAvatar.naturalWidth)drawContained(iAvatar,-avatarSize/2,-pSize*.4,avatarSize,avatarSize);ctx.restore()}}
         function preGameLoop(){if(GM.run)return;requestAnimationFrame(preGameLoop);GM.bgY+=.5;ctx.clearRect(0,0,W,H);drawBg();if(CFG.editorPreview && ['game','tasks'].includes(editorScene))drawEditorFlight()}
         function hit(obj){if(obj.t==='o'){sfx('boom');GM.hurt=30;let f=document.createElement('div');f.style="position:absolute;top:0;left:0;width:100%;height:100%;background:radial-gradient(circle at center, rgba(255,0,0,0.5) 0%, rgba(255,0,0,0) 70%);pointer-events:none;z-index:99";document.body.appendChild(f);setTimeout(()=>f.remove(),150);if(CFG.timerEnabled){GM.time-=5;if(GM.time<=0)GM.end('timeout')}}else if(obj.t==='c'){sfx('coin');if(CFG.qs.length>0&&obj.qid!==undefined){GM.pause=true;quiz(obj.qid)}}document.getElementById('ui-time').innerText=GM.time;document.getElementById('ui-score').innerText=GM.score}
         function shuffled(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
@@ -634,9 +634,9 @@ var ct=Object.create;var W=Object.defineProperty;var lt=Object.getOwnPropertyDes
         function drawEditorFlight(){
             // A quiet composition for layout editing; no timer or collision runs here.
             const cx=W*.5,cy=H*.66,size=Math.min(W,H)*.24;
-            if(iCreature.complete&&iCreature.naturalWidth)ctx.drawImage(iCreature,cx-size/2,cy-size/2,size,size);
+            if(iCreature.complete&&iCreature.naturalWidth)drawContained(iCreature,cx-size/2,cy-size/2,size,size);
             else{ctx.save();ctx.fillStyle='#c4ad71';ctx.beginPath();ctx.moveTo(cx,cy-size*.2);ctx.lineTo(cx-size*.75,cy+size*.25);ctx.lineTo(cx,cy+size*.05);ctx.lineTo(cx+size*.75,cy+size*.25);ctx.closePath();ctx.fill();ctx.restore();}
-            if(iAvatar.complete&&iAvatar.naturalWidth)ctx.drawImage(iAvatar,cx-size*.23,cy-size*.45,size*.46,size*.46);
+            if(iAvatar.complete&&iAvatar.naturalWidth)drawContained(iAvatar,cx-size*.23,cy-size*.45,size*.46,size*.46);
             for(let i=0;i<5;i++){const x=W*(.15+i*.17),y=H*(.22+(i%2)*.12),r=12+i*2;if(iCoin.complete&&iCoin.naturalWidth)ctx.drawImage(iCoin,x-r,y-r,r*2,r*2);else{ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle='#d4b368';ctx.fill();}}
         }
         function showEditorScene(scene,question=0){
